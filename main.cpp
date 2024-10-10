@@ -83,7 +83,7 @@ std::unique_ptr<csat::DAG> parseCircuitFile(std::ifstream &file, const std::stri
 }
 
 std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<std::string> > > applyPreprocessing(
-    const std::string &basis, std::unique_ptr<csat::DAG> &csat_instance,
+    std::string const& basis, std::unique_ptr<csat::DAG> &csat_instance,
     csat::utils::GateEncoder<std::string> &encoder) {
     if (basis == "AIG") {
         return csat::simplification::Composition<
@@ -197,7 +197,11 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
     csat::simplification::max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
     csat::simplification::circuit_size_by_iter = {0, 0, 0, 0, 0};
     csat::simplification::total_gates_in_subcircuits = 0;
-    auto [processed_instance, processed_encoder] = applyPreprocessing(*program.present("-b"), csat_instance, encoder);
+    std::string basis = program.get<std::string>("--basis");
+    auto [processed_instance, processed_encoder] = applyPreprocessing(
+        basis,
+        csat_instance,
+        encoder);
     encoder = *processed_encoder;
     logger.debug(file_path, ": simplification end.");
 
@@ -217,12 +221,8 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
 }
 
 void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &logger) {
-    auto basis = program.present("-b");
-    if (!basis) {
-        logger.info("No basis specified => Do not read DB.");
-        return;
-    }
-    if (*basis == "BENCH") {
+    std::string basis = program.get<std::string>("--basis");
+    if (basis == "BENCH") {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::bench_db = std::make_shared<csat::simplification::CircuitDB>(
             "database_bench.txt", csat::simplification::Basis::BENCH);
@@ -230,7 +230,7 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.info("Reading databases from database_bench.txt: ", duration, "sec\n");
     }
-    if (*basis == "AIG") {
+    if (basis == "AIG") {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::aig_db = std::make_shared<csat::simplification::CircuitDB>(
             "database_aig.txt", csat::simplification::Basis::AIG);
@@ -240,11 +240,13 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
     }
 }
 
+const std::string DEFAULT_BASIS = "BENCH";
+
 /**
  * Clearing the transferred schema with the ability to write a new schema to a file
  */
 int main(int argn, char **argv) {
-    csat::Logger logger("Preprocessor");
+    csat::Logger logger("Simplify");
     argparse::ArgumentParser program("simplify", "0.1");
 
     program.add_argument("input-path")
@@ -255,6 +257,7 @@ int main(int argn, char **argv) {
             .metavar("FILE")
             .help("path to file for statistics writing");
     program.add_argument("-b", "--basis")
+            .default_value(std::string(DEFAULT_BASIS))
             .help("Choose basis [AIG|BENCH]");
 
     parseArguments(argn, argv, program);

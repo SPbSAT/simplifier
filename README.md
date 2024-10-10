@@ -40,7 +40,7 @@ circuit simplification.
 
 ## Source code structure
 
-todo
+...
 
 
 ## Technical info

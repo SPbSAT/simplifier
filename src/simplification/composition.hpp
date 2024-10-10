@@ -34,8 +34,8 @@ struct Composition : public ITransformer<CircuitT>
                 ITransformer<CircuitT>, OtherTransformersT
             > && ...
         ),
-        "All Preprocessor template args of Composition must implement "
-        "IPreprocessor and be parametrized with CircuitT type."
+        "All simplifier template args of Composition must implement "
+        "ITransformer and be parametrized with CircuitT type."
     );
  
   public:

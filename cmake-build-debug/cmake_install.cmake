@@ -44,12 +44,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/argparse/cmake_install.cmake")
+  include("/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/argparse/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/googletest/cmake_install.cmake")
+  include("/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/googletest/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)

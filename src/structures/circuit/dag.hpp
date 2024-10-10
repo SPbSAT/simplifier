@@ -176,7 +176,7 @@ class DAG : public ICircuit
                 // `at` here is used to implicitly check that
                 // any operand is contained in this graph.
                 // This check is ok, since it is doesn't create
-                // sensible overhead for whole preprocessor.
+                // sensible overhead for whole framework.
                 gates_.at(operand).addUser(gate.getId());
             }
         }

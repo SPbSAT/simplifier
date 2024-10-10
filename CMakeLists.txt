@@ -8,11 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 include_directories(.)
-include_directories(vendor/argparse/include/argparse)
-include_directories(vendor/googletest/googletest/include)
+include_directories(third_party/argparse/include/argparse)
+include_directories(third_party/googletest/googletest/include)
 
-add_subdirectory(vendor/argparse)
-add_subdirectory(vendor/googletest)
+add_subdirectory(third_party/argparse)
+add_subdirectory(third_party/googletest)
 
 add_subdirectory(tests)
 

@@ -10,7 +10,7 @@
 #include "src/simplification/three_inputs_optimization.hpp"
 #include "src/simplification/three_inputs_optimization_bench.hpp"
 
-#include "vendor/argparse/include/argparse/argparse.hpp"
+#include "third_party/argparse/include/argparse/argparse.hpp"
 
 #include <cerrno>
 #include <fstream>
@@ -155,7 +155,7 @@ std::optional<std::ofstream> openFileStat(const argparse::ArgumentParser &progra
 }
 
 void writeStatistics(std::optional<std::ofstream> &file_stat, const std::string &file_path, int64_t gatesBefore,
-                     int64_t gatesAfter, long double preprocessorTime,
+                     int64_t gatesAfter, long double simplifyTime,
                      std::vector<int32_t> subcircuits_number_by_iter,
                      std::vector<int32_t> skipped_subcircuits_by_iter,
                      std::vector<int32_t> max_subcircuit_size_by_iter,
@@ -163,7 +163,7 @@ void writeStatistics(std::optional<std::ofstream> &file_stat, const std::string 
                      int64_t iterationsNumber, int64_t total_gates_in_subcircuits) {
     if (file_stat) {
         *file_stat << std::setprecision(3) << std::fixed;
-        *file_stat << file_path << "," << gatesBefore << "," << gatesAfter << "," << preprocessorTime;
+        *file_stat << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
         for (auto t: subcircuits_number_by_iter) {
             *file_stat << "," << t;
         }
@@ -203,11 +203,11 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
 
     auto timeEnd = std::chrono::steady_clock::now();
     int64_t gatesAfter = processed_instance->getNumberOfGates();
-    double preprocessorTime = std::chrono::duration<double>(timeEnd - timeStart).count();
+    double simplifyTime = std::chrono::duration<double>(timeEnd - timeStart).count();
 
     writeOutputFiles(program, processed_instance, encoder, file_path);
     writeStatistics(file_stat, file_path, gatesBefore, gatesAfter,
-        preprocessorTime, csat::simplification::subcircuits_number_by_iter,
+        simplifyTime, csat::simplification::subcircuits_number_by_iter,
         csat::simplification::skipped_subcircuits_by_iter,
         csat::simplification::max_subcircuit_size_by_iter,
         csat::simplification::circuit_size_by_iter,
@@ -245,7 +245,7 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
  */
 int main(int argn, char **argv) {
     csat::Logger logger("Preprocessor");
-    argparse::ArgumentParser program("csat_preprocessor", "0.1");
+    argparse::ArgumentParser program("simplify", "0.1");
 
     program.add_argument("input-path")
             .help("directory with input .BENCH files");

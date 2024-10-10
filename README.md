@@ -1,28 +1,16 @@
-# Circuit SAT Preprocessor
+# Simplify: a tool for a boolean circuit simplification.
 
-`preprocessor` is a program, that accepts an arbitrary circuit instance in `BENCH`
-format and returns (stdout or file) equivalent circuit, transformed in a way to
-reduce number of gates in it.
+Simplify is a program, that accepts an arbitrary circuit instance provided in `BENCH` or `AIG`
+format and returns (stdout or file) equivalent circuit, transformed in such a way as to reduce
+the number of gates in it.
 
-## Environment
+## Building and execution
 
-Preprocessor is written using C++20, and is ready to be compiled on some common Linux distributive,
-e.g. Ubuntu.
+### Building
 
-Preprocessor has one external dependency: [argparse](https://github.com/p-ranav/argparse/tree/v2.9). 
-It is used to ease CLI arguments parsing.
+Simplify can be built using `cmake` tool.
 
-Preprocessor also includes one development dependency: [GoogleTest](https://github.com/google/googletest).
-Gtest is used to run unit tests which cover main logic of preprocessor.
-
-To make this code package whole, `argparse` and `gtest` repository snapshots are included in this
-archive and are presented in the `vendor/` directory. 
-
-## Building
-
-Preprocessor is build using `cmake` tool.
-
-To build `preprocessor` binary execute following steps
+To build `simplify` binary execute following steps
 
 ```
 $ mkdir build
@@ -31,18 +19,46 @@ $ cmake [-DCMAKE_BUILD_TYPE=[Release|Debug]] ..
 $ cmake --build .
 ```
 
-As a result `preprocessor` binary will be built.
+As a result ``simplify`` binary will be built.
 
-To get info on how preprocessor should be used execute resulting binary with following command:
+To get info on how ``simplify`` should be used execute resulting binary with following command:
 
+```sh
+$ simplify --help
 ```
-$ ./preprocessor --help
-```
 
-## Launching
+### Execution
 
-Preprocessor supports simplification in 2 basis: BENCH and AIG
+Simplify supports simplification of circuit provided in one of two bases: `AIG` or `BENCH`.
 
-To run simplification in the following basis you need to have a database with small circuits in the same directory with running script named as ```database_aig.txt``` or ```database_bench.txt``` respectively
+To run simplification in the following basis you need to have a database with small circuits in the
+same directory with running script named as `database_aig.txt` or `database_bench.txt` respectively.
 
-Both databases arre already presented and you can use them for circuit simplification and are stored in ```/core/databases``` directory
+Both databases are already presented in the `./databases` directory and are ready to be used for a
+circuit simplification.
+
+
+## Source code structure
+
+todo
+
+
+## Technical info
+
+### Platform
+
+Simplify is written using C++20. Simplify was developed and tested on Ubuntu 24.04 with gcc x86-64
+compiler, but should not cause any problems on other common Linux distributions.
+
+### Dependencies
+
+Simplify utilizes external library [argparse](https://github.com/p-ranav/argparse/tree/v2.9) to ease
+CLI arguments parsing and usage. Also test framework [GoogleTest](https://github.com/google/googletest).
+is used to run unit tests which cover main functionalities of the tool.
+
+To make this code snapshot whole, `argparse` and `gtest` repository snapshots are vendored
+alongside it and are presented in the `third_party/` directory.
+
+### Tools
+
+...

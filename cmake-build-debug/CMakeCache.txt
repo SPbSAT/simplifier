@@ -344,13 +344,13 @@ GTEST_HAS_ABSL:BOOL=OFF
 INSTALL_GTEST:BOOL=ON
 
 //Value Computed by CMake
-argparse_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/argparse
+argparse_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/argparse
 
 //Value Computed by CMake
 argparse_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-argparse_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/vendor/argparse
+argparse_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/third_party/argparse
 
 //Value Computed by CMake
 csat_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug
@@ -362,7 +362,7 @@ csat_IS_TOP_LEVEL:STATIC=ON
 csat_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool
 
 //Value Computed by CMake
-gmock_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/googletest/googlemock
+gmock_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/googletest/googlemock
 
 //Value Computed by CMake
 gmock_IS_TOP_LEVEL:STATIC=OFF
@@ -371,7 +371,7 @@ gmock_IS_TOP_LEVEL:STATIC=OFF
 gmock_LIB_DEPENDS:STATIC=general;gtest;
 
 //Value Computed by CMake
-gmock_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/vendor/googletest/googlemock
+gmock_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/third_party/googletest/googlemock
 
 //Build all of Google Mock's own tests.
 gmock_build_tests:BOOL=OFF
@@ -380,22 +380,22 @@ gmock_build_tests:BOOL=OFF
 gmock_main_LIB_DEPENDS:STATIC=general;gmock;
 
 //Value Computed by CMake
-googletest-distribution_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/googletest
+googletest-distribution_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/googletest
 
 //Value Computed by CMake
 googletest-distribution_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-googletest-distribution_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/vendor/googletest
+googletest-distribution_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/third_party/googletest
 
 //Value Computed by CMake
-gtest_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/googletest/googletest
+gtest_BINARY_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/googletest/googletest
 
 //Value Computed by CMake
 gtest_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-gtest_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/vendor/googletest/googletest
+gtest_SOURCE_DIR:STATIC=/home/spefk/Work/github/circuitsat_tool/third_party/googletest/googletest
 
 //Build gtest's sample programs.
 gtest_build_samples:BOOL=OFF
@@ -657,7 +657,7 @@ _Python_INTERPRETER_SIGNATURE:INTERNAL=4c8bfa8951e99fa32e4000a94f8c04a2
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=
 cmake_package_name:INTERNAL=GTest
-generated_dir:INTERNAL=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/vendor/googletest/googletest/generated
+generated_dir:INTERNAL=/home/spefk/Work/github/circuitsat_tool/cmake-build-debug/third_party/googletest/googletest/generated
 //ADVANCED property for variable: gmock_build_tests
 gmock_build_tests-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: gtest_build_samples

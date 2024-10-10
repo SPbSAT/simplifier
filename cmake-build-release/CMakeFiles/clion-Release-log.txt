@@ -1,5 +1,0 @@
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/home/spefk/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/223.7571.171/bin/ninja/linux/ninja -G Ninja -S /home/spefk/Work/github/circuitsat_tool -B /home/spefk/Work/github/circuitsat_tool/cmake-build-release
--- Build mode is Release
--- Configuring done (0.1s)
--- Generating done (0.0s)
--- Build files have been written to: /home/spefk/Work/github/circuitsat_tool/cmake-build-release

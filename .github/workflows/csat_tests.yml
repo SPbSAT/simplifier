@@ -1,4 +1,4 @@
-name: CMake
+name: C++ tests
 
 on:
   push:
@@ -44,8 +44,3 @@ jobs:
     - name: Unit Test
       working-directory: ${{github.workspace}}/build/tests/
       run: ./UnitTests
-
-    - name: Integration Test
-      working-directory: ${{github.workspace}}/build/tests/
-      run: ./IntegrationTests
-

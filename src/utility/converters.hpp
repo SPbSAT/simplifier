@@ -2,6 +2,9 @@
 
 #include "src/common/csat_types.hpp"
 
+#include <string>
+#include <functional>
+#include <string_view>
 #include <unordered_map>
 #include <map>
 

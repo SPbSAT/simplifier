@@ -75,7 +75,7 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     };
 
   private:
-    inline GateId get_operand(CircuitT const& circuit, GateId gateId)
+    GateId get_operand(CircuitT const& circuit, GateId gateId)
     {
         bool flag = false;
         GateId check_gate = circuit.getGateOperands(gateId).at(0);

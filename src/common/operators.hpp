@@ -1,13 +1,11 @@
 #pragma once
 
 #include "src/common/csat_types.hpp"
-#include "src/utility/converters.hpp"
 
 #include <cassert>
+#include <cstdint>
 #include <functional>
-#include <numeric>
-#include <string>
-#include <unordered_map>
+#include <vector>
 
 
 /** Namespace contains functions that evaluate different Operators. **/
@@ -28,9 +26,9 @@ namespace csat::op
 using Operator = GateState(*)(GateState, GateState, GateState);
 
 
-inline GateState NOT(GateState a, GateState=GateState::UNDEFINED, GateState=GateState::UNDEFINED) noexcept
+inline GateState NOT(GateState a, GateState /*unused*/=GateState::UNDEFINED, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber]
+    static GateState const table_[GateStateNumber]
     {
         GateState::TRUE,        // GateState::FALSE
         GateState::FALSE,       // GateState::TRUE
@@ -39,9 +37,9 @@ inline GateState NOT(GateState a, GateState=GateState::UNDEFINED, GateState=Gate
     return table_[static_cast<uint8_t>(a)];
 }
 
-inline GateState AND(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState AND(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::FALSE, GateState::FALSE,     GateState::FALSE,       // GateState::FALSE
         GateState::FALSE, GateState::TRUE,      GateState::UNDEFINED,   // GateState::TRUE
@@ -50,9 +48,9 @@ inline GateState AND(GateState a, GateState b, GateState=GateState::UNDEFINED) n
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState OR(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState OR(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::FALSE,     GateState::TRUE, GateState::UNDEFINED,    // GateState::FALSE
         GateState::TRUE,      GateState::TRUE, GateState::TRUE,         // GateState::TRUE
@@ -61,9 +59,9 @@ inline GateState OR(GateState a, GateState b, GateState=GateState::UNDEFINED) no
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState XOR(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState XOR(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::FALSE,     GateState::TRUE,      GateState::UNDEFINED,   // GateState::FALSE
         GateState::TRUE,      GateState::FALSE,     GateState::UNDEFINED,   // GateState::TRUE
@@ -72,9 +70,9 @@ inline GateState XOR(GateState a, GateState b, GateState=GateState::UNDEFINED) n
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState NAND(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState NAND(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::TRUE, GateState::TRUE,      GateState::TRUE,         // GateState::FALSE
         GateState::TRUE, GateState::FALSE,     GateState::UNDEFINED,    // GateState::TRUE
@@ -83,9 +81,9 @@ inline GateState NAND(GateState a, GateState b, GateState=GateState::UNDEFINED) 
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState NOR(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState NOR(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::TRUE,      GateState::FALSE, GateState::UNDEFINED,   // GateState::FALSE
         GateState::FALSE,     GateState::FALSE, GateState::FALSE,       // GateState::TRUE
@@ -94,9 +92,9 @@ inline GateState NOR(GateState a, GateState b, GateState=GateState::UNDEFINED) n
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState NXOR(GateState a, GateState b, GateState=GateState::UNDEFINED) noexcept
+inline GateState NXOR(GateState a, GateState b, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber * GateStateNumber]
+    static GateState const table_[GateStateNumber * GateStateNumber]
     {
         GateState::TRUE,      GateState::FALSE,     GateState::UNDEFINED,   // GateState::FALSE
         GateState::FALSE,     GateState::TRUE,      GateState::UNDEFINED,   // GateState::TRUE
@@ -105,9 +103,9 @@ inline GateState NXOR(GateState a, GateState b, GateState=GateState::UNDEFINED) 
     return table_[static_cast<uint8_t>(a) * GateStateNumber + static_cast<uint8_t>(b)];
 }
 
-inline GateState IFF(GateState a, GateState=GateState::UNDEFINED, GateState=GateState::UNDEFINED) noexcept
+inline GateState IFF(GateState a, GateState /*unused*/=GateState::UNDEFINED, GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
-    static GateState table_[GateStateNumber]
+    static GateState const table_[GateStateNumber]
         {
             GateState::FALSE,       // GateState::FALSE
             GateState::TRUE,        // GateState::TRUE
@@ -118,7 +116,7 @@ inline GateState IFF(GateState a, GateState=GateState::UNDEFINED, GateState=Gate
 
 inline GateState MUX(GateState x, GateState y, GateState z) noexcept
 {
-    static GateState table_[3 * GateStateNumber * GateStateNumber]
+    static GateState const table_[3 * GateStateNumber * GateStateNumber]
         {
             // x is FALSE, then we take value of y
             GateState::FALSE,     GateState::FALSE,     GateState::FALSE,       // GateState::FALSE
@@ -141,17 +139,17 @@ inline GateState MUX(GateState x, GateState y, GateState z) noexcept
 }
 
 inline GateState CONST_FALSE(
-    GateState=GateState::UNDEFINED,
-    GateState=GateState::UNDEFINED,
-    GateState=GateState::UNDEFINED) noexcept
+    GateState /*unused*/=GateState::UNDEFINED,
+    GateState /*unused*/=GateState::UNDEFINED,
+    GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
     return GateState::FALSE;
 }
 
 inline GateState CONST_TRUE(
-    GateState=GateState::UNDEFINED,
-    GateState=GateState::UNDEFINED,
-    GateState=GateState::UNDEFINED) noexcept
+    GateState /*unused*/=GateState::UNDEFINED,
+    GateState /*unused*/=GateState::UNDEFINED,
+    GateState /*unused*/=GateState::UNDEFINED) noexcept
 {
     return GateState::TRUE;
 }

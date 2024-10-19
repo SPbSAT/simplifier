@@ -13,8 +13,8 @@ namespace csat::utils::string_utils
  */
 inline void trimSpaces(std::string_view& str)
 {
-    size_t _b = str.find_first_not_of(' ');
-    size_t _e = str.find_last_not_of(' ');
+    size_t const _b = str.find_first_not_of(' ');
+    size_t const _e = str.find_last_not_of(' ');
     if (_b != std::string::npos)
     {
         str = str.substr(_b, _e - _b + 1);

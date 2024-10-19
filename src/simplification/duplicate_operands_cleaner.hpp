@@ -104,7 +104,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                 if (map_count_operands.size() == 1)
                 {
                     // В мапе уже правильные (перевешанные) гейты. Нет необходимости использовать getLink_
-                    GateId unique_operand = map_count_operands.begin()->first;
+                    GateId const unique_operand = map_count_operands.begin()->first;
                     if (gate_type == GateType::AND
                         || gate_type == GateType::OR
                         || gate_type == GateType::XOR)
@@ -115,7 +115,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     else
                     {
                         // Create NOT.
-                        GateId new_gate_id = encoder->encodeGate(
+                        GateId const new_gate_id = encoder->encodeGate(
                             getNewGateName_(new_gate_name_prefix, circuit_size));
                         gate_info.emplace_back(
                             GateType::NOT,
@@ -194,7 +194,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     else // NXOR
                     {
                         // Create NOT.
-                        GateId new_gate_id = encoder->encodeGate(
+                        GateId const new_gate_id = encoder->encodeGate(
                             getNewGateName_(new_gate_name_prefix, circuit_size));
                         assert(new_gate_id == circuit_size);
                         gate_info.emplace_back(
@@ -263,7 +263,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
     };
     
   private:
-    inline std::map<GateId, size_t> transformOperands_(
+    std::map<GateId, size_t> transformOperands_(
         CircuitT const& circuit,
         GateId gate_id,
         std::vector<GateId> const& old_to_new_gateId)
@@ -313,7 +313,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         return map_count_operands;
     }
     
-    inline GateId getLink_(
+    GateId getLink_(
         GateId gate_id,
         std::vector<GateId> const& old_to_new_gateId)
     {
@@ -325,7 +325,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         return gate_id;
     }
     
-    inline bool areThereOppositeOperands_(
+    bool areThereOppositeOperands_(
         GateInfoContainer const& gate_info,
         std::map<GateId, size_t> const& map_count_operands)
     {
@@ -342,7 +342,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             });
     }
     
-    inline GateIdContainer rebuildXORAndNXOR_(
+    GateIdContainer rebuildXORAndNXOR_(
         GateInfoContainer const& gate_info,
         std::map<GateId, size_t>& map_count_operands)
     {
@@ -361,7 +361,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             if (gate_info.at(operand).getType() == GateType::NOT
                 && map_count_operands[operand] > 0)
             {
-                GateId operand_of_not = gate_info.at(operand).getOperands().at(0);
+                GateId const operand_of_not = gate_info.at(operand).getOperands().at(0);
                 if (map_count_operands.find(operand_of_not) != map_count_operands.end()
                     && map_count_operands[operand_of_not] > 0)
                 {

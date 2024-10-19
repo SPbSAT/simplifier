@@ -1,12 +1,21 @@
 #pragma once
 
 #include "src/common/csat_types.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/utility/converters.hpp"
 
 #include "src/structures/circuit/icircuit_builder.hpp"
-#include "src/structures/circuit/dag.hpp"
 
 #include "src/parser/ibench_parser.hpp"
+#include <type_traits>
+#include "src/utility/logger.hpp"
+#include <memory>
+#include <string_view>
+#include <iostream>
+#include <ostream>
+#include <cstdlib>
+#include <cassert>
 
 /**
  * Parser from `CircuitSAT.BENCH` file.
@@ -34,9 +43,9 @@ class BenchToCircuit :
     Logger logger{"BenchToCircuit"};
     
     /* List of output gates. */
-    GateIdContainer _output_gate_ids{};
+    GateIdContainer _output_gate_ids;
     /* Vector of gate info. */
-    GateInfoContainer _gate_info_vector{};
+    GateInfoContainer _gate_info_vector;
   
   public:
     BenchToCircuit() = default;
@@ -66,7 +75,7 @@ class BenchToCircuit :
      * Circuit input handler.
      * @param var_name -- name of processed variable.
      */
-    inline void handleInput(GateId gateId) final
+    void handleInput(GateId gateId) final
     {
         IBenchParser::logger.debug("\tEncoded name: \"", gateId, "\".");
         _addGate(gateId, GateType::INPUT, {});
@@ -76,7 +85,7 @@ class BenchToCircuit :
      * Circuit output handler.
      * @param var_name -- name of processed variable.
      */
-    inline void handleOutput(GateId gateId) final
+    void handleOutput(GateId gateId) final
     {
         IBenchParser::logger.debug("\tEncoded name: \"", gateId, "\".");
         _output_gate_ids.push_back(gateId);
@@ -88,13 +97,13 @@ class BenchToCircuit :
      * @param gateId -- gate.
      * @param var_operands -- operands of gate.
      */
-    inline void handleGate(std::string_view op, GateId gateId, GateIdContainer const& var_operands) final
+    void handleGate(std::string_view op, GateId gateId, GateIdContainer const& var_operands) final
     {
         auto op_type = csat::utils::stringToGateType(std::string(op));
         _addGate(gateId, op_type, var_operands);
     };
     
-    inline bool specialOperatorCallback_(
+    bool specialOperatorCallback_(
         GateId gateId,
         std::string_view op,
         std::string_view operands_str) final

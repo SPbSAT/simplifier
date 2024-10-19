@@ -1,12 +1,14 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
 #include "src/simplification/composition.hpp"
 #include "src/simplification/duplicate_gates_cleaner.hpp"
 #include "src/simplification/redundant_gates_cleaner.hpp"
 #include "src/simplification/reduce_not_composition.hpp"
 #include "src/simplification/duplicate_operands_cleaner.hpp"
 #include "src/simplification/constant_gate_reducer.hpp"
+#include <type_traits>
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/dag.hpp"
 
 
 namespace csat::simplification

@@ -19,7 +19,7 @@ struct GateInfo
 {
   protected:
     GateType type_ = GateType::UNDEFINED;
-    GateIdContainer operands_{};
+    GateIdContainer operands_;
   
   public:
     GateInfo() = default;

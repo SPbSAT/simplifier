@@ -2,8 +2,12 @@
 
 #include "src/common/csat_types.hpp"
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <map>
+#include <string>
+#include <string_view>
 
 
 namespace csat::utils
@@ -95,8 +99,8 @@ class GateEncoder<std::string>
 {
   protected:
     size_t next_var_ = 0;
-    std::map<std::string, GateId, std::less<>> encoder_{};
-    std::map<GateId, std::string> decoder_{};
+    std::map<std::string, GateId, std::less<>> encoder_;
+    std::map<GateId, std::string> decoder_;
    
   public:
     GateEncoder() = default;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <filesystem>
 #include <map>
 
@@ -15,7 +16,7 @@ namespace csat::simplification {
         std::vector<int32_t> OPER_number;
         std::vector<std::vector<GateType>> gates_operations;
 
-        inline CircuitDB(const std::filesystem::path &db_path, Basis basis) {
+        CircuitDB(const std::filesystem::path &db_path, Basis basis) {
             if (basis == Basis::BENCH) {
                 read_bench(db_path);
             } else if (basis == Basis::AIG) {
@@ -23,12 +24,12 @@ namespace csat::simplification {
             }
         }
 
-        inline void read_bench(const std::filesystem::path &db_path) {
+        void read_bench(const std::filesystem::path &db_path) {
             std::ifstream database(db_path);
             int32_t subcircuit_index = 0;
-            size_t inputs_number;
+            size_t inputs_number = 0;
             while (database >> inputs_number) {
-                size_t outputs_number;
+                size_t outputs_number = 0;
                 database >> outputs_number;
                 std::vector<int32_t> outputs_patterns(outputs_number);
                 for (size_t i = 0; i < outputs_number; ++i) {
@@ -50,7 +51,8 @@ namespace csat::simplification {
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1, operand_2;
+                    GateId operand_1;
+                    GateId operand_2;
 
                     database >> operation;
                     if (operation == "AND") {
@@ -88,12 +90,12 @@ namespace csat::simplification {
             }
         }
 
-        inline void read_aig(const std::filesystem::path &db_path) {
+        void read_aig(const std::filesystem::path &db_path) {
             std::ifstream database(db_path);
             int32_t subcircuit_index = 0;
-            size_t inputs_number;
+            size_t inputs_number = 0;
             while (database >> inputs_number) {
-                size_t outputs_number;
+                size_t outputs_number = 0;
                 database >> outputs_number;
                 std::vector<int32_t> outputs_patterns(outputs_number);
                 for (size_t i = 0; i < outputs_number; ++i) {
@@ -115,7 +117,8 @@ namespace csat::simplification {
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1, operand_2;
+                    GateId operand_1;
+                    GateId operand_2;
 
                     database >> operation;
                     if (operation == "AND") {

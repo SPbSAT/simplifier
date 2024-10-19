@@ -22,7 +22,7 @@ struct VectorAssignment : public IAssignment
 {
   protected:
     /* carries current assignment in a vector */
-    StateVector gate_state_{};
+    StateVector gate_state_;
    
   public:
     VectorAssignment() = default;

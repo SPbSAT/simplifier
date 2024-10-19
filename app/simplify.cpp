@@ -156,10 +156,10 @@ std::optional<std::ofstream> openFileStat(const argparse::ArgumentParser &progra
 
 void writeStatistics(std::optional<std::ofstream> &file_stat, const std::string &file_path, int64_t gatesBefore,
                      int64_t gatesAfter, long double simplifyTime,
-                     std::vector<int32_t> subcircuits_number_by_iter,
-                     std::vector<int32_t> skipped_subcircuits_by_iter,
-                     std::vector<int32_t> max_subcircuit_size_by_iter,
-                     std::vector<int32_t> circuit_size_by_iter,
+                     std::vector<int32_t> const& subcircuits_number_by_iter,
+                     std::vector<int32_t> const& skipped_subcircuits_by_iter,
+                     std::vector<int32_t> const& max_subcircuit_size_by_iter,
+                     std::vector<int32_t> const& circuit_size_by_iter,
                      int64_t iterationsNumber, int64_t total_gates_in_subcircuits) {
     if (file_stat) {
         *file_stat << std::setprecision(3) << std::fixed;

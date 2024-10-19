@@ -1,9 +1,9 @@
 #pragma once
 
-#include "src/common/csat_types.hpp"
 
 
 #include <cassert>
+#include <cstdint>
 #include <random>
 
 

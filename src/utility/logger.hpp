@@ -4,7 +4,6 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-#include <string_view>
 #include <cstdint>
 #include <utility>
 
@@ -68,8 +67,7 @@ class Logger
 {
 public:
   std::string name;
- 
-public:
+  
   Logger() noexcept : name("Logger") {};
   explicit Logger(std::string const& _name) noexcept : name(_name) {}
   explicit Logger(std::string&& _name) noexcept : name(std::move(_name)) {}
@@ -77,7 +75,7 @@ public:
   ~Logger() = default;
   
   template<class T, class ... Args>
-  inline void debug(T const& t, Args const& ...args) const
+  void debug(T const& t, Args const& ...args) const
   {
       if constexpr (LogLevel::DEBUG >= CompileLogLevel)
       {
@@ -86,7 +84,7 @@ public:
   }
   
   template<class T, class ... Args>
-  inline void info(T const& t, Args const& ...args) const
+  void info(T const& t, Args const& ...args) const
   {
       if constexpr (LogLevel::INFO >= CompileLogLevel)
       {
@@ -95,7 +93,7 @@ public:
   }
   
   template<class T, class ... Args>
-  inline void warning(T const& t, Args const& ...args) const
+  void warning(T const& t, Args const& ...args) const
   {
       if constexpr (LogLevel::WARNING >= CompileLogLevel)
       {
@@ -104,7 +102,7 @@ public:
   }
   
   template<class T, class ... Args>
-  inline void error(T const& t, Args const& ...args) const
+  void error(T const& t, Args const& ...args) const
   {
       if constexpr (LogLevel::ERROR >= CompileLogLevel)
       {
@@ -113,7 +111,7 @@ public:
   }
   
 private:
-  inline static std::string _getCurrentTime()
+  static std::string _getCurrentTime()
   {
       auto cur_time = std::chrono::system_clock::to_time_t(
           std::chrono::system_clock::now()

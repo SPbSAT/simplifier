@@ -232,7 +232,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     };
   
   private:
-    inline GateId getLink_(
+    GateId getLink_(
         GateId gate_id,
         std::vector<GateId> const& old_to_new_gateId)
     {
@@ -243,7 +243,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
         return gate_id;
     }
     
-    inline void createMiniCircuit_(
+    void createMiniCircuit_(
         GateInfoContainer& gate_info,
         GateEncoder<std::string>& encoder,
         GateIdContainer& new_output_gates,
@@ -266,9 +266,9 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     
         // We take first found already existing input to enforce connection
         // between original circuit gates and a newly built constant gadget.
-        GateId left = gate_id_input;
-        GateId right = circuit_size;
-        GateId output = circuit_size + 1;
+        GateId const left = gate_id_input;
+        GateId const right = circuit_size;
+        GateId const output = circuit_size + 1;
         
         // Changing reference.
         circuit_size += 2;

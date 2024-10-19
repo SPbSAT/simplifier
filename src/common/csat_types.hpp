@@ -1,12 +1,9 @@
 #pragma once
 
-#include "src/utility/logger.hpp"
 
-#include <algorithm>
+#include <cstddef>
 #include <cstdint>
-#include <utility>
 #include <vector>
-#include <set>
 
 
 /**

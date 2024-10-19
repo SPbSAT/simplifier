@@ -1,10 +1,13 @@
-#include "src/structures/circuit/dag.hpp"
+#include "src/common/csat_types.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 #include "src/utility/converters.hpp"
 #include "src/utility/encoder.hpp"
+#include "src/utility/logger.hpp"
 
+#include <cstddef>
 #include <string>
 #include <fstream>
-#include <iostream>
+#include <type_traits>
 
 namespace csat {
 
@@ -24,7 +27,7 @@ void WriteBenchFile(
     csat::utils::GateEncoder<std::string> const& encoder,
     std::ofstream& file_out)
 {
-    csat::Logger logger("WriteBenchFile");
+    csat::Logger const logger("WriteBenchFile");
     logger.debug("WriteBenchFile start.");
     
     logger.debug("recording INPUTs.");

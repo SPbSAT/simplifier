@@ -16,6 +16,8 @@ Checks: "*,
         -readability-avoid-const-params-in-decls,
         -cppcoreguidelines-non-private-member-variables-in-classes,
         -misc-non-private-member-variables-in-classes,
+        -performance-avoid-endl,
+        -readability-identifier-length,
 "
 WarningsAsErrors: 'true'
 HeaderFileExtensions:

@@ -1,12 +1,15 @@
 #pragma once
 
 #include "src/common/csat_types.hpp"
-#include "src/structures/circuit/dag.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 #include "src/utility/encoder.hpp"
 #include "src/utility/random.hpp"
 
+#include <string>
+#include <random>
 #include <type_traits>
 #include <memory>
+#include <utility>
 
 
 namespace csat::simplification

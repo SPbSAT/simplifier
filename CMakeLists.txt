@@ -30,11 +30,15 @@ MESSAGE(STATUS "Build mode is ${CMAKE_BUILD_TYPE}")
 # ================================== COMPILER FLAGS ================================= #
 
 # Enable warnings on compile stage.
-if (MSVC)
-    add_compile_options(/W4 /WX)
-else ()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wall -Wextra -pedantic -Werror)
-endif ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(/W4 /WX)
+else()
+
+endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
@@ -52,11 +56,20 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -DBUFF_IS_IFF -DENABLE_D
 # 3. Flag `-ffast-math` is enabled since all important variables are integer variations,
 #    and floating point calculations are used only in supportive heuristic mechanisms.
 #
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DBUFF_IS_IFF -ffast-math -fgcse-sm -fgcse-las -fdevirtualize-at-ltrans")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fipa-pta -floop-parallelize-all -ftree-vectorize -fstdarg-opt")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DBUFF_IS_IFF")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -ftree-vectorize")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -fgcse-sm -fgcse-las -fdevirtualize-at-ltrans")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fipa-pta -floop-parallelize-all -ftree-vectorize -fstdarg-opt")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fmodulo-sched -fmodulo-sched-allow-regmoves -fgraphite-identity")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ftree-loop-im -fivopts -fsplit-ivs-in-unroller -fprefetch-loop-arrays ")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fmodulo-sched -fmodulo-sched-allow-regmoves -fgraphite-identity")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ftree-loop-im -fivopts -fsplit-ivs-in-unroller -fprefetch-loop-arrays ")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+else()
+
+endif()
 
 # *********************************************************************************** #
 

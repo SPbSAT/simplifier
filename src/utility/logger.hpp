@@ -71,8 +71,8 @@ public:
  
 public:
   Logger() noexcept : name("Logger") {};
-  explicit Logger(std::string const& name) noexcept : name(name) {}
-  explicit Logger(std::string&& name) noexcept : name(std::move(name)) {}
+  explicit Logger(std::string const& _name) noexcept : name(_name) {}
+  explicit Logger(std::string&& _name) noexcept : name(std::move(_name)) {}
   
   ~Logger() = default;
   

@@ -65,7 +65,8 @@ alongside it and are presented in the `third_party/` directory.
 
 #### Linter
 
-To manually run `clang-tidy` one needs to compile cmake project to use its
-artifact `build/compile_commands.json`. To run linter simply run a command:
+To manually run `clang-tidy`, first one needs to compile cmake project to be able
+to use a build artifact `build/compile_commands.json`. Then one will be able to
+run linter by a simple command:
 
-```clang-tidy -p build/ ./src/**/*```
+```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy```

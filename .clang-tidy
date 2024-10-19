@@ -1,0 +1,17 @@
+---
+Checks: '-*,modernize-*,-modernize-use-trailing-return-type,-modernize-avoid-c-arrays,-modernize-type-traits,-modernize-use-constraints'
+WarningsAsErrors: 'true'
+HeaderFileExtensions:
+  - ''
+  - h
+  - hh
+  - hpp
+  - hxx
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+HeaderFilterRegex: '.*'
+...
+

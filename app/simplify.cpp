@@ -225,7 +225,7 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
     if (basis == "BENCH") {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::bench_db = std::make_shared<csat::simplification::CircuitDB>(
-            "database_bench.txt", csat::simplification::Basis::BENCH);
+            "database_bench.txt", csat::Basis::BENCH);
         auto timeEnd = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.info("Reading databases from database_bench.txt: ", duration, "sec\n");
@@ -233,7 +233,7 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
     if (basis == "AIG") {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::aig_db = std::make_shared<csat::simplification::CircuitDB>(
-            "database_aig.txt", csat::simplification::Basis::AIG);
+            "database_aig.txt", csat::Basis::AIG);
         auto timeEnd = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.info("Reading databases from database_aig.txt: ", duration, "sec\n");

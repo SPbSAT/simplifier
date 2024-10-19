@@ -72,6 +72,13 @@ constexpr size_t SupportedOperatorNumber = 11;
 constexpr size_t FirstOperatorIdx = 1;
 
 
+/** Type of a circuit basis (set of allowed operators). **/
+enum class Basis : uint8_t {
+    BENCH,
+    AIG
+};
+
+
 /**
  * @return index of gateType among all gate operator types.
  */

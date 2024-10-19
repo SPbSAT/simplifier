@@ -2,12 +2,10 @@
 
 #include <filesystem>
 
-namespace csat::simplification {
+#include "src/common/csat_types.hpp"
 
-    enum class Basis {
-        BENCH,
-        AIG
-    };
+
+namespace csat::simplification {
 
     struct CircuitDB {
         std::map<std::vector<int32_t>, int32_t> subcircuit_pattern_to_index;
@@ -44,8 +42,8 @@ namespace csat::simplification {
                 }
                 subcircuit_outputs.push_back(cur_outputs);
 
-                gates_operands.push_back({});
-                gates_operations.push_back({});
+                gates_operands.emplace_back();
+                gates_operations.emplace_back();
                 OPER_number.push_back(0);
 
                 for (size_t i = 3; i <= max_index; ++i) {
@@ -108,9 +106,9 @@ namespace csat::simplification {
                     max_index = std::max(max_index, cur_outputs[i]);
                 }
                 subcircuit_outputs.push_back(cur_outputs);
-
-                gates_operands.push_back({});
-                gates_operations.push_back({});
+    
+                gates_operands.emplace_back();
+                gates_operations.emplace_back();
                 OPER_number.push_back(0);
 
                 for (size_t i = 3; i <= max_index; ++i) {

@@ -62,7 +62,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ftree-loop-im -fivopts 
 
 # =================================== PREPROCESSOR =================================== #
 
-add_executable(simplify main.cpp)
+add_executable(simplify app/simplify.cpp)
 target_link_libraries(simplify argparse)
 
 # *********************************************************************************** #

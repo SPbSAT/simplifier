@@ -58,7 +58,6 @@ class ITransformer
 };
 
 
-// TODO: Remove logic below when mutable circuit is ready.
 static std::string getUniqueId_()
 {
     // Currently not the best way of random number generation

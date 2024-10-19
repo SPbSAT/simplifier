@@ -223,7 +223,7 @@ inline GateState FoldMapOperator_(
 
 }
 
-} // namespace anonymous
+} // namespace
 
 
 template<class T>

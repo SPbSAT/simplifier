@@ -7,8 +7,10 @@ Checks: "-*,
         modernize-*,
         misc-*,
         performance-*,
-        -modernize-use-trailing-return-type,
+        -cppcoreguidelines-avoid-c-arrays,
+        -cppcoreguidelines-pro-bounds-constant-array-index,
         -modernize-avoid-c-arrays,
+        -modernize-use-trailing-return-type,
         -modernize-type-traits,
         -modernize-use-constraints,
         -readability-else-after-return,
@@ -19,7 +21,7 @@ Checks: "-*,
         -performance-avoid-endl,
         -readability-identifier-length,
 "
-WarningsAsErrors: 'true'
+WarningsAsErrors: true
 HeaderFileExtensions:
   - h
   - hh

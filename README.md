@@ -76,18 +76,20 @@ To manually run `clang-tidy`, first one needs to compile cmake project to be abl
 to use a build artifact `build/compile_commands.json`. Then one will be able to
 run linter by a simple command:
 
-```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy```
+`clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy`
 
 To make `cland-tidy` fix warnings for you, simply run same command with flags
 `--fix` and `--fix-errors`:
 
-```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes```
+clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes`
 
 Though it may break code in some cases, so be careful and check all made fixes.
 
 #### Formatter
 
 `clang-format` is used to maintain code uniformity.
+
+`find ./src/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" -i`
 
 ### Tools
 

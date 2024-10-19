@@ -2,13 +2,18 @@
 
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/utility/converters.hpp"
 #include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
 #include <ranges>
+#include <utility>
 #include <vector>
-#include <type_traits>
 #include <map>
 #include <memory>
 

@@ -21,6 +21,7 @@ Checks: "-*,
         -performance-avoid-endl,
         -readability-identifier-length,
         -google-readability-todo,
+        -cppcoreguidelines-avoid-magic-numbers,
 "
 WarningsAsErrors: true
 HeaderFileExtensions:

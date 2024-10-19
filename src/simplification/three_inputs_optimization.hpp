@@ -18,6 +18,7 @@
 #include <map>
 #include <ranges>
 #include <cstdlib>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <type_traits>

@@ -1,8 +1,13 @@
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
+#include <algorithm>
 #include <fstream>
 #include <filesystem>
 #include <map>
+#include <vector>
+#include <string>
 
 #include "src/common/csat_types.hpp"
 

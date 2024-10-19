@@ -2,8 +2,10 @@
 
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
-#include "src/utility/converters.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 
 #include <set>
 #include <vector>

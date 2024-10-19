@@ -63,7 +63,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         int32_t many_outputs{0};
         int32_t subcircuits_count{0};
 
-        SubcircuitStats() {};
+        SubcircuitStats() = default;
 
         void print() {
             std::cout << "Many outputs: " << many_outputs

@@ -74,4 +74,6 @@ run linter by a simple command:
 To make `cland-tidy` fix warnings for you, simply run same command with flags
 `--fix` and `--fix-errors`:
 
-```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors```
+```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes```
+
+Though it may break code in some cases, so be careful and check all made fixes.

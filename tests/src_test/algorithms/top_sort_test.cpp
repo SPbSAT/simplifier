@@ -131,4 +131,4 @@ TEST(TopSortTest, GatesWithoutUsers)
     );
 }
 
-} // anonymous namespace
+} // namespace

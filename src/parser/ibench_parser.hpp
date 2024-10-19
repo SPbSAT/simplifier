@@ -246,4 +246,4 @@ class IBenchParser: public ICircuitParser
     }
 };
 
-} // csat::parser namespace
+} // namespace csat::parser

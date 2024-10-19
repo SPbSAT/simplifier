@@ -32,4 +32,4 @@ TEST(OperatorsNTTest, GetOperator)
                 (csat::op::OperatorNT<csat::GateId>) &csat::op::CONST_TRUE<csat::GateId>);
 }
 
-} // anonymous namespace
+} // namespace

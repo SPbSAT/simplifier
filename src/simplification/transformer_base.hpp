@@ -86,4 +86,4 @@ inline std::string getNewGateName_(std::string const& prefix, std::string&& id)
 }
 
 
-} // csat namespace
+} // namespace csat

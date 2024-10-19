@@ -391,4 +391,4 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+} // namespace csat

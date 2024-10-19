@@ -265,4 +265,4 @@ class DAG : public ICircuit
 };
 
 
-} // csat namespace
+} // namespace csat

@@ -156,4 +156,4 @@ TEST(ReduceNotComposition, NoChanges)
     ASSERT_EQ(circuit->getOutputGates(), GateIdContainer({2}));
 }
 
-} // anonymous namespace
+} // namespace

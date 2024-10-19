@@ -223,7 +223,7 @@ inline GateState FoldMapOperator_(
 
 }
 
-} // anonymous namespace
+} // namespace anonymous
 
 
 template<class T>
@@ -351,4 +351,4 @@ inline OperatorNT<T> getOperatorNT(GateType type) noexcept
 }
 
 
-} // csat::op namespace
+} // namespace csat::op

@@ -168,4 +168,4 @@ noexcept
 }
 
 
-} // csat::utils namespace
+} // namespace csat::utils

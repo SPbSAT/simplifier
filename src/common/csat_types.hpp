@@ -88,4 +88,4 @@ inline size_t getIndexByOperator(GateType gateType)
 using GateId = size_t;
 using GateIdContainer = std::vector<GateId>;
 
-} // csat namespace
+} // namespace csat

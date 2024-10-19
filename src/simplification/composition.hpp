@@ -93,4 +93,4 @@ struct Composition<CircuitT, TransformerT> : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+} // namespace csat

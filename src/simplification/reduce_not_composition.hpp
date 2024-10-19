@@ -98,4 +98,4 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+} // namespace csat

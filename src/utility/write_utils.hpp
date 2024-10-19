@@ -71,4 +71,4 @@ void WriteBenchFile(
     logger.debug("WriteBenchFile end.");
 }
 
-} // csat namespace
+} // namespace csat

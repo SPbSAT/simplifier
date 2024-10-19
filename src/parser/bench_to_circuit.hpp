@@ -150,4 +150,4 @@ class BenchToCircuit :
     };
 };
 
-} // csat::parser namespace
+} // namespace csat::parser

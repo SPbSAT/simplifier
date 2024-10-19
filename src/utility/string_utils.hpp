@@ -29,4 +29,4 @@ inline void trimSpaces(std::string_view& str)
     }
 }
 
-} // csat::utils::string_utils namespace
+} // namespace csat::utils::string_utils

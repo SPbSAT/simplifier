@@ -28,4 +28,4 @@ class ICircuitParser
     virtual void parseStream(std::istream& stream) = 0;
 };
 
-} // csat::parser namespace
+} // namespace csat::parser

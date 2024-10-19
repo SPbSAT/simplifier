@@ -64,4 +64,4 @@ static std::mt19937 getNewMersenneTwisterEngine()
     return std::mt19937(getNextRandomSeed());
 }
 
-} // csat::utils namespace
+} // namespace csat::utils

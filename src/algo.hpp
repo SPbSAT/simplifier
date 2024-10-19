@@ -215,4 +215,4 @@ struct TopSortAlgorithm<DFSTopSort>
 };
 
 
-} // csat::algo namespace
+} // namespace csat::algo

@@ -78,4 +78,4 @@ struct VectorAssignment : public IAssignment
     };
 };
 
-} // csat namespace
+} // namespace csat

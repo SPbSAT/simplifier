@@ -100,4 +100,4 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
 };
 
 
-} // csat namespace
+} // namespace csat

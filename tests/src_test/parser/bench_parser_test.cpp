@@ -153,4 +153,4 @@ TEST(BenchParser, ExternalConstGateType)
     ASSERT_TRUE(circuit->getGateType(4) == csat::GateType::MUX);
 }
 
-} // anonymous namespace
+} // namespace

@@ -123,4 +123,4 @@ private:
 };
 
 
-} // csat namespace
+} // namespace csat

@@ -213,4 +213,4 @@ TEST(DuplicateGatesCleaner, SeveralLevelsMUX)
     ASSERT_EQ(circuit->getGateOperands(10), GateIdContainer({6, 9}));
 }
 
-} // anonymous namespace
+} // namespace

@@ -45,4 +45,4 @@ TEST(VectorAssignmentTest, Clear)
     ASSERT_TRUE(assignment.getGateState(3) == csat::GateState::UNDEFINED);
 }
 
-} // anonymous namespace
+} // namespace

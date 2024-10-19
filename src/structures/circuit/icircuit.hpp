@@ -154,4 +154,4 @@ class ICircuit
     }
 };
 
-} // csat namespace
+} // namespace csat

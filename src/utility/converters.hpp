@@ -232,4 +232,4 @@ noexcept
     return _type_map.at(gate_type);
 }
 
-} // csat::utils namespace
+} // namespace csat::utils

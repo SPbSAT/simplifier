@@ -82,4 +82,4 @@ struct GateInfo
 using GateInfoContainer = std::vector<GateInfo>;
 
 
-} // csat namespace
+} // namespace csat

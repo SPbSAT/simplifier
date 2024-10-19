@@ -2,11 +2,10 @@
 #include "src/structures/circuit/dag.hpp"
 #include "src/parser/bench_to_circuit.hpp"
 
-#include "src/simplification/composition.hpp"
-#include "src/simplification/strategy.hpp"
 #include "src/simplification/utils/two_coloring.hpp"
 
 #include <string>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -25,11 +24,11 @@ std::pair<std::vector<std::vector<std::string>>, std::vector<std::vector<std::st
     std::vector<std::vector<std::string>> color_parents;
     std::vector<std::vector<std::string>> gates_by_color;
     for (size_t i = 0; i < twoColoring.getColorsNumber(); ++i) {
-        color_parents.push_back({});
+        color_parents.emplace_back();
         color_parents.back().push_back(encoder.decodeGate(twoColoring.colors[i].first_parent));
         color_parents.back().push_back(encoder.decodeGate(twoColoring.colors[i].second_parent));
 
-        gates_by_color.push_back({});
+        gates_by_color.emplace_back();
         for (GateId v: twoColoring.colors[i].getGates()) {
             gates_by_color.back().push_back(encoder.decodeGate(v));
         }

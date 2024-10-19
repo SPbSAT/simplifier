@@ -1,5 +1,6 @@
 #include "src/utility/logger.hpp"
 #include "src/parser/bench_to_circuit.hpp"
+#include "src/structures/circuit/dag.hpp"
 
 #include <string>
 #include <unordered_map>

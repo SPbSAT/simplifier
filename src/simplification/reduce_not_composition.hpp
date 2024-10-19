@@ -5,6 +5,7 @@
 #include "src/utility/converters.hpp"
 #include "src/common/csat_types.hpp"
 
+#include <set>
 #include <vector>
 #include <type_traits>
 #include <memory>

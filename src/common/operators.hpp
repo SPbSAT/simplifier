@@ -312,7 +312,7 @@ inline GateState CONST_FALSE(
     [[maybe_unused]] ContainerT<T> const& container,
     [[maybe_unused]] MapFunction<T> mapper) noexcept
 {
-    assert((container.size() == 0) && "Wrong number of arguments for CONST_FALSE.");
+    assert((container.empty()) && "Wrong number of arguments for CONST_FALSE.");
     return GateState::FALSE;
 }
 
@@ -321,7 +321,7 @@ inline GateState CONST_TRUE(
     [[maybe_unused]] ContainerT<T> const& container,
     [[maybe_unused]] MapFunction<T> mapper) noexcept
 {
-    assert((container.size() == 0) && "Wrong number of arguments for CONST_TRUE.");
+    assert((container.empty()) && "Wrong number of arguments for CONST_TRUE.");
     return GateState::TRUE;
 }
 

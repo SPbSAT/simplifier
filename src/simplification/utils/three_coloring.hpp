@@ -7,6 +7,7 @@
 #include "src/simplification/utils/two_coloring.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
@@ -43,17 +44,17 @@ struct ThreeColor
         gates_.push_back(gateId);
     }
 
-    GateIdContainer const& getGates() const
+    [[nodiscard]] GateIdContainer const& getGates() const
     {
         return gates_;
     }
 
-    GateIdContainer const getParents() const
+    [[nodiscard]] GateIdContainer getParents() const
     {
         return {first_parent, second_parent, third_parent};
     }
 
-    bool hasParent(GateId gateId) const  
+    [[nodiscard]] bool hasParent(GateId gateId) const  
     {  
         return first_parent == gateId || second_parent == gateId || third_parent == gateId;
     }
@@ -77,7 +78,7 @@ class ThreeColoring
     // TMP added negationUsers, TODO: remove
     GateIdContainer negationUsers;
 
-    size_t getColorsNumber() const
+    [[nodiscard]] size_t getColorsNumber() const
     {
         return next_color_id_;
     }
@@ -87,7 +88,7 @@ class ThreeColoring
 
     ColorId addColor(GateId first_parent, GateId second_parent, GateId third_parent) // returns new color ID
     {
-        colors.push_back(ThreeColor(first_parent, second_parent, third_parent));
+        colors.emplace_back(first_parent, second_parent, third_parent);
         GateIdContainer sortedParents = ThreeColor::sortedParents(first_parent, second_parent, third_parent);
         parentsToColor[sortedParents] = next_color_id_;
         return next_color_id_++;
@@ -100,7 +101,7 @@ class ThreeColoring
     }
 
   public:
-    ThreeColoring(ICircuit const& circuit)
+    explicit ThreeColoring(ICircuit const& circuit)
     {
         csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(circuit));
         size_t circuit_size = circuit.getNumberOfGates();
@@ -111,13 +112,12 @@ class ThreeColoring
         // User constructed as negation of chosen gate ('SIZE_MAX' if there is no such users)
         negationUsers.resize(circuit_size, SIZE_MAX);
 
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
             
             // Gate is input or constant
-            if (operands.size() == 0)
+            if (operands.empty())
             {
                 continue;
             }

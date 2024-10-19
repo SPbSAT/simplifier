@@ -9,6 +9,7 @@
 #include "src/simplification/circuits_db.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <type_traits>
 #include <memory>
@@ -48,18 +49,13 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     */
     class SubcircuitStats {
       public:
-        int32_t not_in_db;
-        int32_t smaller_size;
-        int32_t same_size;
-        int32_t bigger_size;
-        int32_t many_outputs;
+        int32_t not_in_db{0};
+        int32_t smaller_size{0};
+        int32_t same_size{0};
+        int32_t bigger_size{0};
+        int32_t many_outputs{0};
 
-        SubcircuitStats():
-            not_in_db(0),
-            smaller_size(0),
-            same_size(0),
-            bigger_size(0),
-            many_outputs(0) {}
+        SubcircuitStats() {}
 
         void print() {
             std::cout << "Many outputs: " << many_outputs
@@ -151,9 +147,8 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         parentsToColor = threeColoring.parentsToColor;
 
         // Filling GateInfoContainer
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit->getGateOperands(gateId);
             gate_info.at(gateId) = { circuit->getGateType(gateId), operands };
         }

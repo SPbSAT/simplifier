@@ -9,6 +9,7 @@
 #include "src/simplification/circuits_db.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <type_traits>
 #include <memory>
@@ -29,8 +30,8 @@ std::vector<int32_t> subcircuits_number_by_iter = {0, 0, 0, 0, 0};
 std::vector<int32_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
 std::vector<int32_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
 std::vector<int32_t> circuit_size_by_iter = {0, 0, 0, 0, 0};
-int64_t total_gates_in_subcircuits = 0;
-int32_t last_iter_gates_simplification = 0;
+std::size_t total_gates_in_subcircuits = 0;
+std::size_t last_iter_gates_simplification = 0;
 
 inline static std::shared_ptr<CircuitDB> aig_db = nullptr;
 
@@ -55,20 +56,14 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     */
     class SubcircuitStats {
       public:
-        int32_t not_in_db;
-        int32_t smaller_size;
-        int32_t same_size;
-        int32_t bigger_size;
-        int32_t many_outputs;
-        int32_t subcircuits_count;
+        int32_t not_in_db{0};
+        int32_t smaller_size{0};
+        int32_t same_size{0};
+        int32_t bigger_size{0};
+        int32_t many_outputs{0};
+        int32_t subcircuits_count{0};
 
-        SubcircuitStats():
-            not_in_db(0),
-            smaller_size(0),
-            same_size(0),
-            bigger_size(0),
-            many_outputs(0),
-            subcircuits_count(0) {}
+        SubcircuitStats() {};
 
         void print() {
             std::cout << "Many outputs: " << many_outputs
@@ -80,7 +75,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     };
 
   public:
-    int32_t colors_number = 0;
+    std::size_t colors_number = 0;
     std::vector<csat::utils::ThreeColor> colors; // list of all 3-parent colors
     std::vector<std::vector<size_t>> gateColors; // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor; // parent ids must be in a sorted order
@@ -160,9 +155,8 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         parentsToColor = threeColoring.parentsToColor;
 
         // Filling GateInfoContainer
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit->getGateOperands(gateId);
             gate_info.at(gateId) = { circuit->getGateType(gateId), operands };
         }
@@ -232,7 +226,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 { color.first_parent, color.third_parent },
                 { color.second_parent, color.third_parent }
             };
-            for (auto pair: parents_pairs) {
+            for (const auto& pair: parents_pairs) {
                 if (twoVertexColoring.parentsToColor.find(pair) != twoVertexColoring.parentsToColor.end())
                 {
                     for (GateId gateId: twoVertexColoring.colors.at(twoVertexColoring.parentsToColor.at(pair)).getGates())
@@ -532,7 +526,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 std::sort(output_patterns[i].begin(), output_patterns[i].end());
                 if (subcircuit_pattern_to_index.find(output_patterns[i]) != subcircuit_pattern_to_index.end())
                 {
-                    true_ind = i;
+                    true_ind = (int) i;
                     break;
                 }
             }

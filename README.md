@@ -70,3 +70,8 @@ to use a build artifact `build/compile_commands.json`. Then one will be able to
 run linter by a simple command:
 
 ```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy```
+
+To make `cland-tidy` fix warnings for you, simply run same command with flags
+`--fix` and `--fix-errors`:
+
+```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors```

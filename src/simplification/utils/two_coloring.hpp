@@ -6,6 +6,7 @@
 #include "src/common/csat_types.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -36,17 +37,17 @@ struct TwoColor
         gates_.push_back(gateId);
     }
 
-    GateIdContainer const& getGates() const
+    [[nodiscard]] GateIdContainer const& getGates() const
     {
         return gates_;
     }
 
-    GateIdContainer const getParents() const
+    [[nodiscard]] GateIdContainer const getParents() const
     {
         return {first_parent, second_parent};
     }
 
-    bool hasParent(GateId gateId) const  
+    [[nodiscard]] bool hasParent(GateId gateId) const  
     {  
         return first_parent == gateId || second_parent == gateId;  
     }
@@ -66,7 +67,7 @@ class TwoColoring
     // TODO: use better key type for this map.  
     std::map<GateIdContainer, ColorId> parentsToColor;
 
-    size_t getColorsNumber() const
+    [[nodiscard]] size_t getColorsNumber() const
     {
         return next_color_id_;
     }
@@ -74,7 +75,7 @@ class TwoColoring
     /**
     * Returns 'True' if 'gateId' is a parent for following 'color', otherwise returns 'False'
     */
-    bool isParentOfColor(GateId gateId, ColorId colorId) const
+    [[nodiscard]] bool isParentOfColor(GateId gateId, ColorId colorId) const
     {
         return colors[colorId].hasParent(gateId); 
     }
@@ -84,7 +85,7 @@ class TwoColoring
 
     ColorId addColor(GateId first_parent, GateId second_parent)
     {
-        colors.push_back(TwoColor(first_parent, second_parent));
+        colors.emplace_back(first_parent, second_parent);
         parentsToColor[TwoColor::sortedParents(first_parent, second_parent)] = next_color_id_;
         return next_color_id_++;
     }
@@ -107,13 +108,12 @@ class TwoColoring
         GateIdContainer negationUsers(circuit_size, SIZE_MAX);
 
         // Painting process
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
 
             // Gate is input or constant
-            if (operands.size() == 0)
+            if (operands.empty())
             {
                 continue;
             }

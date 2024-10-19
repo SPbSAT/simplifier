@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
+# Enable clang-tidy linter
+set(CMAKE_CXX_CLANG_TIDY clang-tidy;-header-filter=.*;-checks=*;-warnings-as-errors=*;)
+
 include_directories(.)
 include_directories(third_party/argparse/include/argparse)
 include_directories(third_party/googletest/googletest/include)

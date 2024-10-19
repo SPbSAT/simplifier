@@ -59,11 +59,18 @@ is used to run unit tests which cover main functionalities of the tool.
 To make this code snapshot whole, `argparse` and `gtest` repository snapshots are vendored
 alongside it and are presented in the `third_party/` directory.
 
-### Tools
+### Code quality
 
-...
+`clang-format` and `clang-tidy` are used for maintaining code quality.
+
+Both of them need to be separately installed before can be used. For example,
+for Ubuntu they can be installed using following command:
+
+```sudo apt install clang-tidy clang-format```
 
 #### Linter
+
+`clang-tidy` is used for linting purposes.
 
 To manually run `clang-tidy`, first one needs to compile cmake project to be able
 to use a build artifact `build/compile_commands.json`. Then one will be able to
@@ -77,3 +84,11 @@ To make `cland-tidy` fix warnings for you, simply run same command with flags
 ```clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes```
 
 Though it may break code in some cases, so be careful and check all made fixes.
+
+#### Formatter
+
+`clang-format` is used to maintain code uniformity.
+
+### Tools
+
+... todo (python scripts)

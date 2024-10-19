@@ -1,8 +1,24 @@
 ---
-Checks: '-*,modernize-*,-modernize-use-trailing-return-type,-modernize-avoid-c-arrays,-modernize-type-traits,-modernize-use-constraints'
+Checks: "*,
+        -abseil-*,
+        -altera-*,
+        -android-*,
+        -fuchsia-*,
+        -google-*,
+        -llvm*,
+        -modernize-use-trailing-return-type,
+        -modernize-avoid-c-arrays,
+        -modernize-type-traits,
+        -modernize-use-constraints,
+        -zircon-*,
+        -readability-else-after-return,
+        -readability-static-accessed-through-instance,
+        -readability-avoid-const-params-in-decls,
+        -cppcoreguidelines-non-private-member-variables-in-classes,
+        -misc-non-private-member-variables-in-classes,
+"
 WarningsAsErrors: 'true'
 HeaderFileExtensions:
-  - ''
   - h
   - hh
   - hpp
@@ -11,7 +27,7 @@ ImplementationFileExtensions:
   - c
   - cc
   - cpp
-  - cxx
+  - cxxl
 HeaderFilterRegex: '.*'
 ...
 

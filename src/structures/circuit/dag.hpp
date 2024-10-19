@@ -106,7 +106,8 @@ class DAG : public ICircuit
     
   public:
     DAG(DAG const& dag)
-        : gates_(dag.gates_)
+        : ICircuit()
+        , gates_(dag.gates_)
         , input_gates_(dag.input_gates_)
         , output_gates_(dag.output_gates_) {}
     

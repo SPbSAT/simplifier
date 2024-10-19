@@ -20,6 +20,7 @@ Checks: "-*,
         -misc-non-private-member-variables-in-classes,
         -performance-avoid-endl,
         -readability-identifier-length,
+        -google-readability-todo,
 "
 WarningsAsErrors: true
 HeaderFileExtensions:

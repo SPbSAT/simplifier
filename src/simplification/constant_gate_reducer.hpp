@@ -299,4 +299,4 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     }
 };
 
-} // namespace csat
+}  // namespace csat::simplification

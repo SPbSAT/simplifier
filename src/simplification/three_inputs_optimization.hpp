@@ -17,7 +17,7 @@
 #include <iostream>
 #include <map>
 #include <ranges>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <type_traits>
@@ -255,7 +255,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
 
             max_subcircuit_size_by_iter[iter_number - 1] = std::max(
                 max_subcircuit_size_by_iter[iter_number - 1],
-                int32_t(gatesByColor.size()) + 3
+                static_cast<int32_t>(gatesByColor.size()) + 3
             );
             total_gates_in_subcircuits += gatesByColor.size() + 3;
 
@@ -535,7 +535,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 std::sort(output_patterns[i].begin(), output_patterns[i].end());
                 if (subcircuit_pattern_to_index.find(output_patterns[i]) != subcircuit_pattern_to_index.end())
                 {
-                    true_ind = (int) i;
+                    true_ind = static_cast<int>(i);
                     break;
                 }
             }
@@ -689,4 +689,4 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     }
 };
 
-}
+}  // namespace csat::simplification

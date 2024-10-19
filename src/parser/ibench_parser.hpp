@@ -1,17 +1,17 @@
 #pragma once
 
+#include "src/common/csat_types.hpp"
 #include "src/utility/encoder.hpp"
 #include "src/utility/string_utils.hpp"
 
 #include "src/parser/iparser.hpp"
 
 #include <cstdlib>
-#include <cstdint>
 #include <iostream>
-#include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <utility>
+#include <tuple>
 
 /**
  * Parser from `CircuitSAT.BENCH` file..

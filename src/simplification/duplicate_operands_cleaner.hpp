@@ -346,7 +346,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         GateInfoContainer const& gate_info,
         std::map<GateId, size_t>& map_count_operands)
     {
-        // TODO сокращать максимальное количество пар, а не первые попавшиеся. Так например для схемы приведенной ниже
+        // TODO: сокращать максимальное количество пар, а не первые попавшиеся. Так например для схемы приведенной ниже
         //  есть два варианта сокращения пар и зависимости от порядка операндов в мапе (1, 2) или ((0, 1), (2, 3)).
         //  INPUT(0)
         //  1 = NOT(0)
@@ -391,4 +391,4 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
     }
 };
 
-} // namespace csat
+}  // namespace csat::simplification

@@ -64,7 +64,7 @@ class TwoColoring
   public:
     std::vector<TwoColor> colors;
     std::vector<ColorId> gateColor; // if vertex is not colored, then value is 'SIZE_MAX'
-    // TODO: use better key type for this map.  
+    // TODO: use better key type for this map.
     std::map<GateIdContainer, ColorId> parentsToColor;
 
     [[nodiscard]] size_t getColorsNumber() const
@@ -189,4 +189,4 @@ class TwoColoring
     }
 };
 
-}
+}  // namespace csat::utils

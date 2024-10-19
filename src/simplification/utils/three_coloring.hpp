@@ -73,7 +73,7 @@ class ThreeColoring
   public:
     std::vector<ThreeColor> colors; // list of all 3-parents colors
     std::vector<std::vector<ColorId>> gateColors; // contains up to 2 colors for each gate, otherwise: {}
-    // TODO: use better key type for this map.  
+    // TODO: use better key type for this map.
     std::map<std::vector<GateId>, ColorId> parentsToColor; // takes parent ids in ascdending order
     // TMP added negationUsers, TODO: remove
     GateIdContainer negationUsers;
@@ -392,4 +392,4 @@ class ThreeColoring
     }
 };
 
-}
+}  // namespace csat::utils

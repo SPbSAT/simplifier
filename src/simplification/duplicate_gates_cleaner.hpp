@@ -144,4 +144,4 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
 };
 
 
-} // namespace csat
+}  // namespace csat::simplification

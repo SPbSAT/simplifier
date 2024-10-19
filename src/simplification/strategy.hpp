@@ -142,4 +142,4 @@ using DuplicateOperandsCleaner = csat::simplification::Composition<
     csat::simplification::DuplicateGatesCleaner_<csat::DAG>
 >;
 
-} // namespace csat
+}  // namespace csat::simplification

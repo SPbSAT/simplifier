@@ -51,8 +51,8 @@ namespace csat::simplification {
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1;
-                    GateId operand_2;
+                    GateId operand_1 = 0;
+                    GateId operand_2 = 0;
 
                     database >> operation;
                     if (operation == "AND") {
@@ -117,8 +117,8 @@ namespace csat::simplification {
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1;
-                    GateId operand_2;
+                    GateId operand_1 = 0;
+                    GateId operand_2 = 0;
 
                     database >> operation;
                     if (operation == "AND") {
@@ -142,4 +142,4 @@ namespace csat::simplification {
         }
     };
 
-}
+}  // namespace csat::simplification

@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <map>
 #include <ranges>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <type_traits>
@@ -682,4 +682,4 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     }
 };
 
-}
+}  // namespace csat::simplification

@@ -76,9 +76,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Update clang
-        run: sudo apt update -y && sudo apt upgrade -y
-
       - name: Install clang-tidy
         run: sudo apt install -y clang-tidy
 

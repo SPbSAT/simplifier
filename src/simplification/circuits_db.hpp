@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "src/common/csat_types.hpp"
 
@@ -145,6 +146,27 @@ namespace csat::simplification {
                 ++subcircuit_index;
             }
         }
+    };
+
+    struct DBSingleton
+    {
+      public:
+        std::shared_ptr<CircuitDB> bench_db = nullptr;
+        std::shared_ptr<CircuitDB> aig_db = nullptr;
+        
+        static DBSingleton& getInstance()
+        {
+            static DBSingleton s;
+            return s;
+        }
+        
+        DBSingleton(const DBSingleton&) = delete;
+        DBSingleton& operator =(const DBSingleton&) = delete;
+      
+      private:
+        
+        DBSingleton() = default;
+        ~DBSingleton() = default;
     };
 
 }  // namespace csat::simplification

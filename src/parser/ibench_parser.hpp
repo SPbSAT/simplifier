@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 #include "src/utility/encoder.hpp"
 #include "src/utility/string_utils.hpp"
 

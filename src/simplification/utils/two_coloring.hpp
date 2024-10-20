@@ -108,7 +108,7 @@ class TwoColoring
         GateIdContainer negationUsers(circuit_size, SIZE_MAX);
 
         // Painting process
-        for (unsigned long const gateId : std::ranges::reverse_view(gate_sorting))
+        for (uint64_t const gateId : std::ranges::reverse_view(gate_sorting))
         {
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
 

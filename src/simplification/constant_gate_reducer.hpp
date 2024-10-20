@@ -146,7 +146,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                         || gate_type == GateType::NXOR))
                 {
                     // Create NOT.
-                    GateId new_gate_id = encoder->encodeGate(
+                    const GateId new_gate_id = encoder->encodeGate(
                         getNewGateName_(new_gate_name_prefix, circuit_size));
                     assert(new_gate_id == circuit_size);
                     assert(new_gate_id == gate_info.size());
@@ -167,7 +167,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                 else if (gate_type == GateType::MUX)
                 {
                     auto first_operand = getLink_(circuit->getGateOperands(gate_id)[0], old_to_new_gateId);
-                    GateState mux_op_state = result_assignment->getGateState(first_operand);
+                    const GateState mux_op_state = result_assignment->getGateState(first_operand);
                     if (mux_op_state == GateState::TRUE)
                     {
                         // Users of the current gate will refer to its third operand.

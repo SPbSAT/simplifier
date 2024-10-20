@@ -112,7 +112,7 @@ class ThreeColoring
         // User constructed as negation of chosen gate ('SIZE_MAX' if there is no such users)
         negationUsers.resize(circuit_size, SIZE_MAX);
 
-        for (unsigned long const gateId : std::ranges::reverse_view(gate_sorting))
+        for (uint64_t const gateId : std::ranges::reverse_view(gate_sorting))
         {
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
             

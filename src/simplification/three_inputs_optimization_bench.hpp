@@ -18,17 +18,16 @@
 #include <map>
 #include <ranges>
 #include <cstdlib>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <type_traits>
 #include <memory>
+#include <cerrno>
 
 
 namespace csat::simplification
 {
-
-std::shared_ptr<CircuitDB> bench_db = nullptr;
 
 /**
  * @tparam CircuitT
@@ -77,14 +76,14 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     };
 
   public:
-    int32_t colors_number = 0;
+    std::size_t colors_number = 0;
     std::vector<csat::utils::ThreeColor> colors; // list of all 3-parent colors
     std::vector<std::vector<size_t>> gateColors; // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor; // parent ids must be in a sorted order
 
     std::shared_ptr<CircuitDB> read_db() {
-        assert(bench_db);
-        return bench_db;
+        assert(DBSingleton::getInstance().bench_db);
+        return DBSingleton::getInstance().bench_db;
     }
 
     bool update_primitive_gate(
@@ -157,7 +156,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         parentsToColor = threeColoring.parentsToColor;
 
         // Filling GateInfoContainer
-        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
+        for (uint64_t gateId : std::ranges::reverse_view(gate_sorting))
         {
             GateIdContainer const& operands = circuit->getGateOperands(gateId);
             gate_info.at(gateId) = { circuit->getGateType(gateId), operands };
@@ -345,7 +344,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                 else
                 {
                     std::cout << "Error! Incorrect operation!\n";
-                    abort();
+                    std::exit(EINVAL);
                 }
 
                 if (all_patterns[0][gateId] == 0 || all_patterns[0][gateId] == 255
@@ -533,7 +532,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                 std::sort(output_patterns[i].begin(), output_patterns[i].end());
                 if (subcircuit_pattern_to_index.find(output_patterns[i]) != subcircuit_pattern_to_index.end())
                 {
-                    true_ind = i;
+                    true_ind = static_cast<int>(i);
                     break;
                 }
             }

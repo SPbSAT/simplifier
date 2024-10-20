@@ -10,8 +10,6 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Compilation database is needed for static linter.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_CLANG_TIDY clang-tidy)
-
 include_directories(.)
 include_directories(third_party/argparse/include/argparse)
 include_directories(third_party/googletest/googletest/include)

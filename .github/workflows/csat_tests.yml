@@ -9,6 +9,7 @@ on:
       - '**.h'
     branches:
       - 'main'
+      - 'tools/*'
   pull_request:
     paths:
       - '**.cpp'
@@ -17,13 +18,15 @@ on:
       - '**.h'
     branches:
       - 'main'
+      - 'tools/*'
   workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
 
 jobs:
-  unit-tests:
+  # Execute unit tests.
+  unit-tests-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,3 +47,18 @@ jobs:
     - name: Unit Test
       working-directory: ${{github.workspace}}/build/tests/
       run: ./UnitTests
+
+  # Check if there are files which need to be formatted.
+  formatting-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install clang-format
+        run: sudo apt install -y clang-format
+
+      - name: Run clang-format
+        working-directory: ${{github.workspace}}
+        run: find ./src/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" --dry-run

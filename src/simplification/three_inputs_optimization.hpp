@@ -18,11 +18,12 @@
 #include <map>
 #include <ranges>
 #include <cstdlib>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <type_traits>
 #include <memory>
+#include <cerrno>
 
 
 namespace csat::simplification
@@ -35,15 +36,32 @@ namespace csat::simplification
  * database with small subcircuits.
  */
 
-int32_t iter_number = 0;
-std::vector<int32_t> subcircuits_number_by_iter = {0, 0, 0, 0, 0};
-std::vector<int32_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
-std::vector<int32_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
-std::vector<int32_t> circuit_size_by_iter = {0, 0, 0, 0, 0};
-std::size_t total_gates_in_subcircuits = 0;
-std::size_t last_iter_gates_simplification = 0;
 
-inline static std::shared_ptr<CircuitDB> aig_db = nullptr;
+struct CircuitStatsSingleton
+{
+  public:
+    int32_t iter_number = 0;
+    std::vector<int32_t> subcircuits_number_by_iter = {0, 0, 0, 0, 0};
+    std::vector<int32_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
+    std::vector<int32_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
+    std::vector<int32_t> circuit_size_by_iter = {0, 0, 0, 0, 0};
+    std::size_t total_gates_in_subcircuits = 0;
+    std::size_t last_iter_gates_simplification = 0;
+    
+    static CircuitStatsSingleton& getInstance()
+    {
+        static CircuitStatsSingleton s;
+        return s;
+    }
+    
+    CircuitStatsSingleton(const CircuitStatsSingleton&) = delete;
+    CircuitStatsSingleton& operator =(const CircuitStatsSingleton&) = delete;
+  
+  private:
+    
+    CircuitStatsSingleton() = default;
+    ~CircuitStatsSingleton() = default;
+};
 
 template<
     class CircuitT,
@@ -91,8 +109,8 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     std::map<std::vector<GateId>, size_t> parentsToColor; // parent ids must be in a sorted order
 
     std::shared_ptr<CircuitDB> read_db() {
-        assert(aig_db);
-        return aig_db;
+        assert(DBSingleton::getInstance().aig_db);
+        return DBSingleton::getInstance().aig_db;
     }
 
     bool update_primitive_gate(
@@ -165,21 +183,21 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         parentsToColor = threeColoring.parentsToColor;
 
         // Filling GateInfoContainer
-        for (unsigned long gateId : std::ranges::reverse_view(gate_sorting))
+        for (uint64_t gateId : std::ranges::reverse_view(gate_sorting))
         {
             GateIdContainer const& operands = circuit->getGateOperands(gateId);
             gate_info.at(gateId) = { circuit->getGateType(gateId), operands };
         }
 
-        if (iter_number != 0 && last_iter_gates_simplification == 0) {
+        if (CircuitStatsSingleton::getInstance().iter_number != 0 && CircuitStatsSingleton::getInstance().last_iter_gates_simplification == 0) {
             return {
                 std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
                 std::make_unique<GateEncoder<std::string>>(*encoder)
             };
         }
-        iter_number += 1;
-        last_iter_gates_simplification = 0;
-        circuit_size_by_iter[iter_number - 1] = circuit_size;
+        CircuitStatsSingleton::getInstance().iter_number += 1;
+        CircuitStatsSingleton::getInstance().last_iter_gates_simplification = 0;
+        CircuitStatsSingleton::getInstance().circuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = circuit_size;
 
         // Store database
         auto db = read_db();
@@ -204,7 +222,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
             // Check whether subcircuit's inputs were removed (in this case we do not observe it)
             if (is_removed.at(color.first_parent) || is_removed.at(color.second_parent) || is_removed.at(color.third_parent))
             {
-                skipped_subcircuits_by_iter[iter_number - 1] += 1;
+                CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] += 1;
                 continue;
             }
 
@@ -254,11 +272,11 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 used_gates.at(gateId) = color_id;
             }
 
-            max_subcircuit_size_by_iter[iter_number - 1] = std::max(
-                max_subcircuit_size_by_iter[iter_number - 1],
+            CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = std::max(
+                CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1],
                 static_cast<int32_t>(gatesByColor.size()) + 3
             );
-            total_gates_in_subcircuits += gatesByColor.size() + 3;
+            CircuitStatsSingleton::getInstance().total_gates_in_subcircuits += gatesByColor.size() + 3;
 
             // Check whether subcircuit has modified gates (in this case we do not observe it)
             bool has_modified_gates = false;
@@ -335,7 +353,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 else
                 {
                     std::cout << "Error! Incorrect operation!\n";
-                    abort();
+                    std::exit(EINVAL);
                 }
 
                 if (all_patterns[0][gateId] == 0 || all_patterns[0][gateId] == 255
@@ -377,23 +395,23 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                             if (oper != GateType::NOT || gate_first_operand != color.first_parent)
                             {
                                 is_modified.at(gateId) = true;
-                                last_iter_gates_simplification += 1;
+                                CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                             }
                         } else if (all_patterns[0][gateId] == 51) {
                             if (oper != GateType::NOT || gate_first_operand != color.second_parent)
                             {
                                 is_modified.at(gateId) = true;
-                                last_iter_gates_simplification += 1;
+                                CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                             }
                         } else if (all_patterns[0][gateId] == 85) {
                             if (oper != GateType::NOT || gate_first_operand != color.third_parent)
                             {
                                 is_modified.at(gateId) = true;
-                                last_iter_gates_simplification += 1;
+                                CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                             }
                         } else {
                             is_modified.at(gateId) = true;
-                            last_iter_gates_simplification += 1;
+                            CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                         }
                     }
                     else
@@ -405,7 +423,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                             if (all_patterns[0][gateId] == output_pattern)
                             {
                                 is_modified.at(gateId) = true;
-                                last_iter_gates_simplification += 1;
+                                CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                 gate_info.at(gateId) = {GateType::AND,  { outputs[i], outputs[i] }};
                                 fl = true;
                                 break;
@@ -419,7 +437,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                                 if (oper != GateType::NOT || operands[0] != outputs[i])
                                 {
                                     is_modified.at(gateId) = true;
-                                    last_iter_gates_simplification += 1;
+                                    CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                     gate_info.at(gateId) = {GateType::NOT,  { outputs[i] }};
                                 }
                                 fl = true;
@@ -453,23 +471,23 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                                     if (oper != GateType::NOT || gate_first_operand != color.first_parent)
                                     {
                                         is_modified.at(gateId) = true;
-                                        last_iter_gates_simplification += 1;
+                                        CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                     }
                                 } else if (all_patterns[0][gateId] == 51) {
                                     if (oper != GateType::NOT || gate_first_operand != color.second_parent)
                                     {
                                         is_modified.at(gateId) = true;
-                                        last_iter_gates_simplification += 1;
+                                        CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                     }
                                 } else if (all_patterns[0][gateId] == 85) {
                                     if (oper != GateType::NOT || gate_first_operand != color.third_parent)
                                     {
                                         is_modified.at(gateId) = true;
-                                        last_iter_gates_simplification += 1;
+                                        CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                     }
                                 } else {
                                     is_modified.at(gateId) = true;
-                                    last_iter_gates_simplification += 1;
+                                    CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                 }
                             }
                             else
@@ -481,7 +499,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                                     if (all_patterns[0][gateId] == output_pattern)
                                     {
                                         is_modified.at(gateId) = true;
-                                        last_iter_gates_simplification += 1;
+                                        CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                         gate_info.at(gateId) = {GateType::AND,  { outputs[i], outputs[i] }};
                                         fl = true;
                                         break;
@@ -491,7 +509,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                                         if (oper != GateType::NOT || operands[0] != outputs[i])
                                         {
                                             is_modified.at(gateId) = true;
-                                            last_iter_gates_simplification += 1;
+                                            CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                                             gate_info.at(gateId) = {GateType::NOT,  { outputs[i] }};
                                         }
                                         fl = true;
@@ -524,7 +542,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                     int32_t pattern = all_patterns[0][primitive_gate];
                     update_primitive_gate(primitive_gate, pattern, gate_info, color.getParents());
                     is_modified[primitive_gate] = true;
-                    last_iter_gates_simplification += 1;
+                    CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                 }
                 continue;
             }
@@ -550,7 +568,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                     int32_t pattern = all_patterns[0][primitive_gate];
                     update_primitive_gate(primitive_gate, pattern, gate_info, color.getParents());
                     is_modified[primitive_gate] = true;
-                    last_iter_gates_simplification += 1;
+                    CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                 }
                 continue;
             }
@@ -567,7 +585,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
             if (subcircuit_AND_number[patternIndex] < AND_number)
             {
                 ++stats.smaller_size;
-                last_iter_gates_simplification += 1;
+                CircuitStatsSingleton::getInstance().last_iter_gates_simplification += 1;
                 for (GateId const gateId: gatesByColor)
                 {
                     is_removed[gateId] = true;
@@ -680,7 +698,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
             }
         }
         stats.subcircuits_count = colors.size();
-        subcircuits_number_by_iter[iter_number - 1] += colors.size();
+        CircuitStatsSingleton::getInstance().subcircuits_number_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] += colors.size();
         stats.print();
 
         return {

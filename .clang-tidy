@@ -22,6 +22,10 @@ Checks: "-*,
         -readability-identifier-length,
         -google-readability-todo,
         -cppcoreguidelines-avoid-magic-numbers,
+        -google-build-namespaces,
+        -cppcoreguidelines-rvalue-reference-param-not-moved,
+        -cppcoreguidelines-special-member-functions,
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
 "
 WarningsAsErrors: true
 HeaderFileExtensions:

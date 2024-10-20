@@ -12,7 +12,7 @@ AlignOperands: AlignAfterOperator
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: Consecutive
 AllowShortBlocksOnASingleLine: Never
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: Empty
 BinPackArguments: false
 BinPackParameters: false
 PointerAlignment: Left

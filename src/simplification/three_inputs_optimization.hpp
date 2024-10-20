@@ -89,7 +89,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         {
             std::cout << "Many outputs: " << many_outputs << " | Smaller size: " << smaller_size
                       << " | Same size: " << same_size << " | Bigger size: " << bigger_size
-                      << " | Subcircuits count: " << subcircuits_count << "\n";
+                      << " | Subcircuits count: " << subcircuits_count << std::endl;
         }
     };
 

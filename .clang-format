@@ -18,6 +18,7 @@ BinPackParameters: false
 PointerAlignment: Left
 ReferenceAlignment: Left
 QualifierAlignment: Right
+BreakAfterAttributes: Always
 SpaceAfterTemplateKeyword: false
 PackConstructorInitializers: Never
 ExperimentalAutoDetectBinPacking: false

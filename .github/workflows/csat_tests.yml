@@ -69,7 +69,8 @@ jobs:
 
   # Check if there are problems in code using linter
   linter-check:
-    runs-on: ubuntu-latest
+    # new clang-tidy is not available on older images.
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository

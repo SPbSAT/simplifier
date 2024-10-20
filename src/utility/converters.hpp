@@ -75,7 +75,7 @@ noexcept
 inline std::string basisToString(Basis basis)
 noexcept
 {
-static const std::unordered_map<Basis, std::string> _type_map
+    static const std::unordered_map<Basis, std::string> _type_map
     {
         {Basis::AIG,   "AIG"},
         {Basis::BENCH, "BENCH"}
@@ -93,10 +93,10 @@ inline Basis stringToBasis(std::string const& basis_name)
 noexcept
 {
     static const std::unordered_map<std::string, Basis> _type_map
-        {
-            {"AIG", Basis::AIG},
-            {"BENCH", Basis::BENCH}
-        };
+    {
+        {"AIG", Basis::AIG},
+        {"BENCH", Basis::BENCH}
+    };
     
     return _type_map.at(basis_name);
 }

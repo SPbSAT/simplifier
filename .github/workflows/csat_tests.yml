@@ -23,6 +23,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  LINTER_BUILD_TYPE: Debug
 
 jobs:
   # Execute unit tests.
@@ -77,13 +78,17 @@ jobs:
       - name: Update clang
         run: sudo apt install --only-upgrade clang -y
 
-      - name: Install clang-format
-        run: sudo apt install -y clang-tidy
-
       - name: Configure CMake
         working-directory: ${{github.workspace}}
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-      - name: Run clang-tidy
-        working-directory: ${{github.workspace}}
-        run: clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy
+      - uses: ZedThree/clang-tidy-review@v0.19.0
+        id: review
+        with:
+          build_dir: ./build/
+          base_dir: ${{github.workspace}}
+          clang_tidy_version: "18"
+          exclude: "third_party/**/*"
+
+      - if: steps.review.outputs.total_comments > 0
+        run: exit 1

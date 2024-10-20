@@ -44,11 +44,14 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
         std::reverse(gateSorting.begin(), gateSorting.end());
 
         logger.debug("Building mask to delete gates and filling map -- old_to_new_gateId");
-        BoolVector safe_mask(circuit->getNumberOfGates(), true);  // 0 -- if gate is a duplicate, 1 -- otherwise
-        GateEncoder<std::string>
-            auxiliary_names_encoder{};  // maps encoded (`operator_operand1_operand2...`) gate to new gate id
-        std::map<GateId, GateId> old_to_new_gateId{};  // surjection of old gate ids to new gate ids
-        GateEncoder<GateId> new_encoder{};             // bijection of old gate ids to new gate ids
+        // 0 -- if gate is a duplicate, 1 -- otherwise
+        BoolVector safe_mask(circuit->getNumberOfGates(), true);
+        // maps encoded (`operator_operand1_operand2...`) gate to new gate id
+        GateEncoder<std::string> auxiliary_names_encoder{};
+        // surjection of old gate ids to new gate ids
+        std::map<GateId, GateId> old_to_new_gateId{};
+        // bijection of old gate ids to new gate ids
+        GateEncoder<GateId> new_encoder{};
         std::string encoded_name;
 
         for (GateId gateId : gateSorting)

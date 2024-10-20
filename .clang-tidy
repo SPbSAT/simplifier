@@ -28,16 +28,6 @@ Checks: "-*,
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
 "
 WarningsAsErrors: true
-HeaderFileExtensions:
-  - h
-  - hh
-  - hpp
-  - hxx
-ImplementationFileExtensions:
-  - c
-  - cc
-  - cpp
-  - cxxl
 HeaderFilterRegex: '.*'
 ...
 

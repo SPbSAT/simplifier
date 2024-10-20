@@ -1,22 +1,21 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
-#include "src/algo.hpp"
-#include "src/structures/circuit/gate_info.hpp"
-#include "src/utility/converters.hpp"
-#include "src/common/csat_types.hpp"
-#include "src/utility/logger.hpp"
-
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <cassert>
+#include <map>
+#include <memory>
 #include <ranges>
 #include <utility>
 #include <vector>
-#include <map>
-#include <memory>
 
+#include "src/algo.hpp"
+#include "src/common/csat_types.hpp"
+#include "src/simplification/transformer_base.hpp"
+#include "src/structures/circuit/gate_info.hpp"
+#include "src/utility/converters.hpp"
+#include "src/utility/logger.hpp"
 
 namespace csat::simplification
 {
@@ -45,46 +44,38 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
 {
   private:
     csat::Logger logger{"DuplicateOperandsCleaner"};
-    size_t id_const_true = SIZE_MAX;
+    size_t id_const_true  = SIZE_MAX;
     size_t id_const_false = SIZE_MAX;
-  
+
   public:
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
         std::unique_ptr<GateEncoder<std::string>> encoder)
     {
         logger.debug("START DuplicateOperandsCleaner");
-        
-        auto new_gate_name_prefix = (
-            getUniqueId_() + "::new_gate_DuplicateOperandsCleaner@");
-        
-        csat::GateIdContainer gate_sorting(
-            algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
-        
+
+        auto new_gate_name_prefix = (getUniqueId_() + "::new_gate_DuplicateOperandsCleaner@");
+
+        csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
+
         size_t circuit_size = circuit->getNumberOfGates();
         GateInfoContainer gate_info(circuit_size);
-        
+
         // Surjection of old gate ids to new gate ids.
         GateIdContainer old_to_new_gateId(circuit_size, SIZE_MAX);
-        
+
         // For XOR and NXOR, when we have to replace two opposite operands with CONST_TRUE
         // Example: XOR(x, NOT(x), y, z) = XOR(CONST_TRUE, y, z).
         bool rebuild_gate = false;
 
         // Prepare auxiliary const TRUE and FALSE gates.
-        id_const_true = encoder->encodeGate(
-            getNewGateName_(new_gate_name_prefix, "CONST_TRUE"));
-        gate_info.emplace_back(
-            GateType::CONST_TRUE,
-            GateIdContainer{});
+        id_const_true = encoder->encodeGate(getNewGateName_(new_gate_name_prefix, "CONST_TRUE"));
+        gate_info.emplace_back(GateType::CONST_TRUE, GateIdContainer{});
         old_to_new_gateId.push_back(id_const_true);
         ++circuit_size;
-    
-        id_const_false = encoder->encodeGate(
-            getNewGateName_(new_gate_name_prefix, "CONST_FALSE"));
-        gate_info.emplace_back(
-            GateType::CONST_FALSE,
-            GateIdContainer{});
+
+        id_const_false = encoder->encodeGate(getNewGateName_(new_gate_name_prefix, "CONST_FALSE"));
+        gate_info.emplace_back(GateType::CONST_FALSE, GateIdContainer{});
         old_to_new_gateId.push_back(id_const_false);
         ++circuit_size;
 
@@ -94,14 +85,10 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             GateType gate_type = circuit->getGateType(gate_id);
 
             // Count the occurrence of operands in the gate.
-            std::map<GateId, size_t> map_count_operands = transformOperands_(
-                *circuit,
-                gate_id,
-                old_to_new_gateId);
+            std::map<GateId, size_t> map_count_operands = transformOperands_(*circuit, gate_id, old_to_new_gateId);
 
-            if (gate_type == GateType::AND    || gate_type == GateType::NAND
-                || gate_type == GateType::OR  || gate_type == GateType::NOR
-                || gate_type == GateType::XOR || gate_type == GateType::NXOR)
+            if (gate_type == GateType::AND || gate_type == GateType::NAND || gate_type == GateType::OR ||
+                gate_type == GateType::NOR || gate_type == GateType::XOR || gate_type == GateType::NXOR)
             {
                 // If the gate consists of one repeating operand,
                 // then all its users must be transferred either
@@ -110,9 +97,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                 {
                     // В мапе уже правильные (перевешанные) гейты. Нет необходимости использовать getLink_
                     GateId const unique_operand = map_count_operands.begin()->first;
-                    if (gate_type == GateType::AND
-                        || gate_type == GateType::OR
-                        || gate_type == GateType::XOR)
+                    if (gate_type == GateType::AND || gate_type == GateType::OR || gate_type == GateType::XOR)
                     {
                         // Users of the current gate will refer to its operand.
                         old_to_new_gateId.at(gate_id) = unique_operand;
@@ -120,15 +105,13 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     else
                     {
                         // Create NOT.
-                        GateId const new_gate_id = encoder->encodeGate(
-                            getNewGateName_(new_gate_name_prefix, circuit_size));
-                        gate_info.emplace_back(
-                            GateType::NOT,
-                            GateIdContainer{unique_operand});
+                        GateId const new_gate_id =
+                            encoder->encodeGate(getNewGateName_(new_gate_name_prefix, circuit_size));
+                        gate_info.emplace_back(GateType::NOT, GateIdContainer{unique_operand});
                         assert(new_gate_id == circuit_size);
                         assert(gate_info.size() - 1 == circuit_size);
                         ++circuit_size;
-                        
+
                         // Users of the current gate will refer to the negation of its operand.
                         old_to_new_gateId.at(gate_id) = new_gate_id;
                         // The gate NOT must also refer to itself.
@@ -163,7 +146,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     else if (flag)
                     {
                         // If gates like XOR or NXOR have opposite operands, we must completely rebuild it.
-                        rebuild_gate = true;
+                        rebuild_gate                  = true;
                         old_to_new_gateId.at(gate_id) = gate_id;
                     }
                     else
@@ -186,9 +169,9 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             if (rebuild_gate)
             {
                 rebuild_gate = false;
-                
+
                 operands = rebuildXORAndNXOR_(gate_info, map_count_operands);
-                
+
                 // If all operands had an opposite pair, the gate may end up with one operand.
                 if (operands.size() == 1)
                 {
@@ -196,21 +179,19 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     {
                         old_to_new_gateId.at(gate_id) = operands.at(0);
                     }
-                    else // NXOR
+                    else  // NXOR
                     {
                         // Create NOT.
-                        GateId const new_gate_id = encoder->encodeGate(
-                            getNewGateName_(new_gate_name_prefix, circuit_size));
+                        GateId const new_gate_id =
+                            encoder->encodeGate(getNewGateName_(new_gate_name_prefix, circuit_size));
                         assert(new_gate_id == circuit_size);
-                        gate_info.emplace_back(
-                            GateType::NOT,
-                            GateIdContainer{operands.at(0)});
-    
+                        gate_info.emplace_back(GateType::NOT, GateIdContainer{operands.at(0)});
+
                         // Users of the current gate will refer to the negation of its operand.
                         old_to_new_gateId.at(gate_id) = new_gate_id;
                         // The gate NOT must also refer to itself.
                         old_to_new_gateId.push_back(new_gate_id);
-    
+
                         ++circuit_size;
                     }
                 }
@@ -230,7 +211,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             {
                 if (csat::utils::symmetricOperatorQ(gate_type))
                 {
-                    for (auto [operand, value]: map_count_operands)
+                    for (auto [operand, value] : map_count_operands)
                     {
                         for (size_t num_operands = 0; num_operands < value; ++num_operands)
                         {
@@ -246,32 +227,28 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                     }
                 }
             }
-            
+
             gate_info.at(gate_id) = {gate_type, operands};
         }
-    
+
         // Rebuild OUTPUT.
         GateIdContainer new_output_gates{};
         new_output_gates.reserve(circuit->getOutputGates().size());
-        for (GateId output_gate: circuit->getOutputGates())
+        for (GateId output_gate : circuit->getOutputGates())
         {
             new_output_gates.push_back(old_to_new_gateId.at(output_gate));
         }
 
         logger.debug("END DuplicateOperandsCleaner");
-        
+
         return {
-            std::make_unique<CircuitT>(
-                std::move(gate_info),
-                std::move(new_output_gates)),
+            std::make_unique<CircuitT>(std::move(gate_info), std::move(new_output_gates)),
             std::make_unique<GateEncoder<std::string>>(*encoder)};
     };
-    
+
   private:
-    std::map<GateId, size_t> transformOperands_(
-        CircuitT const& circuit,
-        GateId gate_id,
-        std::vector<GateId> const& old_to_new_gateId)
+    std::map<GateId, size_t>
+    transformOperands_(CircuitT const& circuit, GateId gate_id, std::vector<GateId> const& old_to_new_gateId)
     {
         GateType gate_type = circuit.getGateType(gate_id);
         std::map<GateId, size_t> map_count_operands{};
@@ -281,7 +258,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             GateId check_operand = getLink_(operand, old_to_new_gateId);
             ++map_count_operands[check_operand];
         }
-    
+
         GateIdContainer delete_key{};
         if (gate_type == GateType::XOR || gate_type == GateType::NXOR)
         {
@@ -296,11 +273,11 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
             }
         }
         else if (
-            gate_type == GateType::AND || gate_type == GateType::NAND
-            || gate_type == GateType::OR || gate_type == GateType::NOR)
+            gate_type == GateType::AND || gate_type == GateType::NAND || gate_type == GateType::OR ||
+            gate_type == GateType::NOR)
         {
             // In the case of gates like AND, NAND, OR, NOR, we want to remove all duplicates
-            for (auto &[_, value]: map_count_operands)
+            for (auto& [_, value] : map_count_operands)
             {
                 value = 1;
             }
@@ -309,18 +286,16 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         {
             //  the rest of the gates are left unchanged
         }
-        
+
         for (auto key : delete_key)
         {
             map_count_operands.erase(key);
         }
-        
+
         return map_count_operands;
     }
-    
-    GateId getLink_(
-        GateId gate_id,
-        std::vector<GateId> const& old_to_new_gateId)
+
+    GateId getLink_(GateId gate_id, std::vector<GateId> const& old_to_new_gateId)
     {
         // We must give a link either to the gate itself, or to the gate where the users of the gate should refer.
         if (old_to_new_gateId.at(gate_id) != SIZE_MAX)
@@ -329,7 +304,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         }
         return gate_id;
     }
-    
+
     bool areThereOppositeOperands_(
         GateInfoContainer const& gate_info,
         std::map<GateId, size_t> const& map_count_operands)
@@ -340,16 +315,14 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         return std::any_of(
             map_count_operands.begin(),
             map_count_operands.end(),
-            [&gate_info, &map_count_operands](const auto& p)
+            [&gate_info, &map_count_operands](auto const& p)
             {
-                return gate_info.at(p.first).getType() == GateType::NOT
-                       && map_count_operands.find(gate_info.at(p.first).getOperands().at(0)) != map_count_operands.end();
+                return gate_info.at(p.first).getType() == GateType::NOT &&
+                       map_count_operands.find(gate_info.at(p.first).getOperands().at(0)) != map_count_operands.end();
             });
     }
-    
-    GateIdContainer rebuildXORAndNXOR_(
-        GateInfoContainer const& gate_info,
-        std::map<GateId, size_t>& map_count_operands)
+
+    GateIdContainer rebuildXORAndNXOR_(GateInfoContainer const& gate_info, std::map<GateId, size_t>& map_count_operands)
     {
         // TODO: сокращать максимальное количество пар, а не первые попавшиеся. Так например для схемы приведенной ниже
         //  есть два варианта сокращения пар и зависимости от порядка операндов в мапе (1, 2) или ((0, 1), (2, 3)).
@@ -363,12 +336,11 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
         size_t number_of_pair = 0;
         for (auto [operand, _] : map_count_operands)
         {
-            if (gate_info.at(operand).getType() == GateType::NOT
-                && map_count_operands[operand] > 0)
+            if (gate_info.at(operand).getType() == GateType::NOT && map_count_operands[operand] > 0)
             {
                 GateId const operand_of_not = gate_info.at(operand).getOperands().at(0);
-                if (map_count_operands.find(operand_of_not) != map_count_operands.end()
-                    && map_count_operands[operand_of_not] > 0)
+                if (map_count_operands.find(operand_of_not) != map_count_operands.end() &&
+                    map_count_operands[operand_of_not] > 0)
                 {
                     --map_count_operands[operand];
                     --map_count_operands[operand_of_not];
@@ -376,22 +348,22 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
                 }
             }
         }
-    
+
         GateIdContainer operands{};
-        for (auto [operand, value]: map_count_operands)
+        for (auto [operand, value] : map_count_operands)
         {
             for (size_t num_operands = 0; num_operands < value; ++num_operands)
             {
                 operands.push_back(operand);
             }
         }
-        
+
         // If the number of pairs of opposite operands was odd, then add one auxiliary gate of the CONST_TRUE type.
-        if(number_of_pair % 2 == 1)
+        if (number_of_pair % 2 == 1)
         {
             operands.push_back(id_const_true);
         }
-        
+
         return operands;
     }
 };

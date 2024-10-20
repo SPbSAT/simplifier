@@ -1,15 +1,15 @@
 #pragma once
 
-#include "src/common/csat_types.hpp"
-#include "src/structures/circuit/dag.hpp"
-
 #include <deque>
 #include <functional>
 #include <iostream>
-#include <numeric>
-#include <vector>
-#include <stack>
 #include <list>
+#include <numeric>
+#include <stack>
+#include <vector>
+
+#include "src/common/csat_types.hpp"
+#include "src/structures/circuit/dag.hpp"
 
 /**
  * Namespace contains some algorithms for data structures,
@@ -31,9 +31,8 @@ using DFSStateVector = std::vector<DFSState>;
 using OperationDFSGate = std::function<void(GateId, DFSStateVector const&)>;
 using OperationDFSVoid = std::function<void()>;
 
-[[maybe_unused]] static void voidOperationGate_(GateId /*unused*/, DFSStateVector const& /*unused*/) { }
-[[maybe_unused]] static void voidOperationVoid_() { }
-
+[[maybe_unused]] static void voidOperationGate_(GateId /*unused*/, DFSStateVector const& /*unused*/) {}
+[[maybe_unused]] static void voidOperationVoid_() {}
 
 /**
  * Performs Depth First Search on Circuit gates, where arcs are thought to
@@ -60,33 +59,27 @@ template<bool fromOperatorsToOperands = true>
 inline DFSStateVector performDepthFirstSearch(
     ICircuit const& circuit,
     GateIdContainer const& startGates,
-    OperationDFSGate const& previsitOperation = voidOperationGate_,
-    OperationDFSGate const& postvisitOperation = voidOperationGate_,
-    OperationDFSVoid const& dfsOverOperation = voidOperationVoid_,
+    OperationDFSGate const& previsitOperation        = voidOperationGate_,
+    OperationDFSGate const& postvisitOperation       = voidOperationGate_,
+    OperationDFSVoid const& dfsOverOperation         = voidOperationVoid_,
     OperationDFSGate const& unvisitedVertexOperation = voidOperationGate_)
 {
     // Believe that all gates are named from 0 through N.
     std::vector<DFSState> dfs_state(circuit.getNumberOfGates(), DFSState::UNVISITED);
-    
+
     // Getter of next node depends on template parameter (arcs orientation).
     std::function<GateIdContainer(GateId)> next_getter;
-    if constexpr(fromOperatorsToOperands)
+    if constexpr (fromOperatorsToOperands)
     {
-        next_getter = [&circuit](GateId gateId) -> GateIdContainer const&
-        {
-            return circuit.getGateOperands(gateId);
-        };
+        next_getter = [&circuit](GateId gateId) -> GateIdContainer const& { return circuit.getGateOperands(gateId); };
     }
     else
     {
-        next_getter = [&circuit](GateId gateId) -> GateIdContainer const&
-        {
-            return circuit.getGateUsers(gateId);
-        };
+        next_getter = [&circuit](GateId gateId) -> GateIdContainer const& { return circuit.getGateUsers(gateId); };
     }
-    
+
     std::stack<GateId> queue_{};
-    
+
     auto enqueue_next = [&dfs_state, &queue_](GateId nextGateId) -> void
     {
         if (dfs_state[nextGateId] == DFSState::UNVISITED)
@@ -94,7 +87,7 @@ inline DFSStateVector performDepthFirstSearch(
             queue_.push(nextGateId);
         }
     };
-    
+
     for (auto start : startGates)
     {
         enqueue_next(start);
@@ -105,20 +98,17 @@ inline DFSStateVector performDepthFirstSearch(
             {
                 case DFSState::UNVISITED:
                 {
-                    previsitOperation(gateId, dfs_state); // custom
+                    previsitOperation(gateId, dfs_state);  // custom
                     dfs_state[gateId] = DFSState::ENTERED;
-        
-                    GateIdContainer const &nextContainer = next_getter(gateId);
-                    std::for_each(
-                        nextContainer.rbegin(),
-                        nextContainer.rend(),
-                        enqueue_next);
+
+                    GateIdContainer const& nextContainer = next_getter(gateId);
+                    std::for_each(nextContainer.rbegin(), nextContainer.rend(), enqueue_next);
                     break;
                 }
                 case DFSState::ENTERED:
                 {
                     dfs_state[gateId] = DFSState::VISITED;
-                    postvisitOperation(gateId, dfs_state); // custom
+                    postvisitOperation(gateId, dfs_state);  // custom
                     queue_.pop();
                     break;
                 }
@@ -138,19 +128,18 @@ inline DFSStateVector performDepthFirstSearch(
         }
     }
 
-    dfsOverOperation(); // custom
+    dfsOverOperation();  // custom
 
     for (size_t idx = 0; idx < dfs_state.size(); ++idx)
     {
         if (dfs_state[idx] == DFSState::UNVISITED)
         {
-            unvisitedVertexOperation(idx, dfs_state); // custom
+            unvisitedVertexOperation(idx, dfs_state);  // custom
         }
     }
 
     return dfs_state;
 }
-
 
 // Auxiliary struct to be used as template parameters.
 struct DFSTopSort;
@@ -160,8 +149,9 @@ struct DFSTopSort;
  * @tparam Algorithm -- which algorithm to use.
  */
 template<class Algorithm>
-struct TopSortAlgorithm {};
-
+struct TopSortAlgorithm
+{
+};
 
 template<>
 struct TopSortAlgorithm<DFSTopSort>
@@ -184,35 +174,24 @@ struct TopSortAlgorithm<DFSTopSort>
                 sources.push_back(gateId);
             }
         }
-        
+
         GateIdContainer gateSorting{};
         gateSorting.reserve(circuit.getNumberOfGates());
-  
+
         performDepthFirstSearch(
             circuit,
             sources,
             voidOperationGate_,
             // Add gate to sorting on leaving.
-            [&gateSorting](GateId gate, DFSStateVector const&)
-            {
-                gateSorting.push_back(gate);
-            },
+            [&gateSorting](GateId gate, DFSStateVector const&) { gateSorting.push_back(gate); },
             // Reverse sorting after DFS is over.
-            [&gateSorting]()
-            {
-                std::reverse(gateSorting.begin(), gateSorting.end());
-            },
+            [&gateSorting]() { std::reverse(gateSorting.begin(), gateSorting.end()); },
             // Add rest (not connected) gates
             // to fulfill return contract.
-            [&gateSorting](GateId gate, DFSStateVector const&)
-            {
-                gateSorting.push_back(gate);
-            }
-        );
-  
+            [&gateSorting](GateId gate, DFSStateVector const&) { gateSorting.push_back(gate); });
+
         return gateSorting;
     }
 };
 
-
-} // namespace csat::algo
+}  // namespace csat::algo

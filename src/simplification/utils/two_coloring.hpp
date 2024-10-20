@@ -1,16 +1,15 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
-#include "src/algo.hpp"
-#include "src/utility/converters.hpp"
-#include "src/common/csat_types.hpp"
-
 #include <cassert>
-#include <ranges>
-#include <vector>
-#include <unordered_map>
 #include <memory>
+#include <ranges>
+#include <unordered_map>
+#include <vector>
 
+#include "src/algo.hpp"
+#include "src/common/csat_types.hpp"
+#include "src/simplification/transformer_base.hpp"
+#include "src/utility/converters.hpp"
 
 namespace csat::utils
 {
@@ -28,29 +27,17 @@ struct TwoColor
     GateIdContainer gates_;
 
   public:
-    TwoColor(GateId first_parent, GateId second_parent):
-        first_parent(std::min(first_parent, second_parent)),
-        second_parent(std::max(first_parent, second_parent)) {};
+    TwoColor(GateId first_parent, GateId second_parent)
+        : first_parent(std::min(first_parent, second_parent))
+        , second_parent(std::max(first_parent, second_parent)){};
 
-    void addGate(GateId gateId)
-    {
-        gates_.push_back(gateId);
-    }
+    void addGate(GateId gateId) { gates_.push_back(gateId); }
 
-    [[nodiscard]] GateIdContainer const& getGates() const
-    {
-        return gates_;
-    }
+    [[nodiscard]] GateIdContainer const& getGates() const { return gates_; }
 
-    [[nodiscard]] GateIdContainer getParents() const
-    {
-        return {first_parent, second_parent};
-    }
+    [[nodiscard]] GateIdContainer getParents() const { return {first_parent, second_parent}; }
 
-    [[nodiscard]] bool hasParent(GateId gateId) const  
-    {  
-        return first_parent == gateId || second_parent == gateId;  
-    }
+    [[nodiscard]] bool hasParent(GateId gateId) const { return first_parent == gateId || second_parent == gateId; }
 
     static GateIdContainer sortedParents(GateId first_parent, GateId second_parent)
     {
@@ -58,26 +45,22 @@ struct TwoColor
     }
 };
 
-
 class TwoColoring
 {
   public:
     std::vector<TwoColor> colors;
-    std::vector<ColorId> gateColor; // if vertex is not colored, then value is 'SIZE_MAX'
+    std::vector<ColorId> gateColor;  // if vertex is not colored, then value is 'SIZE_MAX'
     // TODO: use better key type for this map.
     std::map<GateIdContainer, ColorId> parentsToColor;
 
-    [[nodiscard]] size_t getColorsNumber() const
-    {
-        return next_color_id_;
-    }
+    [[nodiscard]] size_t getColorsNumber() const { return next_color_id_; }
 
     /**
-    * Returns 'True' if 'gateId' is a parent for following 'color', otherwise returns 'False'
-    */
+     * Returns 'True' if 'gateId' is a parent for following 'color', otherwise returns 'False'
+     */
     [[nodiscard]] bool isParentOfColor(GateId gateId, ColorId colorId) const
     {
-        return colors[colorId].hasParent(gateId); 
+        return colors[colorId].hasParent(gateId);
     }
 
   protected:
@@ -125,7 +108,7 @@ class TwoColoring
                 {
                     paintGate(gateId, newColor);
                 }
-                
+
                 // Actually, here we want only 'NOT' operations be possible, but check for safety
                 if (circuit.getGateType(gateId) == GateType::NOT)
                 {
@@ -134,10 +117,11 @@ class TwoColoring
                 continue;
             }
             // Check of non-binary gates
-            if (operands.size() > 2)  
+            if (operands.size() > 2)
             {
-                std::cerr << "TwoColoring got circuit which gate has more than two operands. Gate id: " << gateId << std::endl;
-                std::exit(-1);  
+                std::cerr << "TwoColoring got circuit which gate has more than two operands. Gate id: " << gateId
+                          << std::endl;
+                std::exit(-1);
             }
 
             GateId child_1 = operands[0];

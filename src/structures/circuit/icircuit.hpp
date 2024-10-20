@@ -1,15 +1,14 @@
 #pragma once
 
-#include "src/common/csat_types.hpp"
-#include "src/common/operators.hpp"
-#include "src/structures/circuit/gate_info.hpp"
-#include "src/structures/assignment/vector_assignment.hpp"
-
 #include <algorithm>
 #include <memory>
-#include <utility>
 #include <stack>
+#include <utility>
 
+#include "src/common/csat_types.hpp"
+#include "src/common/operators.hpp"
+#include "src/structures/assignment/vector_assignment.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 
 namespace csat
 {
@@ -30,11 +29,11 @@ namespace csat
 class ICircuit
 {
   public:
-    ICircuit() = default;
+    ICircuit()                = default;
     ICircuit(ICircuit const&) = default;
-    virtual ~ICircuit() = default;
-    ICircuit(GateInfoContainer const& /*unused*/, GateIdContainer const& /*unused*/) {};
-    
+    virtual ~ICircuit()       = default;
+    ICircuit(GateInfoContainer const& /*unused*/, GateIdContainer const& /*unused*/){};
+
     // ========== Circuit Info ========== //
     /* Returns type of gate. */
     [[nodiscard]] virtual GateType getGateType(GateId gateId) const = 0;
@@ -50,7 +49,7 @@ class ICircuit
     [[nodiscard]] virtual GateIdContainer const& getInputGates() const = 0;
     /* Returns true iff gate is output. */
     [[nodiscard]] virtual bool isOutputGate(GateId gateId) const = 0;
-    
+
     // ========== Circuit Evaluation Methods ========== //
     /**
      * @param input_asmt -- some (partial) assignment.
@@ -60,72 +59,56 @@ class ICircuit
      *
      * @tparam AssignmentT -- structure to carry resulting assignment.
      */
-     template<
-         class AssignmentT = VectorAssignment<false>,
-         typename = std::enable_if_t<
-             std::is_base_of_v<IAssignment, AssignmentT>
-         >
-     >
+    template<
+        class AssignmentT = VectorAssignment<false>,
+        typename          = std::enable_if_t<std::is_base_of_v<IAssignment, AssignmentT> > >
     [[nodiscard]]
     std::unique_ptr<AssignmentT> evaluateCircuit(IAssignment const& input_asmt) const
     {
         auto internal_asmt = std::make_unique<AssignmentT>();
         internal_asmt->ensureCapacity(getNumberOfGates());
-        evaluateCircuit_(
-            input_asmt,
-            getOutputGates(),
-            *internal_asmt);
-        
+        evaluateCircuit_(input_asmt, getOutputGates(), *internal_asmt);
+
         return internal_asmt;
     }
-  
+
   protected:
-    void evaluateCircuit_(
-        IAssignment const& input_asmt,
-        GateIdContainer const& sinks,
-        IAssignment& internal_asmt) const
+    void evaluateCircuit_(IAssignment const& input_asmt, GateIdContainer const& sinks, IAssignment& internal_asmt) const
     {
         for (auto sink : sinks)
         {
             evaluateGate_(sink, input_asmt, internal_asmt);
         }
     }
-    
+
     /* Internal purpose gate evaluation. */
-    GateState evaluateGate_(
-        GateId gateId,
-        IAssignment const& input_asmt,
-        IAssignment& internal_asmt) const
+    GateState evaluateGate_(GateId gateId, IAssignment const& input_asmt, IAssignment& internal_asmt) const
     {
         std::stack<GateId> queue_{};
         queue_.push(gateId);
         BoolVector evaluated_(getNumberOfGates(), 0);
-    
+
         auto get_gate_state_ = [&input_asmt, &internal_asmt](GateId operand)
         {
             return (
-                internal_asmt.isUndefined(operand)
-                ? input_asmt.getGateState(operand)
-                : internal_asmt.getGateState(operand)
-            );
+                internal_asmt.isUndefined(operand) ? input_asmt.getGateState(operand)
+                                                   : internal_asmt.getGateState(operand));
         };
-    
+
         while (!queue_.empty())
         {
             GateId const currentGateId = queue_.top();
-            
+
             // Gate state is set or gate is Input. If gate is Input, its
             // state must be either set in input_asmt, or be Unknown.
             if (getGateType(currentGateId) == GateType::INPUT || !input_asmt.isUndefined(currentGateId))
             {
-                internal_asmt.assign(
-                    currentGateId,
-                    input_asmt.getGateState(currentGateId));
+                internal_asmt.assign(currentGateId, input_asmt.getGateState(currentGateId));
                 evaluated_.at(currentGateId) = true;
                 queue_.pop();
                 continue;
             }
-            
+
             bool operandsEvaluated = true;
             for (auto operandId : getGateOperands(currentGateId))
             {
@@ -135,23 +118,20 @@ class ICircuit
                     queue_.push(operandId);
                 }
             }
-            
+
             if (operandsEvaluated)
             {
-                op::OperatorNT<GateId> oper = op::getOperatorNT<GateId>(
-                    getGateType(currentGateId));
-                
-                internal_asmt.assign(
-                    currentGateId,
-                    oper(getGateOperands(currentGateId), get_gate_state_));
+                op::OperatorNT<GateId> oper = op::getOperatorNT<GateId>(getGateType(currentGateId));
+
+                internal_asmt.assign(currentGateId, oper(getGateOperands(currentGateId), get_gate_state_));
                 evaluated_.at(currentGateId) = true;
                 queue_.pop();
                 continue;
             }
         }
-        
+
         return internal_asmt.getGateState(gateId);
     }
 };
 
-} // namespace csat
+}  // namespace csat

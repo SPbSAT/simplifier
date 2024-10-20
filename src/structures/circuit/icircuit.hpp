@@ -36,19 +36,26 @@ class ICircuit
 
     // ========== Circuit Info ========== //
     /* Returns type of gate. */
-    [[nodiscard]] virtual GateType getGateType(GateId gateId) const = 0;
+    [[nodiscard]]
+    virtual GateType getGateType(GateId gateId) const = 0;
     /* Returns operands of gate. */
-    [[nodiscard]] virtual GateIdContainer const& getGateOperands(GateId gateId) const = 0;
+    [[nodiscard]]
+    virtual GateIdContainer const& getGateOperands(GateId gateId) const = 0;
     /* Returns users of gate -- gates, that use current as operand. */
-    [[nodiscard]] virtual GateIdContainer const& getGateUsers(GateId gateId) const = 0;
+    [[nodiscard]]
+    virtual GateIdContainer const& getGateUsers(GateId gateId) const = 0;
     /* Returns number of gates in structures. */
-    [[nodiscard]] virtual GateId getNumberOfGates() const = 0;
+    [[nodiscard]]
+    virtual GateId getNumberOfGates() const = 0;
     /* Returns constant reference to GateIdContainer with all output gates. */
-    [[nodiscard]] virtual GateIdContainer const& getOutputGates() const = 0;
+    [[nodiscard]]
+    virtual GateIdContainer const& getOutputGates() const = 0;
     /* Returns constant reference to GateIdContainer with all input gates. */
-    [[nodiscard]] virtual GateIdContainer const& getInputGates() const = 0;
+    [[nodiscard]]
+    virtual GateIdContainer const& getInputGates() const = 0;
     /* Returns true iff gate is output. */
-    [[nodiscard]] virtual bool isOutputGate(GateId gateId) const = 0;
+    [[nodiscard]]
+    virtual bool isOutputGate(GateId gateId) const = 0;
 
     // ========== Circuit Evaluation Methods ========== //
     /**

@@ -31,13 +31,28 @@ struct TwoColor
         : first_parent(std::min(first_parent, second_parent))
         , second_parent(std::max(first_parent, second_parent)){};
 
-    void addGate(GateId gateId) { gates_.push_back(gateId); }
+    void addGate(GateId gateId)
+    {
+        gates_.push_back(gateId);
+    }
 
-    [[nodiscard]] GateIdContainer const& getGates() const { return gates_; }
+    [[nodiscard]]
+    GateIdContainer const& getGates() const
+    {
+        return gates_;
+    }
 
-    [[nodiscard]] GateIdContainer getParents() const { return {first_parent, second_parent}; }
+    [[nodiscard]]
+    GateIdContainer getParents() const
+    {
+        return {first_parent, second_parent};
+    }
 
-    [[nodiscard]] bool hasParent(GateId gateId) const { return first_parent == gateId || second_parent == gateId; }
+    [[nodiscard]]
+    bool hasParent(GateId gateId) const
+    {
+        return first_parent == gateId || second_parent == gateId;
+    }
 
     static GateIdContainer sortedParents(GateId first_parent, GateId second_parent)
     {
@@ -53,12 +68,17 @@ class TwoColoring
     // TODO: use better key type for this map.
     std::map<GateIdContainer, ColorId> parentsToColor;
 
-    [[nodiscard]] size_t getColorsNumber() const { return next_color_id_; }
+    [[nodiscard]]
+    size_t getColorsNumber() const
+    {
+        return next_color_id_;
+    }
 
     /**
      * Returns 'True' if 'gateId' is a parent for following 'color', otherwise returns 'False'
      */
-    [[nodiscard]] bool isParentOfColor(GateId gateId, ColorId colorId) const
+    [[nodiscard]]
+    bool isParentOfColor(GateId gateId, ColorId colorId) const
     {
         return colors[colorId].hasParent(gateId);
     }

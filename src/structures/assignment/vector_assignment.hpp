@@ -54,7 +54,10 @@ struct VectorAssignment : public IAssignment
         return getGateState(gateId) == GateState::UNDEFINED;
     };
 
-    void clear() noexcept override { gate_state_ = StateVector(); }
+    void clear() noexcept override
+    {
+        gate_state_ = StateVector();
+    }
 
     void ensureCapacity(GateId sz) final
     {

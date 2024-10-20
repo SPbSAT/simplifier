@@ -63,7 +63,10 @@ class IBenchParser : public ICircuitParser
      * Encode circuit variable.
      * @param var_name -- name of encoded variable.
      */
-    virtual GateId encodeGate(std::string_view var_name) { return encoder.encodeGate(var_name); };
+    virtual GateId encodeGate(std::string_view var_name)
+    {
+        return encoder.encodeGate(var_name);
+    };
 
     /**
      * Circuit input handler.

@@ -218,7 +218,8 @@ class DAG : public ICircuit
      * @param gateId
      * @return true iff gateId is output.
      */
-    [[nodiscard]] bool isOutputGate(GateId gateId) const noexcept override
+    [[nodiscard]]
+    bool isOutputGate(GateId gateId) const noexcept override
     {
         return std::find(output_gates_.begin(), output_gates_.end(), gateId) != output_gates_.end();
     };

@@ -22,7 +22,10 @@ class GlobalSeed
         return instance;
     }
 
-    static uint64_t get() { return GlobalSeed::getInstance().SeedValue_; }
+    static uint64_t get()
+    {
+        return GlobalSeed::getInstance().SeedValue_;
+    }
 
     static void set(uint64_t value)
     {
@@ -46,6 +49,9 @@ static uint64_t getNextRandomSeed()
 /**
  * @return New Mersenne Twister Engine, seeded by predictable number.
  */
-static std::mt19937 getNewMersenneTwisterEngine() { return std::mt19937(getNextRandomSeed()); }
+static std::mt19937 getNewMersenneTwisterEngine()
+{
+    return std::mt19937(getNextRandomSeed());
+}
 
 }  // namespace csat::utils

@@ -38,13 +38,25 @@ struct ThreeColor
         third_parent            = parents[2];
     }
 
-    void addGate(GateId gateId) { gates_.push_back(gateId); }
+    void addGate(GateId gateId)
+    {
+        gates_.push_back(gateId);
+    }
 
-    [[nodiscard]] GateIdContainer const& getGates() const { return gates_; }
+    [[nodiscard]]
+    GateIdContainer const& getGates() const
+    {
+        return gates_;
+    }
 
-    [[nodiscard]] GateIdContainer getParents() const { return {first_parent, second_parent, third_parent}; }
+    [[nodiscard]]
+    GateIdContainer getParents() const
+    {
+        return {first_parent, second_parent, third_parent};
+    }
 
-    [[nodiscard]] bool hasParent(GateId gateId) const
+    [[nodiscard]]
+    bool hasParent(GateId gateId) const
     {
         return first_parent == gateId || second_parent == gateId || third_parent == gateId;
     }
@@ -67,7 +79,11 @@ class ThreeColoring
     // TMP added negationUsers, TODO: remove
     GateIdContainer negationUsers;
 
-    [[nodiscard]] size_t getColorsNumber() const { return next_color_id_; }
+    [[nodiscard]]
+    size_t getColorsNumber() const
+    {
+        return next_color_id_;
+    }
 
   protected:
     ColorId next_color_id_ = 0;

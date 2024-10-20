@@ -50,8 +50,14 @@ static std::string getUniqueId_()
     return std::to_string(dist(engine));
 }
 
-inline std::string getNewGateName_(std::string const& prefix, GateId id) { return prefix + std::to_string(id); }
+inline std::string getNewGateName_(std::string const& prefix, GateId id)
+{
+    return prefix + std::to_string(id);
+}
 
-inline std::string getNewGateName_(std::string const& prefix, std::string&& id) { return prefix + id; }
+inline std::string getNewGateName_(std::string const& prefix, std::string&& id)
+{
+    return prefix + id;
+}
 
 }  // namespace csat::simplification

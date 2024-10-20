@@ -28,7 +28,10 @@ static LogLevel const CompileLogLevel = LogLevel::INFO;
 #endif
 
 // Basic logging to std::cout.
-inline void LOG_OUT() { std::cout << std::endl; }
+inline void LOG_OUT()
+{
+    std::cout << std::endl;
+}
 
 // Basic logging to std::cout.
 template<class T, class... Args>
@@ -39,7 +42,10 @@ inline void LOG_OUT(T const& t, Args const&... args)
 }
 
 // Basic logging to std::cerr.
-inline void LOG_ERR() { std::cerr << std::endl; }
+inline void LOG_ERR()
+{
+    std::cerr << std::endl;
+}
 
 // Basic logging to std::cerr.
 template<class T, class... Args>

@@ -31,8 +31,14 @@ using DFSStateVector = std::vector<DFSState>;
 using OperationDFSGate = std::function<void(GateId, DFSStateVector const&)>;
 using OperationDFSVoid = std::function<void()>;
 
-[[maybe_unused]] static void voidOperationGate_(GateId /*unused*/, DFSStateVector const& /*unused*/) {}
-[[maybe_unused]] static void voidOperationVoid_() {}
+[[maybe_unused]]
+static void voidOperationGate_(GateId /*unused*/, DFSStateVector const& /*unused*/)
+{
+}
+[[maybe_unused]]
+static void voidOperationVoid_()
+{
+}
 
 /**
  * Performs Depth First Search on Circuit gates, where arcs are thought to

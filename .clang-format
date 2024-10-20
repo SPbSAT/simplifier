@@ -27,4 +27,3 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AlwaysBreakTemplateDeclarations: Yes
 ReflowComments: true
 BreakConstructorInitializers: BeforeComma
-BreakBeforeBinaryOperators: All

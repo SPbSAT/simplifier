@@ -78,7 +78,10 @@ enum class Basis : uint8_t
 /**
  * @return index of gateType among all gate operator types.
  */
-inline size_t getIndexByOperator(GateType gateType) { return static_cast<size_t>(gateType) - FirstOperatorIdx; }
+inline size_t getIndexByOperator(GateType gateType)
+{
+    return static_cast<size_t>(gateType) - FirstOperatorIdx;
+}
 
 /** Internal gate ids are numbers 0,1,2... **/
 using GateId          = size_t;

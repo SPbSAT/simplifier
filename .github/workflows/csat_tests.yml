@@ -56,6 +56,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Update clang
+        run: sudo apt install --only-upgrade clang -y
+
       - name: Install clang-format
         run: sudo apt install -y clang-format
 
@@ -70,6 +73,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Update clang
+        run: sudo apt install --only-upgrade clang -y
 
       - name: Install clang-format
         run: sudo apt install -y clang-tidy

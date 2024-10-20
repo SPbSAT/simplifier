@@ -2,6 +2,9 @@
 
 #include "src/common/csat_types.hpp"
 
+#include <string>
+#include <functional>
+#include <string_view>
 #include <unordered_map>
 #include <map>
 
@@ -13,6 +16,7 @@ namespace csat::utils
 /**
  * @return Reference to a string->GateType map.
  */
+[[maybe_unused]]
 inline GateType stringToGateType(std::string const& type_name)
 {
     static const std::map<std::string, GateType, std::less<>> _type_map
@@ -39,6 +43,7 @@ inline GateType stringToGateType(std::string const& type_name)
 }
 
 
+[[maybe_unused]]
 inline std::string gateTypeToString(GateType state)
 noexcept
 {
@@ -63,6 +68,41 @@ noexcept
 }
 
 
+/**
+ * @return New string object representing a basis name.
+ */
+[[maybe_unused]]
+inline std::string basisToString(Basis basis)
+noexcept
+{
+    static const std::unordered_map<Basis, std::string> _type_map
+    {
+        {Basis::AIG,   "AIG"},
+        {Basis::BENCH, "BENCH"}
+    };
+
+return _type_map.at(basis);
+}
+
+
+/**
+ * @return Returns Basis element by given string.
+ */
+ [[maybe_unused]]
+inline Basis stringToBasis(std::string const& basis_name)
+noexcept
+{
+    static const std::unordered_map<std::string, Basis> _type_map
+    {
+        {"AIG", Basis::AIG},
+        {"BENCH", Basis::BENCH}
+    };
+    
+    return _type_map.at(basis_name);
+}
+
+
+[[maybe_unused]]
 inline ReturnCode returnCodeNameToReturnCode(std::string_view state_name)
 noexcept
 {
@@ -72,6 +112,7 @@ noexcept
 }
 
 
+[[maybe_unused]]
 inline std::string gateStateToString(GateState state)
 noexcept
 {
@@ -81,6 +122,7 @@ noexcept
 }
 
 
+[[maybe_unused]]
 inline std::string gateStateToSATAnswer(GateState state)
 noexcept
 {
@@ -90,6 +132,7 @@ noexcept
 }
 
 
+[[maybe_unused]]
 inline ReturnCode gateStateToReturnCode(GateState state)
 noexcept
 {
@@ -99,6 +142,7 @@ noexcept
 }
 
 
+[[maybe_unused]]
 inline std::string returnCodeToString(ReturnCode code)
 noexcept
 {
@@ -110,6 +154,7 @@ noexcept
 /**
  * @return Minimum arity of a given `gate_type`.
  */
+[[maybe_unused]]
 inline MinArity gateTypeToMinArity(GateType gate_type)
 noexcept
 {
@@ -136,6 +181,7 @@ noexcept
 /**
  * @return True if the given `gate_type` can have arity greater than `gateTypeToMinArity(gate_type)`.
  */
+[[maybe_unused]]
 inline bool expandableArityQ(GateType gate_type)
 noexcept
 {
@@ -162,6 +208,7 @@ noexcept
 /**
  * @return True if operands can be swapped without changing the results.
  */
+[[maybe_unused]]
 inline bool symmetricOperatorQ(GateType gate_type)
 noexcept
 {
@@ -185,4 +232,4 @@ noexcept
     return _type_map.at(gate_type);
 }
 
-} // csat::utils namespace
+} // namespace csat::utils

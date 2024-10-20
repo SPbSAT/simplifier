@@ -1,5 +1,6 @@
 #include "src/utility/logger.hpp"
 #include "src/parser/bench_to_circuit.hpp"
+#include "src/structures/circuit/dag.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -152,4 +153,4 @@ TEST(BenchParser, ExternalConstGateType)
     ASSERT_TRUE(circuit->getGateType(4) == csat::GateType::MUX);
 }
 
-} // anonymous namespace
+} // namespace

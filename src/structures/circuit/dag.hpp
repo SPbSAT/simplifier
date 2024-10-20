@@ -26,9 +26,9 @@ struct Node_
     /* Gate type. */
     GateType type_ = GateType::UNDEFINED;
     /* Gate operands container. */
-    GateIdContainer operands_{};
+    GateIdContainer operands_;
     /* Users of gate -- gates, that have current gate as operand. */
-    GateIdContainer users_{};
+    GateIdContainer users_;
   
   public:
     Node_() = default;
@@ -98,11 +98,11 @@ class DAG : public ICircuit
 {
   protected:
     /* Carries all gates. */
-    std::vector<Node_> gates_{};
+    std::vector<Node_> gates_;
     /* Carries all input gates. */
-    GateIdContainer input_gates_{};
+    GateIdContainer input_gates_;
     /* Carries all output gates.. */
-    GateIdContainer output_gates_{};
+    GateIdContainer output_gates_;
     
   public:
     DAG(DAG const& dag)
@@ -266,4 +266,4 @@ class DAG : public ICircuit
 };
 
 
-} // csat namespace
+} // namespace csat

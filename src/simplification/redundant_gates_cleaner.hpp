@@ -1,9 +1,15 @@
 #pragma once
 
+#include "src/common/csat_types.hpp"
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/utility/logger.hpp"
+#include "src/structures/circuit/gate_info.hpp"
+#include "src/utility/encoder.hpp"
 
-#include <vector>
+#include <cassert>
+#include <utility>
 #include <type_traits>
 #include <memory>
 
@@ -94,4 +100,4 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
 };
 
 
-} // csat namespace
+}  // namespace csat::simplification

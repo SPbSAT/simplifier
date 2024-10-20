@@ -33,4 +33,4 @@ class ICircuitBuilder
     virtual std::unique_ptr<CircuitT> instantiate() = 0;
 };
 
-} // csat::namespace
+}  // namespace csat

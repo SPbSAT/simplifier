@@ -194,4 +194,4 @@ TEST(RedundantGatesCleaner, NewGatesMUXandCONST)
 
 }
 
-} // anonymous namespace
+} // namespace

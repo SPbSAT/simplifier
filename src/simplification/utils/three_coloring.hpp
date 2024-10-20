@@ -7,6 +7,7 @@
 #include "src/simplification/utils/two_coloring.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
@@ -43,17 +44,17 @@ struct ThreeColor
         gates_.push_back(gateId);
     }
 
-    GateIdContainer const& getGates() const
+    [[nodiscard]] GateIdContainer const& getGates() const
     {
         return gates_;
     }
 
-    GateIdContainer const getParents() const
+    [[nodiscard]] GateIdContainer getParents() const
     {
         return {first_parent, second_parent, third_parent};
     }
 
-    bool hasParent(GateId gateId) const  
+    [[nodiscard]] bool hasParent(GateId gateId) const  
     {  
         return first_parent == gateId || second_parent == gateId || third_parent == gateId;
     }
@@ -72,12 +73,12 @@ class ThreeColoring
   public:
     std::vector<ThreeColor> colors; // list of all 3-parents colors
     std::vector<std::vector<ColorId>> gateColors; // contains up to 2 colors for each gate, otherwise: {}
-    // TODO: use better key type for this map.  
+    // TODO: use better key type for this map.
     std::map<std::vector<GateId>, ColorId> parentsToColor; // takes parent ids in ascdending order
     // TMP added negationUsers, TODO: remove
     GateIdContainer negationUsers;
 
-    size_t getColorsNumber() const
+    [[nodiscard]] size_t getColorsNumber() const
     {
         return next_color_id_;
     }
@@ -87,8 +88,8 @@ class ThreeColoring
 
     ColorId addColor(GateId first_parent, GateId second_parent, GateId third_parent) // returns new color ID
     {
-        colors.push_back(ThreeColor(first_parent, second_parent, third_parent));
-        GateIdContainer sortedParents = ThreeColor::sortedParents(first_parent, second_parent, third_parent);
+        colors.emplace_back(first_parent, second_parent, third_parent);
+        GateIdContainer const sortedParents = ThreeColor::sortedParents(first_parent, second_parent, third_parent);
         parentsToColor[sortedParents] = next_color_id_;
         return next_color_id_++;
     }
@@ -100,10 +101,10 @@ class ThreeColoring
     }
 
   public:
-    ThreeColoring(ICircuit const& circuit)
+    explicit ThreeColoring(ICircuit const& circuit)
     {
         csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(circuit));
-        size_t circuit_size = circuit.getNumberOfGates();
+        size_t const circuit_size = circuit.getNumberOfGates();
         TwoColoring twoColoring = TwoColoring(circuit);
         gateColors.resize(circuit_size, {});
 
@@ -111,20 +112,19 @@ class ThreeColoring
         // User constructed as negation of chosen gate ('SIZE_MAX' if there is no such users)
         negationUsers.resize(circuit_size, SIZE_MAX);
 
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (uint64_t const gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
             
             // Gate is input or constant
-            if (operands.size() == 0)
+            if (operands.empty())
             {
                 continue;
             }
             // Unary operation
             if (operands.size() == 1)
             {
-                for (ColorId color: gateColors.at(operands[0]))
+                for (ColorId const color: gateColors.at(operands[0]))
                 {
                     paintGate(gateId, color);
                 }
@@ -139,19 +139,19 @@ class ThreeColoring
             // Check of non-binary gates
             if (operands.size() > 2)  
             {
-                std::cerr << "ThreeColoring got circuit which gate has more than two operands. Gate id: " << gateId << std::endl;  
+                std::cerr << "ThreeColoring got circuit which gate has more than two operands. Gate id: " << gateId << std::endl;
                 std::exit(-1);  
             }
 
-            ColorId two_color = twoColoring.gateColor.at(gateId);
+            ColorId const two_color = twoColoring.gateColor.at(gateId);
             // If gate doesn't have TwoColor, it won't have ThreeColor
             if (two_color == SIZE_MAX) 
             {
                 continue;
             }
 
-            GateId child_1 = twoColoring.colors.at(two_color).first_parent;
-            GateId child_2 = twoColoring.colors.at(two_color).second_parent;
+            GateId const child_1 = twoColoring.colors.at(two_color).first_parent;
+            GateId const child_2 = twoColoring.colors.at(two_color).second_parent;
 
             // If both gate's TwoColor parents don't have TwoColor parent, then gate won't have ThreeColor
             if (twoColoring.gateColor.at(child_1) == SIZE_MAX
@@ -165,9 +165,9 @@ class ThreeColoring
             ColorId color_type_13 = SIZE_MAX;
             ColorId color_type_31 = SIZE_MAX;
 
-            for (ColorId first_child_color: gateColors.at(child_1))
+            for (ColorId const first_child_color: gateColors.at(child_1))
             {
-                for (ColorId second_child_color: gateColors.at(child_2))
+                for (ColorId const second_child_color: gateColors.at(child_2))
                 {
                     if (first_child_color == second_child_color)
                     {
@@ -208,14 +208,14 @@ class ThreeColoring
             if (color_type_13 != SIZE_MAX)
             {
                 paintGate(gateId, color_type_13);
-                ColorId first_child_two_color = twoColoring.gateColor.at(child_1);
+                ColorId const first_child_two_color = twoColoring.gateColor.at(child_1);
                 if (first_child_two_color != SIZE_MAX)
                 {
-                    GateId parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
-                    GateId parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
+                    GateId const parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
+                    GateId const parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
                     ColorId color_type_23 = SIZE_MAX;
 
-                    for (ColorId second_child_color: gateColors.at(child_2))
+                    for (ColorId const second_child_color: gateColors.at(child_2))
                     {
                         if (colors.at(second_child_color).hasParent(parent_1)
                             && colors.at(second_child_color).hasParent(parent_2))
@@ -245,14 +245,14 @@ class ThreeColoring
             if (color_type_31 != SIZE_MAX)
             {
                 paintGate(gateId, color_type_31);
-                ColorId second_child_two_color = twoColoring.gateColor.at(child_2);
+                ColorId const second_child_two_color = twoColoring.gateColor.at(child_2);
                 if (second_child_two_color != SIZE_MAX)
                 {
-                    GateId parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
-                    GateId parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
+                    GateId const parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
+                    GateId const parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
                     ColorId color_type_32 = SIZE_MAX;
 
-                    for (ColorId first_child_color: gateColors.at(child_1))
+                    for (ColorId const first_child_color: gateColors.at(child_1))
                     {
                         if (colors.at(first_child_color).hasParent(parent_1)
                             && colors.at(first_child_color).hasParent(parent_2))
@@ -280,15 +280,15 @@ class ThreeColoring
             }
 
             // Check for single 3-2 or 2-3 pattern
-            ColorId first_child_two_color = twoColoring.gateColor.at(child_1);
-            ColorId second_child_two_color = twoColoring.gateColor.at(child_2);
+            ColorId const first_child_two_color = twoColoring.gateColor.at(child_1);
+            ColorId const second_child_two_color = twoColoring.gateColor.at(child_2);
 
             if (second_child_two_color != SIZE_MAX)
             {
-                GateId parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
-                GateId parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
+                GateId const parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
+                GateId const parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
                 ColorId color_type_32 = SIZE_MAX;
-                for (ColorId first_child_color: gateColors.at(child_1))
+                for (ColorId const first_child_color: gateColors.at(child_1))
                 {
                     if (colors.at(first_child_color).hasParent(parent_1)
                         && colors.at(first_child_color).hasParent(parent_2))
@@ -306,10 +306,10 @@ class ThreeColoring
 
             if (first_child_two_color != SIZE_MAX)
             {
-                GateId parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
-                GateId parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
+                GateId const parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
+                GateId const parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
                 ColorId color_type_23 = SIZE_MAX;
-                for (ColorId second_child_color: gateColors.at(child_2))
+                for (ColorId const second_child_color: gateColors.at(child_2))
                 {
                     if (colors.at(second_child_color).hasParent(parent_1)
                         && colors.at(second_child_color).hasParent(parent_2))
@@ -328,10 +328,10 @@ class ThreeColoring
             // Check for 2-2 pattern
             if (first_child_two_color != SIZE_MAX && second_child_two_color != SIZE_MAX)
             {
-                GateId parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
-                GateId parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
-                GateId parent_3 = twoColoring.colors.at(second_child_two_color).first_parent;
-                GateId parent_4 = twoColoring.colors.at(second_child_two_color).second_parent;
+                GateId const parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
+                GateId const parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
+                GateId const parent_3 = twoColoring.colors.at(second_child_two_color).first_parent;
+                GateId const parent_4 = twoColoring.colors.at(second_child_two_color).second_parent;
                 if (twoColoring.colors.at(second_child_two_color).hasParent(parent_1))
                 {
                     GateIdContainer color_parents = ThreeColor::sortedParents(parent_2, parent_3, parent_4);
@@ -372,14 +372,14 @@ class ThreeColoring
             GateIdContainer color_parents = {};
             if (first_child_two_color != SIZE_MAX)
             {
-                GateId parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
-                GateId parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
+                GateId const parent_1 = twoColoring.colors.at(first_child_two_color).first_parent;
+                GateId const parent_2 = twoColoring.colors.at(first_child_two_color).second_parent;
                 color_parents = ThreeColor::sortedParents(parent_1, parent_2, child_2);
             }
             else
             {
-                GateId parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
-                GateId parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
+                GateId const parent_1 = twoColoring.colors.at(second_child_two_color).first_parent;
+                GateId const parent_2 = twoColoring.colors.at(second_child_two_color).second_parent;
                 color_parents = ThreeColor::sortedParents(parent_1, parent_2, child_1);
             }
 
@@ -392,4 +392,4 @@ class ThreeColoring
     }
 };
 
-}
+}  // namespace csat::utils

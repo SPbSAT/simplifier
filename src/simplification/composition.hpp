@@ -1,7 +1,9 @@
 #pragma once
 
 #include "src/simplification/transformer_base.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 
+#include <string>
 #include <type_traits>
 #include <memory>
 
@@ -91,4 +93,4 @@ struct Composition<CircuitT, TransformerT> : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

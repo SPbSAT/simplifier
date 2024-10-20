@@ -2,9 +2,12 @@
 
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
-#include "src/utility/converters.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 
+#include <set>
 #include <vector>
 #include <type_traits>
 #include <memory>
@@ -75,7 +78,7 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     };
 
   private:
-    inline GateId get_operand(CircuitT const& circuit, GateId gateId)
+    GateId get_operand(CircuitT const& circuit, GateId gateId)
     {
         bool flag = false;
         GateId check_gate = circuit.getGateOperands(gateId).at(0);
@@ -97,4 +100,4 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

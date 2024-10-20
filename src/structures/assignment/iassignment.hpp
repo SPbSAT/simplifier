@@ -36,4 +36,4 @@ class IAssignment
     
 };
 
-} // csat namespace
+} // namespace csat

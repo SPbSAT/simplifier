@@ -1,13 +1,19 @@
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
+#include <algorithm>
+#include <fstream>
 #include <filesystem>
+#include <map>
+#include <vector>
+#include <string>
+#include <memory>
+
+#include "src/common/csat_types.hpp"
+
 
 namespace csat::simplification {
-
-    enum class Basis {
-        BENCH,
-        AIG
-    };
 
     struct CircuitDB {
         std::map<std::vector<int32_t>, int32_t> subcircuit_pattern_to_index;
@@ -16,7 +22,7 @@ namespace csat::simplification {
         std::vector<int32_t> OPER_number;
         std::vector<std::vector<GateType>> gates_operations;
 
-        inline CircuitDB(const std::filesystem::path &db_path, Basis basis) {
+        CircuitDB(const std::filesystem::path &db_path, Basis basis) {
             if (basis == Basis::BENCH) {
                 read_bench(db_path);
             } else if (basis == Basis::AIG) {
@@ -24,12 +30,12 @@ namespace csat::simplification {
             }
         }
 
-        inline void read_bench(const std::filesystem::path &db_path) {
+        void read_bench(const std::filesystem::path &db_path) {
             std::ifstream database(db_path);
             int32_t subcircuit_index = 0;
-            size_t inputs_number;
+            size_t inputs_number = 0;
             while (database >> inputs_number) {
-                size_t outputs_number;
+                size_t outputs_number = 0;
                 database >> outputs_number;
                 std::vector<int32_t> outputs_patterns(outputs_number);
                 for (size_t i = 0; i < outputs_number; ++i) {
@@ -44,14 +50,15 @@ namespace csat::simplification {
                 }
                 subcircuit_outputs.push_back(cur_outputs);
 
-                gates_operands.push_back({});
-                gates_operations.push_back({});
+                gates_operands.emplace_back();
+                gates_operations.emplace_back();
                 OPER_number.push_back(0);
 
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1, operand_2;
+                    GateId operand_1 = 0;
+                    GateId operand_2 = 0;
 
                     database >> operation;
                     if (operation == "AND") {
@@ -89,12 +96,12 @@ namespace csat::simplification {
             }
         }
 
-        inline void read_aig(const std::filesystem::path &db_path) {
+        void read_aig(const std::filesystem::path &db_path) {
             std::ifstream database(db_path);
             int32_t subcircuit_index = 0;
-            size_t inputs_number;
+            size_t inputs_number = 0;
             while (database >> inputs_number) {
-                size_t outputs_number;
+                size_t outputs_number = 0;
                 database >> outputs_number;
                 std::vector<int32_t> outputs_patterns(outputs_number);
                 for (size_t i = 0; i < outputs_number; ++i) {
@@ -108,15 +115,16 @@ namespace csat::simplification {
                     max_index = std::max(max_index, cur_outputs[i]);
                 }
                 subcircuit_outputs.push_back(cur_outputs);
-
-                gates_operands.push_back({});
-                gates_operations.push_back({});
+    
+                gates_operands.emplace_back();
+                gates_operations.emplace_back();
                 OPER_number.push_back(0);
 
                 for (size_t i = 3; i <= max_index; ++i) {
                     std::string operation;
                     GateIdContainer operands;
-                    GateId operand_1, operand_2;
+                    GateId operand_1 = 0;
+                    GateId operand_2 = 0;
 
                     database >> operation;
                     if (operation == "AND") {
@@ -140,4 +148,25 @@ namespace csat::simplification {
         }
     };
 
-}
+    struct DBSingleton
+    {
+      public:
+        std::shared_ptr<CircuitDB> bench_db = nullptr;
+        std::shared_ptr<CircuitDB> aig_db = nullptr;
+        
+        static DBSingleton& getInstance()
+        {
+            static DBSingleton s;
+            return s;
+        }
+        
+        DBSingleton(const DBSingleton&) = delete;
+        DBSingleton& operator =(const DBSingleton&) = delete;
+      
+      private:
+        
+        DBSingleton() = default;
+        ~DBSingleton() = default;
+    };
+
+}  // namespace csat::simplification

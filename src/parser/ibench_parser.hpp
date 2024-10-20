@@ -1,17 +1,18 @@
 #pragma once
 
+#include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 #include "src/utility/encoder.hpp"
 #include "src/utility/string_utils.hpp"
 
 #include "src/parser/iparser.hpp"
 
 #include <cstdlib>
-#include <cstdint>
 #include <iostream>
-#include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <utility>
+#include <tuple>
 
 /**
  * Parser from `CircuitSAT.BENCH` file..
@@ -44,7 +45,7 @@ class IBenchParser: public ICircuitParser
     }
     
     /* Encoder of inputs and gates. */
-    csat::utils::GateEncoder<std::string> encoder{};
+    csat::utils::GateEncoder<std::string> encoder;
     
     /**
      * @return Encoder, built according to parser info.
@@ -63,7 +64,7 @@ class IBenchParser: public ICircuitParser
      * Encode circuit variable.
      * @param var_name -- name of encoded variable.
      */
-    inline virtual GateId encodeGate(std::string_view var_name)
+    virtual GateId encodeGate(std::string_view var_name)
     {
         return encoder.encodeGate(var_name);
     };
@@ -120,7 +121,7 @@ class IBenchParser: public ICircuitParser
             csat::utils::string_utils::trimSpaces(var_name);
             
             logger.debug("\tEncoding input gate: \"", var_name, "\".");
-            GateId gateId = encodeGate(var_name);
+            GateId const gateId = encodeGate(var_name);
             handleInput(gateId);
             return;
         }
@@ -131,7 +132,7 @@ class IBenchParser: public ICircuitParser
             csat::utils::string_utils::trimSpaces(var_name);
             
             logger.debug("\tEncoding output gate: \"", var_name, "\".");
-            GateId gateId = encodeGate(var_name);
+            GateId const gateId = encodeGate(var_name);
             handleOutput(gateId);
             return;
         }
@@ -151,7 +152,7 @@ class IBenchParser: public ICircuitParser
             std::string_view operands_str = line.substr(l_bkt_idx + 1, r_bkt_idx - l_bkt_idx - 1);
             csat::utils::string_utils::trimSpaces(operands_str);
             
-            GateId gateId = encodeGate(var_name);
+            GateId const gateId = encodeGate(var_name);
             
             if (specialOperatorCallback_(gateId, op, operands_str))
             {
@@ -169,7 +170,7 @@ class IBenchParser: public ICircuitParser
             }
             
             GateIdContainer var_operands;
-            size_t comma_idx;
+            size_t comma_idx = 0;
             while ((comma_idx = operands_str.find(',')) != std::string::npos)
             {
                 std::string_view operand = operands_str.substr(0, comma_idx);
@@ -204,7 +205,7 @@ class IBenchParser: public ICircuitParser
     };
     
     /* Returns delimiters positions ( '=', '(', ')' ) in an operator bench line. */
-    inline std::tuple<size_t, size_t, size_t> _getDelimitersPositions(std::string_view line)
+    std::tuple<size_t, size_t, size_t> _getDelimitersPositions(std::string_view line)
     {
         // Find special delimiters positions
         std::size_t eq_idx = std::string::npos;
@@ -246,4 +247,4 @@ class IBenchParser: public ICircuitParser
     }
 };
 
-} // csat::parser namespace
+} // namespace csat::parser

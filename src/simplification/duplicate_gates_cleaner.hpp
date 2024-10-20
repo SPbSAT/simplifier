@@ -1,10 +1,17 @@
 #pragma once
 
+#include "src/common/csat_types.hpp"
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/utility/converters.hpp"
+#include "src/utility/logger.hpp"
+#include "src/utility/encoder.hpp"
 
-#include <vector>
+#include <algorithm>
+#include <map>
+#include <string>
 #include <type_traits>
 #include <memory>
 
@@ -62,7 +69,7 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
             
             if (auxiliary_names_encoder.keyExists(encoded_name)) {
                 logger.debug("Gate number ", gateId, " is a Duplicate and will be removed.");
-                safe_mask.at(gateId) = false;
+                safe_mask.at(gateId) = 0;
             }
             else
             {
@@ -76,7 +83,7 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
         GateInfoContainer gate_info(auxiliary_names_encoder.size());
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
-            if (safe_mask.at(gateId))
+            if (safe_mask.at(gateId) != 0)
             {
                 logger.debug(
                     "New Gate ", old_to_new_gateId.at(gateId),
@@ -127,7 +134,7 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
             encoded_name += '_' + std::to_string(idx);
         }
         
-        for (GateId operand: operands)
+        for (GateId const operand: operands)
         {
             encoded_name += '_' + std::to_string(encoder.at(operand));
         }
@@ -137,4 +144,4 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
 };
 
 
-} // csat namespace
+}  // namespace csat::simplification

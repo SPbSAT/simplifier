@@ -2,22 +2,32 @@
 
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
-#include "src/utility/converters.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/structures/circuit/gate_info.hpp"
 #include "src/common/csat_types.hpp"
 #include "src/simplification/utils/two_coloring.hpp"
 #include "src/simplification/utils/three_coloring.hpp"
 #include "src/simplification/circuits_db.hpp"
+#include "src/utility/logger.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
+#include <iostream>
+#include <cstddef>
+#include <map>
+#include <ranges>
+#include <cstdlib>
+#include <cstdlib>
+#include <string>
 #include <vector>
 #include <type_traits>
 #include <memory>
+#include <cerrno>
 
 
 namespace csat::simplification
 {
-
-std::shared_ptr<CircuitDB> bench_db = nullptr;
 
 /**
  * @tparam CircuitT
@@ -48,18 +58,13 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     */
     class SubcircuitStats {
       public:
-        int32_t not_in_db;
-        int32_t smaller_size;
-        int32_t same_size;
-        int32_t bigger_size;
-        int32_t many_outputs;
+        int32_t not_in_db{0};
+        int32_t smaller_size{0};
+        int32_t same_size{0};
+        int32_t bigger_size{0};
+        int32_t many_outputs{0};
 
-        SubcircuitStats():
-            not_in_db(0),
-            smaller_size(0),
-            same_size(0),
-            bigger_size(0),
-            many_outputs(0) {}
+        SubcircuitStats() = default;
 
         void print() {
             std::cout << "Many outputs: " << many_outputs
@@ -71,14 +76,14 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     };
 
   public:
-    int32_t colors_number = 0;
+    std::size_t colors_number = 0;
     std::vector<csat::utils::ThreeColor> colors; // list of all 3-parent colors
     std::vector<std::vector<size_t>> gateColors; // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor; // parent ids must be in a sorted order
 
     std::shared_ptr<CircuitDB> read_db() {
-        assert(bench_db);
-        return bench_db;
+        assert(DBSingleton::getInstance().bench_db);
+        return DBSingleton::getInstance().bench_db;
     }
 
     bool update_primitive_gate(
@@ -151,9 +156,8 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         parentsToColor = threeColoring.parentsToColor;
 
         // Filling GateInfoContainer
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (uint64_t gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit->getGateOperands(gateId);
             gate_info.at(gateId) = { circuit->getGateType(gateId), operands };
         }
@@ -196,9 +200,9 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
             used_gates.at(color.second_parent) = color_id;
             used_gates.at(color.third_parent) = color_id;
 
-            for (GateId parent: color.getParents())
+            for (GateId const parent: color.getParents())
             {
-                GateId negation_user = threeColoring.negationUsers.at(parent);
+                GateId const negation_user = threeColoring.negationUsers.at(parent);
                 if (negation_user != SIZE_MAX)
                 {
                     gatesByColor.push_back(negation_user);
@@ -207,15 +211,15 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
             }
 
             // Getting gates depending from 2 of parents
-            std::vector<std::vector<GateId>> parents_pairs = {
+            std::vector<std::vector<GateId>> const parents_pairs = {
                 { color.first_parent, color.second_parent },
                 { color.first_parent, color.third_parent },
                 { color.second_parent, color.third_parent }
             };
-            for (auto pair: parents_pairs) {
+            for (const auto& pair: parents_pairs) {
                 if (twoVertexColoring.parentsToColor.find(pair) != twoVertexColoring.parentsToColor.end())
                 {
-                    for (GateId gateId: twoVertexColoring.colors.at(twoVertexColoring.parentsToColor.at(pair)).getGates())
+                    for (GateId const gateId: twoVertexColoring.colors.at(twoVertexColoring.parentsToColor.at(pair)).getGates())
                     {
                         gatesByColor.push_back(gateId);
                         used_gates.at(gateId) = color_id;
@@ -224,7 +228,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
             }
 
             // Getting gates depending from all parents
-            for (GateId gateId: color.getGates())
+            for (GateId const gateId: color.getGates())
             {
                 gatesByColor.push_back(gateId);
                 used_gates.at(gateId) = color_id;
@@ -232,7 +236,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
 
             // Check whether subcircuit has modified gates (in this case we do not observe it)
             bool has_modified_gates = false;
-            for (GateId gateId: gatesByColor)
+            for (GateId const gateId: gatesByColor)
             {
                 if (is_removed.at(gateId) || is_modified.at(gateId))
                 {
@@ -340,7 +344,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                 else
                 {
                     std::cout << "Error! Incorrect operation!\n";
-                    abort();
+                    std::exit(EINVAL);
                 }
 
                 if (all_patterns[0][gateId] == 0 || all_patterns[0][gateId] == 255
@@ -402,7 +406,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                         bool fl = false;
                         for (size_t i = 0; i < output_patterns[0].size(); ++i)
                         {
-                            int output_pattern = output_patterns[0][i];
+                            int const output_pattern = output_patterns[0][i];
                             if (all_patterns[0][gateId] == output_pattern)
                             {
                                 is_modified.at(gateId) = true;
@@ -439,7 +443,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                 }
                 else
                 {
-                    for (GateId user: users)
+                    for (GateId const user: users)
                     {
                         if (used_gates[user] != color_id)
                         {
@@ -472,7 +476,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                                 bool fl = false;
                                 for (size_t i = 0; i < output_patterns[0].size(); ++i)
                                 {
-                                    int output_pattern = output_patterns[0][i];
+                                    int const output_pattern = output_patterns[0][i];
                                     if (all_patterns[0][gateId] == output_pattern)
                                     {
                                         is_modified.at(gateId) = true;
@@ -528,7 +532,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
                 std::sort(output_patterns[i].begin(), output_patterns[i].end());
                 if (subcircuit_pattern_to_index.find(output_patterns[i]) != subcircuit_pattern_to_index.end())
                 {
-                    true_ind = i;
+                    true_ind = static_cast<int>(i);
                     break;
                 }
             }
@@ -558,12 +562,12 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
             if (subcircuit_OPER_number[patternIndex] < OPER_number)
             {
                 ++stats.smaller_size;
-                for (GateId gateId: gatesByColor)
+                for (GateId const gateId: gatesByColor)
                 {
                     is_removed[gateId] = true;
                 }
                 // Changed outputs -> all_outputs
-                for (GateId output: all_outputs)
+                for (GateId const output: all_outputs)
                 {
                     is_modified[output] = true;
                     is_removed[output] = false;
@@ -678,4 +682,4 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     }
 };
 
-}
+}  // namespace csat::simplification

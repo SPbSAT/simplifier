@@ -176,4 +176,4 @@ TEST(DAGTest, CalculationManyOperands)
     ASSERT_TRUE(dag.getGateUsers(4) == csat::GateIdContainer({}));
 }
 
-} // anonymous namespace
+} // namespace

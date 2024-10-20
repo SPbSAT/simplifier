@@ -1,12 +1,9 @@
 #pragma once
 
-#include "src/utility/logger.hpp"
 
-#include <algorithm>
+#include <cstddef>
 #include <cstdint>
-#include <utility>
 #include <vector>
-#include <set>
 
 
 /**
@@ -72,6 +69,13 @@ constexpr size_t SupportedOperatorNumber = 11;
 constexpr size_t FirstOperatorIdx = 1;
 
 
+/** Type of a circuit basis (set of allowed operators). **/
+enum class Basis : uint8_t {
+    BENCH,
+    AIG
+};
+
+
 /**
  * @return index of gateType among all gate operator types.
  */
@@ -84,4 +88,4 @@ inline size_t getIndexByOperator(GateType gateType)
 using GateId = size_t;
 using GateIdContainer = std::vector<GateId>;
 
-} // csat namespace
+} // namespace csat

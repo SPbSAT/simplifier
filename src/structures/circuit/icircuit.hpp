@@ -33,7 +33,7 @@ class ICircuit
     ICircuit() = default;
     ICircuit(ICircuit const&) = default;
     virtual ~ICircuit() = default;
-    ICircuit(GateInfoContainer const&, GateIdContainer const&) {};
+    ICircuit(GateInfoContainer const& /*unused*/, GateIdContainer const& /*unused*/) {};
     
     // ========== Circuit Info ========== //
     /* Returns type of gate. */
@@ -99,7 +99,7 @@ class ICircuit
     {
         std::stack<GateId> queue_{};
         queue_.push(gateId);
-        BoolVector evaluated_(getNumberOfGates(), false);
+        BoolVector evaluated_(getNumberOfGates(), 0);
     
         auto get_gate_state_ = [&input_asmt, &internal_asmt](GateId operand)
         {
@@ -112,7 +112,7 @@ class ICircuit
     
         while (!queue_.empty())
         {
-            GateId currentGateId = queue_.top();
+            GateId const currentGateId = queue_.top();
             
             // Gate state is set or gate is Input. If gate is Input, its
             // state must be either set in input_asmt, or be Unknown.
@@ -154,4 +154,4 @@ class ICircuit
     }
 };
 
-} // csat namespace
+} // namespace csat

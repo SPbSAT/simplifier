@@ -1,0 +1,28 @@
+---
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 120
+---
+Language: Cpp
+BreakBeforeBraces: Allman
+AccessModifierOffset: -2
+AlignArrayOfStructures: Left
+DerivePointerAlignment: false
+AlignOperands: AlignAfterOperator
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: Consecutive
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: All
+BinPackArguments: false
+BinPackParameters: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+QualifierAlignment: Right
+SpaceAfterTemplateKeyword: false
+PackConstructorInitializers: Never
+ExperimentalAutoDetectBinPacking: false
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AlwaysBreakTemplateDeclarations: Yes
+ReflowComments: true
+BreakConstructorInitializers: BeforeComma

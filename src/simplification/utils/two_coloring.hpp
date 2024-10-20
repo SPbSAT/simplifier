@@ -6,6 +6,7 @@
 #include "src/common/csat_types.hpp"
 
 #include <cassert>
+#include <ranges>
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -36,17 +37,17 @@ struct TwoColor
         gates_.push_back(gateId);
     }
 
-    GateIdContainer const& getGates() const
+    [[nodiscard]] GateIdContainer const& getGates() const
     {
         return gates_;
     }
 
-    GateIdContainer const getParents() const
+    [[nodiscard]] GateIdContainer getParents() const
     {
         return {first_parent, second_parent};
     }
 
-    bool hasParent(GateId gateId) const  
+    [[nodiscard]] bool hasParent(GateId gateId) const  
     {  
         return first_parent == gateId || second_parent == gateId;  
     }
@@ -63,10 +64,10 @@ class TwoColoring
   public:
     std::vector<TwoColor> colors;
     std::vector<ColorId> gateColor; // if vertex is not colored, then value is 'SIZE_MAX'
-    // TODO: use better key type for this map.  
+    // TODO: use better key type for this map.
     std::map<GateIdContainer, ColorId> parentsToColor;
 
-    size_t getColorsNumber() const
+    [[nodiscard]] size_t getColorsNumber() const
     {
         return next_color_id_;
     }
@@ -74,7 +75,7 @@ class TwoColoring
     /**
     * Returns 'True' if 'gateId' is a parent for following 'color', otherwise returns 'False'
     */
-    bool isParentOfColor(GateId gateId, ColorId colorId) const
+    [[nodiscard]] bool isParentOfColor(GateId gateId, ColorId colorId) const
     {
         return colors[colorId].hasParent(gateId); 
     }
@@ -84,7 +85,7 @@ class TwoColoring
 
     ColorId addColor(GateId first_parent, GateId second_parent)
     {
-        colors.push_back(TwoColor(first_parent, second_parent));
+        colors.emplace_back(first_parent, second_parent);
         parentsToColor[TwoColor::sortedParents(first_parent, second_parent)] = next_color_id_;
         return next_color_id_++;
     }
@@ -96,10 +97,10 @@ class TwoColoring
     }
 
   public:
-    TwoColoring(ICircuit const& circuit)
+    explicit TwoColoring(ICircuit const& circuit)
     {
         csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(circuit));
-        size_t circuit_size = circuit.getNumberOfGates();
+        size_t const circuit_size = circuit.getNumberOfGates();
         gateColor.resize(circuit_size, SIZE_MAX);
 
         // TODO: maybe remove from here and evaluate in block with strategy
@@ -107,20 +108,19 @@ class TwoColoring
         GateIdContainer negationUsers(circuit_size, SIZE_MAX);
 
         // Painting process
-        for (auto it = gate_sorting.rbegin(); it != gate_sorting.rend(); ++it)
+        for (uint64_t const gateId : std::ranges::reverse_view(gate_sorting))
         {
-            GateId gateId = *it;
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
 
             // Gate is input or constant
-            if (operands.size() == 0)
+            if (operands.empty())
             {
                 continue;
             }
             // Unary operation
             if (operands.size() == 1)
             {
-                ColorId newColor = gateColor.at(operands.at(0));
+                ColorId const newColor = gateColor.at(operands.at(0));
                 if (newColor != SIZE_MAX)
                 {
                     paintGate(gateId, newColor);
@@ -136,7 +136,7 @@ class TwoColoring
             // Check of non-binary gates
             if (operands.size() > 2)  
             {
-                std::cerr << "TwoColoring got circuit which gate has more than two operands. Gate id: " << gateId << std::endl;  
+                std::cerr << "TwoColoring got circuit which gate has more than two operands. Gate id: " << gateId << std::endl;
                 std::exit(-1);  
             }
 
@@ -151,8 +151,8 @@ class TwoColoring
                 child_2 = circuit.getGateOperands(child_2)[0];
             }
 
-            ColorId color_1 = gateColor.at(child_1);
-            ColorId color_2 = gateColor.at(child_2);
+            ColorId const color_1 = gateColor.at(child_1);
+            ColorId const color_2 = gateColor.at(child_2);
 
             if (child_1 == child_2)
             {
@@ -163,7 +163,7 @@ class TwoColoring
                 continue;
             }
 
-            GateIdContainer children = TwoColor::sortedParents(child_1, child_2);
+            GateIdContainer const children = TwoColor::sortedParents(child_1, child_2);
             if (color_1 != SIZE_MAX && color_1 == color_2)
             {
                 paintGate(gateId, color_1);
@@ -178,7 +178,7 @@ class TwoColoring
             }
             else if (parentsToColor.find(children) == parentsToColor.end())
             {
-                ColorId newColor = addColor(child_1, child_2);
+                ColorId const newColor = addColor(child_1, child_2);
                 paintGate(gateId, newColor);
             }
             else
@@ -189,4 +189,4 @@ class TwoColoring
     }
 };
 
-}
+}  // namespace csat::utils

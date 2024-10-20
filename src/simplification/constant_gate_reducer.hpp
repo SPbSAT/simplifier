@@ -2,12 +2,20 @@
 
 #include "src/simplification/transformer_base.hpp"
 #include "src/algo.hpp"
+#include "src/structures/circuit/gate_info.hpp"
+#include "src/structures/assignment/vector_assignment.hpp"
 #include "src/utility/converters.hpp"
 #include "src/common/csat_types.hpp"
+#include "src/utility/logger.hpp"
 
+#include <map>
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
+#include <cstdlib>
 #include <ranges>
+#include <utility>
 #include <vector>
-#include <type_traits>
 #include <memory>
 
 
@@ -138,7 +146,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                         || gate_type == GateType::NXOR))
                 {
                     // Create NOT.
-                    GateId new_gate_id = encoder->encodeGate(
+                    const GateId new_gate_id = encoder->encodeGate(
                         getNewGateName_(new_gate_name_prefix, circuit_size));
                     assert(new_gate_id == circuit_size);
                     assert(new_gate_id == gate_info.size());
@@ -159,7 +167,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                 else if (gate_type == GateType::MUX)
                 {
                     auto first_operand = getLink_(circuit->getGateOperands(gate_id)[0], old_to_new_gateId);
-                    GateState mux_op_state = result_assignment->getGateState(first_operand);
+                    const GateState mux_op_state = result_assignment->getGateState(first_operand);
                     if (mux_op_state == GateState::TRUE)
                     {
                         // Users of the current gate will refer to its third operand.
@@ -232,7 +240,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     };
   
   private:
-    inline GateId getLink_(
+    GateId getLink_(
         GateId gate_id,
         std::vector<GateId> const& old_to_new_gateId)
     {
@@ -243,7 +251,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
         return gate_id;
     }
     
-    inline void createMiniCircuit_(
+    void createMiniCircuit_(
         GateInfoContainer& gate_info,
         GateEncoder<std::string>& encoder,
         GateIdContainer& new_output_gates,
@@ -266,9 +274,9 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     
         // We take first found already existing input to enforce connection
         // between original circuit gates and a newly built constant gadget.
-        GateId left = gate_id_input;
-        GateId right = circuit_size;
-        GateId output = circuit_size + 1;
+        GateId const left = gate_id_input;
+        GateId const right = circuit_size;
+        GateId const output = circuit_size + 1;
         
         // Changing reference.
         circuit_size += 2;
@@ -299,4 +307,4 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

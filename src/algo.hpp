@@ -31,7 +31,7 @@ using DFSStateVector = std::vector<DFSState>;
 using OperationDFSGate = std::function<void(GateId, DFSStateVector const&)>;
 using OperationDFSVoid = std::function<void()>;
 
-[[maybe_unused]] static void voidOperationGate_(GateId, DFSStateVector const&) { }
+[[maybe_unused]] static void voidOperationGate_(GateId /*unused*/, DFSStateVector const& /*unused*/) { }
 [[maybe_unused]] static void voidOperationVoid_() { }
 
 
@@ -100,7 +100,7 @@ inline DFSStateVector performDepthFirstSearch(
         enqueue_next(start);
         while (!queue_.empty())
         {
-            GateId gateId = queue_.top();
+            GateId const gateId = queue_.top();
             switch (dfs_state[gateId])
             {
                 case DFSState::UNVISITED:
@@ -215,4 +215,4 @@ struct TopSortAlgorithm<DFSTopSort>
 };
 
 
-} // csat::algo namespace
+} // namespace csat::algo

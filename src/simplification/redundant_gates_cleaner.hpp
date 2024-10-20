@@ -1,22 +1,20 @@
 #pragma once
 
+#include <cassert>
+#include <memory>
+#include <type_traits>
+#include <utility>
+
+#include "src/algo.hpp"
 #include "src/common/csat_types.hpp"
 #include "src/simplification/transformer_base.hpp"
-#include "src/algo.hpp"
-#include "src/structures/circuit/icircuit.hpp"
-#include "src/utility/logger.hpp"
 #include "src/structures/circuit/gate_info.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 #include "src/utility/encoder.hpp"
-
-#include <cassert>
-#include <utility>
-#include <type_traits>
-#include <memory>
-
+#include "src/utility/logger.hpp"
 
 namespace csat::simplification
 {
-
 
 /**
  * Transformer, that cleans circuit from all
@@ -28,14 +26,11 @@ namespace csat::simplification
 template<
     class CircuitT,
     bool preserveInputs = false,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+    typename            = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT>>>
 class RedundantGatesCleaner_ : public ITransformer<CircuitT>
 {
     csat::Logger logger{"RedundantGatesCleaner"};
-    
+
   public:
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
@@ -43,16 +38,15 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
     {
         logger.debug("=========================================================================================");
         logger.debug("START RedundantGatesCleaner.");
-        
+
         GateEncoder<GateId> encoder_old_to_new{};
         auto mask_use_output = algo::performDepthFirstSearch(*circuit, circuit->getOutputGates());
-        
+
         // first step: getting valid encoding
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
-            if (
-                mask_use_output.at(gateId) != algo::DFSState::UNVISITED
-                || (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT))
+            if (mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
+                (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT))
             {
                 encoder_old_to_new.encodeGate(gateId);
                 continue;
@@ -60,7 +54,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
 
             logger.debug("Gate number ", gateId, " is redundant and will be removed");
         }
-        
+
         GateInfoContainer gate_info(encoder_old_to_new.size());
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
@@ -70,17 +64,16 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
                 for (GateId operand : circuit->getGateOperands(gateId))
                 {
                     assert(
-                        mask_use_output.at(gateId) != algo::DFSState::UNVISITED
-                        || (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT));
-                    
+                        mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
+                        (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT));
+
                     encoded_operands_.push_back(encoder_old_to_new.encodeGate(operand));
                 }
                 gate_info.at(encoder_old_to_new.encodeGate(gateId)) = {
-                    circuit->getGateType(gateId),
-                    std::move(encoded_operands_)};
+                    circuit->getGateType(gateId), std::move(encoded_operands_)};
             }
         }
-        
+
         // All outputs must be visited since DFS starts from them.
         GateIdContainer new_output_gates{};
         new_output_gates.reserve(circuit->getOutputGates().size());
@@ -88,16 +81,13 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
         {
             new_output_gates.push_back(encoder_old_to_new.encodeGate(output_gate));
         }
-    
+
         logger.debug("END RedundantGatesCleaner.");
         logger.debug("=========================================================================================");
         return {
-            std::make_unique<CircuitT>(
-                std::move(gate_info),
-                std::move(new_output_gates)),
+            std::make_unique<CircuitT>(std::move(gate_info), std::move(new_output_gates)),
             utils::mergeGateEncoders(*encoder, encoder_old_to_new)};
     };
 };
-
 
 }  // namespace csat::simplification

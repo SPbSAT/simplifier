@@ -1,18 +1,16 @@
 #pragma once
 
-#include "src/common/csat_types.hpp"
-
 #include <cstddef>
 #include <functional>
-#include <memory>
 #include <map>
+#include <memory>
 #include <string>
 #include <string_view>
 
+#include "src/common/csat_types.hpp"
 
 namespace csat::utils
 {
-
 
 template<class KeyT>
 class GateEncoder
@@ -24,24 +22,23 @@ class GateEncoder
     std::map<KeyT, GateId> encoder_{};
     /* Inverse encoding map. */
     std::map<GateId, KeyT> decoder_{};
-   
+
   public:
-    GateEncoder() = default;
+    GateEncoder()                   = default;
     GateEncoder(GateEncoder const&) = default;
-    ~GateEncoder() = default;
-    
+    ~GateEncoder()                  = default;
+
     /**
      * @param key -- name of a gate that need to be encoded.
      * @return id of gate in encoding from 0 through N.
      */
-    GateId encodeGate(KeyT const& key)
-    noexcept
+    GateId encodeGate(KeyT const& key) noexcept
     {
         auto search = encoder_.find(key);
         if (search == encoder_.end())
         {
             decoder_[next_var_] = key;
-            encoder_[key] = next_var_;
+            encoder_[key]       = next_var_;
             return next_var_++;
         }
         else
@@ -49,7 +46,7 @@ class GateEncoder
             return search->second;
         }
     };
-    
+
     /**
      * @param id -- id of gate in encoding from 0 through N.
      * @return Original gate name (key).
@@ -59,7 +56,7 @@ class GateEncoder
     {
         return decoder_.at(id);
     };
-  
+
     /**
      * @param key -- name of a gate that need to be check for presence.
      * @return True if key is in class otherwise False.
@@ -69,16 +66,16 @@ class GateEncoder
     {
         return encoder_.find(key) != encoder_.end();
     };
-  
+
     /**
      * Returns number of elements in encoding.
      */
-     [[nodiscard]]
-     size_t size() const
-     {
-         return next_var_;
-     }
-    
+    [[nodiscard]]
+    size_t size() const
+    {
+        return next_var_;
+    }
+
     /**
      * Clears internal state of encoder.
      */
@@ -90,7 +87,6 @@ class GateEncoder
     }
 };
 
-
 /**
  * GateEncoder specification for string, that allows usage of string_view.
  */
@@ -101,20 +97,19 @@ class GateEncoder<std::string>
     size_t next_var_ = 0;
     std::map<std::string, GateId, std::less<>> encoder_;
     std::map<GateId, std::string> decoder_;
-   
+
   public:
-    GateEncoder() = default;
+    GateEncoder()                   = default;
     GateEncoder(GateEncoder const&) = default;
-    ~GateEncoder() = default;
-    
-    GateId encodeGate(std::string_view const& key)
-    noexcept
+    ~GateEncoder()                  = default;
+
+    GateId encodeGate(std::string_view const& key) noexcept
     {
         auto search = encoder_.find(key);
         if (search == encoder_.end())
         {
             // TODO: rly string???
-            decoder_[next_var_] = std::string(key);
+            decoder_[next_var_]        = std::string(key);
             encoder_[std::string(key)] = next_var_;
             return next_var_++;
         }
@@ -123,25 +118,25 @@ class GateEncoder<std::string>
             return search->second;
         }
     };
-  
+
     [[nodiscard]]
     std::string decodeGate(GateId id) const
     {
         return decoder_.at(id);
     };
-  
+
     [[nodiscard]]
     bool keyExists(std::string_view const& key) const
     {
         return encoder_.find(key) != encoder_.end();
     };
-  
+
     [[nodiscard]]
     size_t size() const
     {
         return next_var_;
     }
-  
+
     void clear()
     {
         next_var_ = 0;
@@ -150,12 +145,10 @@ class GateEncoder<std::string>
     }
 };
 
-
 template<class KeyT>
 inline std::unique_ptr<GateEncoder<KeyT>> mergeGateEncoders(
     GateEncoder<KeyT> const& first,
-    GateEncoder<GateId> const& second)
-noexcept
+    GateEncoder<GateId> const& second) noexcept
 {
     GateEncoder<KeyT> _newEncoder;
 
@@ -163,9 +156,8 @@ noexcept
     {
         _newEncoder.encodeGate(first.decodeGate(second.decodeGate(code_two)));
     }
-    
+
     return std::make_unique<GateEncoder<KeyT>>(_newEncoder);
 }
 
-
-} // namespace csat::utils
+}  // namespace csat::utils

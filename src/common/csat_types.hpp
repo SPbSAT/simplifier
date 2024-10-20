@@ -1,10 +1,8 @@
 #pragma once
 
-
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-
 
 /**
  * Main header that contains some global constants and general types.
@@ -36,45 +34,46 @@ enum class ReturnCode : uint8_t
 /** Possible states of gates. **/
 enum class GateState : uint8_t
 {
-  // if changed, then csat::op must be changed as well
-  FALSE     = 0,
-  TRUE      = 1,
-  UNDEFINED = 2
+    // if changed, then csat::op must be changed as well
+    FALSE     = 0,
+    TRUE      = 1,
+    UNDEFINED = 2
 };
 /** Number of possible Gate States **/
 constexpr size_t GateStateNumber = 3;
 
-
 /** Possible types of gates. **/
 enum class GateType : uint8_t
 {
-  // if changed, then csat::op must be changed as well
-  INPUT  = 0,
-  NOT    = 1,
-  AND    = 2, NAND =  3,
-  OR     = 4, NOR  =  5,
-  XOR    = 6, NXOR =  7,
-  IFF    = 8,
-  MUX    = 9,
-  // constant operator types
-  CONST_FALSE = 10,
-  CONST_TRUE = 11,
-  // special operator types
-  BUFF = UINT8_MAX - 1,
-  UNDEFINED = UINT8_MAX
+    // if changed, then csat::op must be changed as well
+    INPUT = 0,
+    NOT   = 1,
+    AND   = 2,
+    NAND  = 3,
+    OR    = 4,
+    NOR   = 5,
+    XOR   = 6,
+    NXOR  = 7,
+    IFF   = 8,
+    MUX   = 9,
+    // constant operator types
+    CONST_FALSE = 10,
+    CONST_TRUE  = 11,
+    // special operator types
+    BUFF      = UINT8_MAX - 1,
+    UNDEFINED = UINT8_MAX
 };
 /** Number of supported Operator Gates **/
 constexpr size_t SupportedOperatorNumber = 11;
 /** Index of first Operator Gate in GateType enum **/
 constexpr size_t FirstOperatorIdx = 1;
 
-
 /** Type of a circuit basis (set of allowed operators). **/
-enum class Basis : uint8_t {
+enum class Basis : uint8_t
+{
     BENCH,
     AIG
 };
-
 
 /**
  * @return index of gateType among all gate operator types.
@@ -85,7 +84,7 @@ inline size_t getIndexByOperator(GateType gateType)
 }
 
 /** Internal gate ids are numbers 0,1,2... **/
-using GateId = size_t;
+using GateId          = size_t;
 using GateIdContainer = std::vector<GateId>;
 
-} // namespace csat
+}  // namespace csat

@@ -12,12 +12,13 @@ AlignOperands: AlignAfterOperator
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: Consecutive
 AllowShortBlocksOnASingleLine: Never
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: Empty
 BinPackArguments: false
 BinPackParameters: false
 PointerAlignment: Left
 ReferenceAlignment: Left
 QualifierAlignment: Right
+BreakAfterAttributes: Always
 SpaceAfterTemplateKeyword: false
 PackConstructorInitializers: Never
 ExperimentalAutoDetectBinPacking: false

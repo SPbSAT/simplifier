@@ -1,15 +1,15 @@
 #pragma once
 
-#include "src/simplification/composition.hpp"
-#include "src/simplification/duplicate_gates_cleaner.hpp"
-#include "src/simplification/redundant_gates_cleaner.hpp"
-#include "src/simplification/reduce_not_composition.hpp"
-#include "src/simplification/duplicate_operands_cleaner.hpp"
-#include "src/simplification/constant_gate_reducer.hpp"
 #include <type_traits>
-#include "src/structures/circuit/icircuit.hpp"
-#include "src/structures/circuit/dag.hpp"
 
+#include "src/simplification/composition.hpp"
+#include "src/simplification/constant_gate_reducer.hpp"
+#include "src/simplification/duplicate_gates_cleaner.hpp"
+#include "src/simplification/duplicate_operands_cleaner.hpp"
+#include "src/simplification/reduce_not_composition.hpp"
+#include "src/simplification/redundant_gates_cleaner.hpp"
+#include "src/structures/circuit/dag.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 
 namespace csat::simplification
 {
@@ -20,17 +20,9 @@ namespace csat::simplification
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
-using RedundantGatesCleaner = csat::simplification::Composition<
-    CircuitT,
-    csat::simplification::RedundantGatesCleaner_<csat::DAG>
->;
-
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
+using RedundantGatesCleaner =
+    csat::simplification::Composition<CircuitT, csat::simplification::RedundantGatesCleaner_<csat::DAG> >;
 
 /**
  * Transformer, that cleans circuit from duplicate gates.
@@ -38,18 +30,11 @@ using RedundantGatesCleaner = csat::simplification::Composition<
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
 using DuplicateGatesCleaner = csat::simplification::Composition<
     CircuitT,
     csat::simplification::RedundantGatesCleaner_<CircuitT>,
-    csat::simplification::DuplicateGatesCleaner_<CircuitT>
->;
-
+    csat::simplification::DuplicateGatesCleaner_<CircuitT> >;
 
 /**
  * Transformer, that cleans the circuit from unnecessary gates NOT.
@@ -57,18 +42,11 @@ using DuplicateGatesCleaner = csat::simplification::Composition<
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
 using ReduceNotComposition = csat::simplification::Composition<
     CircuitT,
     csat::simplification::ReduceNotComposition_<csat::DAG>,
-    csat::simplification::RedundantGatesCleaner_<csat::DAG>
->;
-
+    csat::simplification::RedundantGatesCleaner_<csat::DAG> >;
 
 /**
  * Transformer, that cleans the circuit from constant gates
@@ -85,20 +63,13 @@ using ReduceNotComposition = csat::simplification::Composition<
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
 using ConstantGateReducer = csat::simplification::Composition<
     CircuitT,
     csat::simplification::ConstantGateReducer_<csat::DAG>,
     csat::simplification::ReduceNotComposition_<csat::DAG>,
     csat::simplification::RedundantGatesCleaner_<csat::DAG>,
-    csat::simplification::DuplicateGatesCleaner_<csat::DAG>
->;
-
+    csat::simplification::DuplicateGatesCleaner_<csat::DAG> >;
 
 /**
  * Transformer, that cleans the circuit from gates with the same operands. For example:
@@ -125,21 +96,15 @@ using ConstantGateReducer = csat::simplification::Composition<
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
 using DuplicateOperandsCleaner = csat::simplification::Composition<
     CircuitT,
     csat::simplification::RedundantGatesCleaner_<csat::DAG>,
     csat::simplification::DuplicateOperandsCleaner_<csat::DAG>,
-    csat::simplification::RedundantGatesCleaner_<csat::DAG, true>, //true == save at least one input
+    csat::simplification::RedundantGatesCleaner_<csat::DAG, true>,  // true == save at least one input
     csat::simplification::ConstantGateReducer_<csat::DAG>,
     csat::simplification::ReduceNotComposition_<csat::DAG>,
     csat::simplification::RedundantGatesCleaner_<csat::DAG>,
-    csat::simplification::DuplicateGatesCleaner_<csat::DAG>
->;
+    csat::simplification::DuplicateGatesCleaner_<csat::DAG> >;
 
 }  // namespace csat::simplification

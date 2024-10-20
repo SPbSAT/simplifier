@@ -15,12 +15,12 @@ class ICircuitParser
 {
   public:
     virtual ~ICircuitParser() = default;
-    
+
     /**
      * Clears internal state of a parser.
      */
     virtual void clear() = 0;
-    
+
     /**
      * Parser info from stream.
      * @param stream -- text stream, containing lines of some .BENCH file.
@@ -28,4 +28,4 @@ class ICircuitParser
     virtual void parseStream(std::istream& stream) = 0;
 };
 
-} // namespace csat::parser
+}  // namespace csat::parser

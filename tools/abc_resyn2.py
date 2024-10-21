@@ -5,9 +5,9 @@ import typing as tp
 
 import click
 import pandas as pd
-from tqdm import tqdm
 
 from cli_group import tools_cli
+from tqdm import tqdm
 from utils import number_of_ands
 
 
@@ -71,15 +71,17 @@ def abc_resyn2(
     number_of_iterations: tp.Iterable[int],
 ):
     """
-    Runs several iterations of ABC `resyn2` command on each circuit in the `input_directory`,
-    and saves resulting simplified circuit to the `output_directory`.
+    Runs several iterations of ABC `resyn2` command on each circuit in the
+    `input_directory`, and saves resulting simplified circuit to the `output_directory`.
 
     :param input_directory: path to a directory where input circuits are located.
-    :param output_directory: path to a directory where resulting simplified circuits will be stored.
+    :param output_directory: path to a directory where resulting simplified circuits
+        will be stored.
     :param stats_path: path where resulting statistics should be stored.
     :param abc_path: path to an ABC executable, which will be used to simplify circuits.
     :param timelimit: timelimit for each resyn2 execution in integer seconds.
-    :param number_of_iterations: each value determines stratagy: a number of consequent resyn2 applications.
+    :param number_of_iterations: each value determines stratagy: a number of consequent
+        resyn2 applications.
 
     """
     # List to store results
@@ -169,15 +171,15 @@ def execute_resyn(
     number_of_iterations: int,
 ) -> tp.Optional[float]:
     """
-    Executes ABC resyn2 command to simplify circuit at `input_path`
-    and stores result at `output_path`.
+    Executes ABC resyn2 command to simplify circuit at `input_path` and stores result at
+    `output_path`.
 
     :param input_path: path to original circuit.
     :param output_path: path where resulting circuit will be stored.
     :param abc_path: path to an ABC executable.
     :param timelimit: timelimit for a resyn2 execution.
-    :param number_of_iterations: number of consequent resyn2 applications.
-    :return elapsed time of resyn2 execution or None, if execution failed.
+    :param number_of_iterations: number of consequent resyn2 applications. :return
+        elapsed time of resyn2 execution or None, if execution failed.
 
     """
     resyn_command_block = [resyn2_command()] * number_of_iterations
@@ -209,8 +211,9 @@ def execute_abc_command(
 
     :param abc_path: path to an ABC executable.
     :param command: a command to execute.
-    :param timelimit: timelimit for a command execution.
-    :return elapsed time of execution or None, if execution failed.
+    :param timelimit: timelimit for a command execution. :return elapsed time of
+        execution or None, if execution failed.
+
     """
     process: tp.Optional[subprocess.Popen] = None
     try:

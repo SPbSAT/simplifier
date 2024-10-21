@@ -32,8 +32,8 @@ def collect_sizes_aig(
     stats_path: str,
 ):
     """
-    Calculate AIG circuit sizes and save to a CSV file.
-    Size of an AIG circuit is a number of AND gates in it.
+    Calculate AIG circuit sizes and save to a CSV file. Size of an AIG circuit is a
+    number of AND gates in it.
 
     :param input_directory: path to a directory where input circuits are located.
     :param stats_path: path where resulting statistics should be stored.

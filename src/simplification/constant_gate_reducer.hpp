@@ -253,7 +253,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     }
 
     /**
-     * Create a gadget circuit in a BENCH basis which value is always const. This gadget may be used to 
+     * Create a gadget circuit in a BENCH basis which value is always const. This gadget may be used to
      * replace irreducible CONST_* gates (e.g. when const gate is an output of a circuit).
      * @param gate_info -- container of the new (transformer-modified) circuit
      * @param encoder -- encoder of the new circuit

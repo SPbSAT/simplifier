@@ -333,7 +333,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
      * @param old_to_new_gateId -- Surjection of old gate ids to new gate ids. For using
      *                             the final (after transformation) operand in the gate (= rehung)
      * @return gate's id like a link
-     **/
+     */
     GateId getLink_(GateId gate_id, std::vector<GateId> const& old_to_new_gateId)
     {
         if (old_to_new_gateId.at(gate_id) != SIZE_MAX)
@@ -349,7 +349,7 @@ class DuplicateOperandsCleaner_ : public ITransformer<CircuitT>
      * @param map_count_operands -- map, where the key is gate's operand and
      *                              the value is how many times this operand appears in the gate
      * @return boolean answer to checks (true or false)
-     **/
+     */
     bool areThereOppositeOperands_(
         GateInfoContainer const& gate_info,
         std::map<GateId, size_t> const& map_count_operands)

@@ -242,7 +242,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      * @param old_to_new_gateId -- Surjection of old gate ids to new gate ids. For using
      *                             the final (after transformation) operand in the gate (= rehung)
      * @return gate's id like a link
-     **/
+     */
     GateId getLink_(GateId gate_id, std::vector<GateId> const& old_to_new_gateId)
     {
         if (old_to_new_gateId.at(gate_id) != SIZE_MAX)
@@ -253,8 +253,8 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     }
 
     /**
-     * Create a subcircuit whose response will be the output (created instead of the outputs
-     * already existing in the original circuit, the value of which became known after the transformation)
+     * Create a gadget circuit in a BENCH basis which value is always const. This gadget may be used to 
+     * replace irreducible CONST_* gates (e.g. when const gate is an output of a circuit).
      * @param gate_info -- container of the new (transformer-modified) circuit
      * @param encoder -- encoder of the new circuit
      * @param new_output_gates -- outputs in the new circuit
@@ -262,7 +262,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      * @param circuit_size -- new circuit size
      * @param gate_state -- constant true or false instead of which it is necessary to create a subcircuit
      * @return None. All transformations occur by changing the input data parameters
-     **/
+     */
     void createMiniCircuit_(
         GateInfoContainer& gate_info,
         GateEncoder<std::string>& encoder,

@@ -234,4 +234,4 @@ TEST(ConstantGateReducer, SaveCONST)
     ASSERT_EQ(circuit->getOutputGates(), GateIdContainer({0, 2}));
 }
 
-} // anonymous namespace
+} // namespace

@@ -167,6 +167,6 @@ TEST_F(DepthFirstSearchTestFixture, TestBaseHooks)
     ASSERT_EQ(unvisited_list, std::vector<GateId>({2, 3, 5, 6}));
 }
 
-} // anonymous namespace
+} // namespace
 
 

@@ -2,7 +2,6 @@
 
 #include "src/common/csat_types.hpp"
 
-
 namespace csat
 {
 
@@ -18,9 +17,9 @@ namespace csat
 class IAssignment
 {
   public:
-    IAssignment() = default;
+    IAssignment()          = default;
     virtual ~IAssignment() = default;
-    
+
     /* Sets state of gate `gateId` to `state` */
     virtual void assign(GateId, GateState) = 0;
     /* Clears all assignments and history. */
@@ -28,12 +27,13 @@ class IAssignment
 
     /* Ensures capacity of underlying array is enough to assign gate value. If it is not, resizes array. */
     virtual void ensureCapacity(GateId) = 0;
-    
+
     /* Returns state of gate `gateId`. Must return UNDEFINED when GateId is not assigned yet. */
-    [[nodiscard]] virtual GateState getGateState(GateId) const = 0;
+    [[nodiscard]]
+    virtual GateState getGateState(GateId) const = 0;
     /* Returns True iff gate state is not set or is explicitly set UNDEFINED. */
-    [[nodiscard]] virtual bool isUndefined(GateId) const = 0;
-    
+    [[nodiscard]]
+    virtual bool isUndefined(GateId) const = 0;
 };
 
-} // csat namespace
+}  // namespace csat

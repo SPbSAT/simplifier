@@ -1,11 +1,9 @@
 #pragma once
 
-#include "src/structures/assignment/iassignment.hpp"
-
-#include "src/common/csat_types.hpp"
-
 #include <vector>
 
+#include "src/common/csat_types.hpp"
+#include "src/structures/assignment/iassignment.hpp"
 
 namespace csat
 {
@@ -22,15 +20,13 @@ struct VectorAssignment : public IAssignment
 {
   protected:
     /* carries current assignment in a vector */
-    StateVector gate_state_{};
-   
+    StateVector gate_state_;
+
   public:
-    VectorAssignment() = default;
+    VectorAssignment()           = default;
     ~VectorAssignment() override = default;
-    
-    void assign(
-        GateId gateId,
-        GateState state) final
+
+    void assign(GateId gateId, GateState state) final
     {
         if constexpr (DynamicResize)
         {
@@ -38,7 +34,7 @@ struct VectorAssignment : public IAssignment
         }
         gate_state_.at(gateId) = state;
     };
-    
+
     [[nodiscard]]
     GateState getGateState(GateId gateId) const final
     {
@@ -51,25 +47,23 @@ struct VectorAssignment : public IAssignment
             return GateState::UNDEFINED;
         }
     };
-    
+
     [[nodiscard]]
     bool isUndefined(GateId gateId) const final
     {
         return getGateState(gateId) == GateState::UNDEFINED;
     };
-    
+
     void clear() noexcept override
     {
         gate_state_ = StateVector();
     }
-    
+
     void ensureCapacity(GateId sz) final
     {
-        gate_state_.resize(
-            std::max(sz + 1, gate_state_.size()),
-            GateState::UNDEFINED);
+        gate_state_.resize(std::max(sz + 1, gate_state_.size()), GateState::UNDEFINED);
     }
-   
+
   protected:
     [[nodiscard]]
     bool containsValueOf_(GateId gateId) const noexcept
@@ -78,4 +72,4 @@ struct VectorAssignment : public IAssignment
     };
 };
 
-} // csat namespace
+}  // namespace csat

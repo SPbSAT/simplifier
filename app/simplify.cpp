@@ -12,6 +12,7 @@
 
 #include "third_party/argparse/include/argparse/argparse.hpp"
 
+#include <iostream>
 #include <cerrno>
 #include <fstream>
 #include <memory>
@@ -156,10 +157,10 @@ std::optional<std::ofstream> openFileStat(const argparse::ArgumentParser &progra
 
 void writeStatistics(std::optional<std::ofstream> &file_stat, const std::string &file_path, int64_t gatesBefore,
                      int64_t gatesAfter, long double simplifyTime,
-                     std::vector<int32_t> subcircuits_number_by_iter,
-                     std::vector<int32_t> skipped_subcircuits_by_iter,
-                     std::vector<int32_t> max_subcircuit_size_by_iter,
-                     std::vector<int32_t> circuit_size_by_iter,
+                     std::vector<int32_t> const& subcircuits_number_by_iter,
+                     std::vector<int32_t> const& skipped_subcircuits_by_iter,
+                     std::vector<int32_t> const& max_subcircuit_size_by_iter,
+                     std::vector<int32_t> const& circuit_size_by_iter,
                      int64_t iterationsNumber, int64_t total_gates_in_subcircuits) {
     if (file_stat) {
         *file_stat << std::setprecision(3) << std::fixed;
@@ -191,12 +192,12 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
     auto timeStart = std::chrono::steady_clock::now();
 
     logger.debug(file_path, ": simplification start.");
-    csat::simplification::iter_number = 0;
-    csat::simplification::subcircuits_number_by_iter = {0, 0, 0, 0, 0};
-    csat::simplification::skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
-    csat::simplification::max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
-    csat::simplification::circuit_size_by_iter = {0, 0, 0, 0, 0};
-    csat::simplification::total_gates_in_subcircuits = 0;
+    csat::simplification::CircuitStatsSingleton::getInstance().iter_number = 0;
+    csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter = {0, 0, 0, 0, 0};
+    csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
+    csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
+    csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter = {0, 0, 0, 0, 0};
+    csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits = 0;
     std::string basis = program.get<std::string>("--basis");
     auto [processed_instance, processed_encoder] = applyPreprocessing(
         basis,
@@ -211,12 +212,13 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
 
     writeOutputFiles(program, processed_instance, encoder, file_path);
     writeStatistics(file_stat, file_path, gatesBefore, gatesAfter,
-        simplifyTime, csat::simplification::subcircuits_number_by_iter,
-        csat::simplification::skipped_subcircuits_by_iter,
-        csat::simplification::max_subcircuit_size_by_iter,
-        csat::simplification::circuit_size_by_iter,
-        csat::simplification::iter_number,
-        csat::simplification::total_gates_in_subcircuits
+        simplifyTime,
+        csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter,
+        csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter,
+        csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter,
+        csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter,
+        csat::simplification::CircuitStatsSingleton::getInstance().iter_number,
+        csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits
     );
 }
 
@@ -224,16 +226,16 @@ void readDatabases(const argparse::ArgumentParser &program, const csat::Logger &
     std::string basis = program.get<std::string>("--basis");
     if (basis == "BENCH") {
         auto timeStart = std::chrono::steady_clock::now();
-        csat::simplification::bench_db = std::make_shared<csat::simplification::CircuitDB>(
-            "database_bench.txt", csat::simplification::Basis::BENCH);
+        csat::simplification::DBSingleton::getInstance().bench_db = std::make_shared<csat::simplification::CircuitDB>(
+            "database_bench.txt", csat::Basis::BENCH);
         auto timeEnd = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.info("Reading databases from database_bench.txt: ", duration, "sec\n");
     }
     if (basis == "AIG") {
         auto timeStart = std::chrono::steady_clock::now();
-        csat::simplification::aig_db = std::make_shared<csat::simplification::CircuitDB>(
-            "database_aig.txt", csat::simplification::Basis::AIG);
+        csat::simplification::DBSingleton::getInstance().aig_db = std::make_shared<csat::simplification::CircuitDB>(
+            "database_aig.txt", csat::Basis::AIG);
         auto timeEnd = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.info("Reading databases from database_aig.txt: ", duration, "sec\n");

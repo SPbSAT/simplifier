@@ -59,6 +59,48 @@ is used to run unit tests which cover main functionalities of the tool.
 To make this code snapshot whole, `argparse` and `gtest` repository snapshots are vendored
 alongside it and are presented in the `third_party/` directory.
 
+### Code quality
+
+`clang-format` and `clang-tidy` are used for maintaining code quality.
+
+Both of them need to be separately installed before can be used. For example,
+for Ubuntu they can be installed using following command:
+
+```sudo apt install clang-tidy clang-format```
+
+#### Linter
+
+`clang-tidy` is used for linting purposes.
+
+To manually run `clang-tidy`, first one needs to compile cmake project to be able
+to use a build artifact `build/compile_commands.json`. Then one will be able to
+run linter by a simple command:
+
+`clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy`
+
+To make `cland-tidy` fix warnings for you, simply run same command with flags
+`--fix` and `--fix-errors`:
+
+`clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes`
+
+Though it may break code in some cases, so be careful and check all made fixes.
+
+#### Formatter
+
+`clang-format` is used to maintain code uniformity.
+
+`find ./src/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" -i`
+
 ### Tools
 
-...
+Python >=3.8 is used for scripts in the `tools/` directory.
+
+1. Install following packages using your package manager:
+    - dev version of `python3.9` and `python3.9-distutils` (e.g. `sudo apt install python3.9-dev`)
+1. Install `poetry` ([instruction](https://python-poetry.org/docs/)).
+1. Change directory `cd tools`
+1. Setup virtual environment by running `poetry install`
+1. Set your env to the oldest supported Python version `poetry env use 3.9`
+1. Enable virtual environment using `poetry shell`
+
+Now you should be able to run CLI of tools. Use `python ./cli --help` to get more info.

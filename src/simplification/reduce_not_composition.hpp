@@ -1,18 +1,19 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
-#include "src/algo.hpp"
-#include "src/utility/converters.hpp"
-#include "src/common/csat_types.hpp"
-
-#include <vector>
-#include <type_traits>
 #include <memory>
+#include <set>
+#include <type_traits>
+#include <vector>
 
+#include "src/algo.hpp"
+#include "src/common/csat_types.hpp"
+#include "src/simplification/transformer_base.hpp"
+#include "src/structures/circuit/gate_info.hpp"
+#include "src/structures/circuit/icircuit.hpp"
+#include "src/utility/logger.hpp"
 
 namespace csat::simplification
 {
-
 
 /**
  * Transformer, that cleans the circuit from unnecessary gates NOT.
@@ -22,18 +23,13 @@ namespace csat::simplification
  *
  * @tparam CircuitT
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT>>>
 class ReduceNotComposition_ : public ITransformer<CircuitT>
 {
   private:
     csat::Logger logger{"ReduceNotComposition"};
     std::set<GateType> validParams;
-  
+
   public:
     /**
      * Applies ReduceNotComposition_ transformer to `circuit`
@@ -47,13 +43,13 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     {
         logger.debug("=========================================================================================");
         logger.debug("START ReduceNotComposition");
-        
+
         logger.debug("Top sort");
         csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
-        
+
         logger.debug("Rebuild schema");
         GateInfoContainer gate_info(circuit->getNumberOfGates());
-        
+
         for (GateId gateId : gate_sorting)
         {
             GateIdContainer new_operands_{};
@@ -71,17 +67,17 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
             }
             gate_info.at(gateId) = {circuit->getGateType(gateId), new_operands_};
         }
-        
+
         logger.debug("END ReduceNotComposition");
         logger.debug("=========================================================================================");
-        
+
         return {
             std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
-            std::make_unique<GateEncoder<std::string>>(*encoder)
-        };
+            std::make_unique<GateEncoder<std::string>>(*encoder)};
     };
 
   private:
+
     /**
      * Receives gate's ID which type is NOT. If the operand of this gate is also NOT, then the algorithm 
      * looks at the operand of this (finded) gate and so on until it reaches an operand whose type is not NOT. 
@@ -92,17 +88,17 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
      * @param gateId -- gate's ID which type is NOT and for the user of which we should find operand
      * @return  new gate ID. Operand for user which used `gateId`
      */
-    inline GateId get_operand(CircuitT const& circuit, GateId gateId)
+    GateId get_operand(CircuitT const& circuit, GateId gateId)
     {
-        bool flag = false;
+        bool flag         = false;
         GateId check_gate = circuit.getGateOperands(gateId).at(0);
         while (circuit.getGateType(check_gate) == GateType::NOT)
         {
-            flag = not flag;
-            gateId = check_gate;
+            flag       = not flag;
+            gateId     = check_gate;
             check_gate = circuit.getGateOperands(gateId).at(0);
         }
-    
+
         if (flag)
         {
             return check_gate;
@@ -114,4 +110,4 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

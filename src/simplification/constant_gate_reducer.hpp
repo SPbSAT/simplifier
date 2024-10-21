@@ -1,15 +1,22 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
-#include "src/algo.hpp"
-#include "src/utility/converters.hpp"
-#include "src/common/csat_types.hpp"
-
-#include <ranges>
-#include <vector>
-#include <type_traits>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <map>
 #include <memory>
+#include <ranges>
+#include <utility>
+#include <vector>
 
+#include "src/algo.hpp"
+#include "src/common/csat_types.hpp"
+#include "src/simplification/transformer_base.hpp"
+#include "src/structures/assignment/vector_assignment.hpp"
+#include "src/structures/circuit/gate_info.hpp"
+#include "src/utility/converters.hpp"
+#include "src/utility/logger.hpp"
 
 namespace csat::simplification
 {
@@ -36,7 +43,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
 {
   private:
     csat::Logger logger{"ConstantGateReducer"};
-    
+
   public:
     /**
      * Applies ConstantGateReducer_ transformer to `circuit`
@@ -49,28 +56,25 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
         std::unique_ptr<GateEncoder<std::string>> encoder)
     {
         logger.debug("START ConstantGateReducer");
-        
-        auto new_gate_name_prefix = (
-            getUniqueId_() + "::new_gate_ConstantGateReducer@");
-    
-        static const std::map<GateType, GateType> xor_inverse_map = {
-            {GateType::XOR, GateType::NXOR},
-            {GateType::NXOR, GateType::XOR}};
 
-        csat::GateIdContainer gate_sorting(
-            algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
-        
+        auto new_gate_name_prefix = (getUniqueId_() + "::new_gate_ConstantGateReducer@");
+
+        static std::map<GateType, GateType> const xor_inverse_map = {
+            {GateType::XOR,  GateType::NXOR},
+            {GateType::NXOR, GateType::XOR }
+        };
+
+        csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
+
         size_t circuit_size = circuit->getNumberOfGates();
         GateInfoContainer gate_info(circuit_size);
-        
+
         // Surjection of old gate ids to new gate ids.
         std::vector<GateId> old_to_new_gateId(circuit_size, SIZE_MAX);
-        
+
         // Evaluate circuit.
-        auto result_assignment = circuit->template evaluateCircuit<VectorAssignment<true>>(
-            VectorAssignment<false> {});
-        
-        // Rebuild circuit.
+        auto result_assignment = circuit->template evaluateCircuit<VectorAssignment<true>>(VectorAssignment<false>{});
+
         for (GateId gate_id : std::ranges::reverse_view(gate_sorting))
         {
             GateType gate_type = circuit->getGateType(gate_id);
@@ -79,7 +83,8 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
             // After partial circuit calculation, we need to leave only undefined gates. 
             // Defined gates from the circuit must be removed, and users of these gates 
             // must now use CONST_TRUE or CONST_FALSE as their operands.
-            if (result_assignment->isUndefined(gate_id) || gate_type == GateType::CONST_TRUE || gate_type == GateType::CONST_FALSE)
+            if (result_assignment->isUndefined(gate_id) || gate_type == GateType::CONST_TRUE ||
+                gate_type == GateType::CONST_FALSE)
             {
                 // if the operator is not symmetric, we cannot delete its operands even if they are constants
                 if (!csat::utils::symmetricOperatorQ(gate_type))
@@ -95,17 +100,17 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                     int64_t states_count[GateStateNumber]{0 /*False*/, 0 /*True*/, 0 /*Undefined*/};
                     for (auto operand : circuit->getGateOperands(gate_id))
                     {
-                        operand = getLink_(operand, old_to_new_gateId);
+                        operand            = getLink_(operand, old_to_new_gateId);
                         GateState op_state = result_assignment->getGateState(operand);
                         ++states_count[static_cast<uint8_t>(op_state)];
-                        
+
                         // We take only unknown operands.
-                        // Because if we encounter non-significant operands, such as an operand with value TRUE in a gate
-                        // of type AND, they can simply be skipped. And if the operand is significant, then the gate itself
-                        // would have known value, for example, in a gate of type TRUE, there is an operand of type OR.
-                        // So we will not consider it.
-                        // As for XOR and NXOR, we simply skip operands with the value FALSE. And we count the number of
-                        // operands with the value TRUE, then it will be necessary to change the gate type to the opposite.
+                        // Because if we encounter non-significant operands, such as an operand with value TRUE in a
+                        // gate of type AND, they can simply be skipped. And if the operand is significant, then the
+                        // gate itself would have known value, for example, in a gate of type TRUE, there is an operand
+                        // of type OR. So we will not consider it. As for XOR and NXOR, we simply skip operands with the
+                        // value FALSE. And we count the number of operands with the value TRUE, then it will be
+                        // necessary to change the gate type to the opposite.
                         if (op_state == GateState::UNDEFINED)
                         {
                             operands.push_back(operand);
@@ -117,69 +122,59 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                     //   1. XOR(TRUE, y, z) = NXOR(y, z)
                     //   2. XOR(TRUE, TRUE, FALSE, y, z) = XOR(y, z)
                     //   3. XOR(FALSE, y, z) = XOR(y, z)
-                    if (
-                        (gate_type == GateType::XOR || gate_type == GateType::NXOR)
-                        && (states_count[static_cast<uint8_t>(GateState::TRUE)] % 2 == 1))
+                    if ((gate_type == GateType::XOR || gate_type == GateType::NXOR) &&
+                        (states_count[static_cast<uint8_t>(GateState::TRUE)] % 2 == 1))
                     {
                         gate_type = xor_inverse_map.at(gate_type);
                     }
                 }
-                
+
                 // Prepare gate_info for current gate.
                 gate_info.at(gate_id) = {gate_type, operands};
-    
+
                 // If, after the reduction of the assigned gates, current gate left with only one operand,
                 // then all its users must be transferred either to its operand or to its negation.
-                if (
-                    operands.size() == 1
-                    && (
-                        gate_type == GateType::AND
-                        || gate_type == GateType::OR
-                        || gate_type == GateType::XOR
-                        || gate_type == GateType::IFF))
+                if (operands.size() == 1 && (gate_type == GateType::AND || gate_type == GateType::OR ||
+                                             gate_type == GateType::XOR || gate_type == GateType::IFF))
                 {
                     // Users of the current gate will refer to its operand.
                     old_to_new_gateId.at(gate_id) = operands.at(0);
                 }
                 else if (
-                    operands.size() == 1
-                    && (
-                        gate_type == GateType::NAND
-                        || gate_type == GateType::NOR
-                        || gate_type == GateType::NXOR))
+                    operands.size() == 1 &&
+                    (gate_type == GateType::NAND || gate_type == GateType::NOR || gate_type == GateType::NXOR))
                 {
                     // Create NOT.
-                    GateId new_gate_id = encoder->encodeGate(
-                        getNewGateName_(new_gate_name_prefix, circuit_size));
+                    GateId const new_gate_id = encoder->encodeGate(getNewGateName_(new_gate_name_prefix, circuit_size));
                     assert(new_gate_id == circuit_size);
                     assert(new_gate_id == gate_info.size());
-                    
-                    gate_info.emplace_back(
-                        GateType::NOT,
-                        GateIdContainer{operands.at(0)});
+
+                    gate_info.emplace_back(GateType::NOT, GateIdContainer{operands.at(0)});
                     result_assignment->assign(new_gate_id, GateState::UNDEFINED);
-                    
+
                     // Users of the current gate will refer to the negation of its operand.
                     old_to_new_gateId.at(gate_id) = new_gate_id;
                     // The gate NOT must also refer to itself.
                     old_to_new_gateId.push_back(new_gate_id);
-                    
+
                     ++circuit_size;
                     assert(old_to_new_gateId.size() == circuit_size);
                 }
                 else if (gate_type == GateType::MUX)
                 {
-                    auto first_operand = getLink_(circuit->getGateOperands(gate_id)[0], old_to_new_gateId);
-                    GateState mux_op_state = result_assignment->getGateState(first_operand);
+                    auto first_operand           = getLink_(circuit->getGateOperands(gate_id)[0], old_to_new_gateId);
+                    GateState const mux_op_state = result_assignment->getGateState(first_operand);
                     if (mux_op_state == GateState::TRUE)
                     {
                         // Users of the current gate will refer to its third operand.
-                        old_to_new_gateId.at(gate_id) = getLink_(circuit->getGateOperands(gate_id)[2], old_to_new_gateId);
+                        old_to_new_gateId.at(gate_id) =
+                            getLink_(circuit->getGateOperands(gate_id)[2], old_to_new_gateId);
                     }
                     else if (mux_op_state == GateState::FALSE)
                     {
                         // Users of the current gate will refer to its second operand.
-                        old_to_new_gateId.at(gate_id) = getLink_(circuit->getGateOperands(gate_id)[1], old_to_new_gateId);
+                        old_to_new_gateId.at(gate_id) =
+                            getLink_(circuit->getGateOperands(gate_id)[1], old_to_new_gateId);
                     }
                     else
                     {
@@ -189,16 +184,17 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                 }
                 else
                 {
-                    // We do not touch gates like INPUT, CONST_FALSE, CONST_TRUE, NOT and if the gate has 2+ operands or we across a new type of gate.
+                    // We do not touch gates like INPUT, CONST_FALSE, CONST_TRUE, NOT and if the gate has 2+ operands or
+                    // we across a new type of gate.
                     old_to_new_gateId.at(gate_id) = gate_id;
                 }
             }
-            // We will replace the remaining gates with constants, 
+            // We will replace the remaining gates with constants,
             // these gates will be without users and will be removed later by a `RedundantGatesCleaner_` transformer.
             else if (result_assignment->getGateState(gate_id) == GateState::TRUE)
             {
                 gate_info.at(gate_id) = {GateType::CONST_TRUE, {}};
-            }            
+            }
             else if (result_assignment->getGateState(gate_id) == GateState::FALSE)
             {
                 gate_info.at(gate_id) = {GateType::CONST_FALSE, {}};
@@ -209,7 +205,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                 std::abort();
             }
         }
-    
+
         // Rebuild OUTPUT. If we know the value of the output gate,
         // replace it with a little trivial circuit-gadget.
         GateIdContainer new_output_gates{};
@@ -218,8 +214,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
         {
             if (result_assignment->isUndefined(output_gate))
             {
-                new_output_gates.push_back(
-                    old_to_new_gateId.at(output_gate));
+                new_output_gates.push_back(old_to_new_gateId.at(output_gate));
             }
             else
             {
@@ -232,17 +227,16 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
                     result_assignment->getGateState(output_gate));
             }
         }
-        
+
         logger.debug("END ConstantGateReducer");
-        
+
         return {
-            std::make_unique<CircuitT>(
-                std::move(gate_info),
-                std::move(new_output_gates)),
+            std::make_unique<CircuitT>(std::move(gate_info), std::move(new_output_gates)),
             std::make_unique<GateEncoder<std::string>>(*encoder)};
     };
-  
+
   private:
+
     /**
      * Give a link either to the gate itself, or to the gate where the users of the gate should refer.
      * @param gate_id gate's id for which you need to find a link
@@ -250,9 +244,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      *                             the final (after transformation) operand in the gate (= rehung)
      * @return gate's id like a link
      **/
-    inline GateId getLink_(
-        GateId gate_id,
-        std::vector<GateId> const& old_to_new_gateId)
+    GateId getLink_(GateId gate_id, std::vector<GateId> const& old_to_new_gateId)
     {
         if (old_to_new_gateId.at(gate_id) != SIZE_MAX)
         {
@@ -272,7 +264,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      * @param gate_state -- constant true or false instead of which it is necessary to create a subcircuit
      * @return None. All transformations occur by changing the input data parameters
      **/
-    inline void createMiniCircuit_(
+    void createMiniCircuit_(
         GateInfoContainer& gate_info,
         GateEncoder<std::string>& encoder,
         GateIdContainer& new_output_gates,
@@ -290,42 +282,34 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
             }
         }
         assert(gate_id_input != SIZE_MAX);
-        
+
         gate_info.reserve(circuit_size + 2);
-    
+
         // We take first found already existing input to enforce connection
         // between original circuit gates and a newly built constant gadget.
-        GateId left = gate_id_input;
-        GateId right = circuit_size;
-        GateId output = circuit_size + 1;
-        
+        GateId const left   = gate_id_input;
+        GateId const right  = circuit_size;
+        GateId const output = circuit_size + 1;
+
         // Changing reference.
         circuit_size += 2;
-        
-        encoder.encodeGate(
-            getNewGateName_(new_gate_name_prefix, right));
-        gate_info.emplace_back(
-            GateType::NOT,
-            GateIdContainer{left});
-        
-        encoder.encodeGate(
-            getNewGateName_(new_gate_name_prefix, output));
+
+        encoder.encodeGate(getNewGateName_(new_gate_name_prefix, right));
+        gate_info.emplace_back(GateType::NOT, GateIdContainer{left});
+
+        encoder.encodeGate(getNewGateName_(new_gate_name_prefix, output));
         if (gate_state == GateState::TRUE)
         {
-            gate_info.emplace_back(
-                GateType::OR,
-                GateIdContainer{left, right});
+            gate_info.emplace_back(GateType::OR, GateIdContainer{left, right});
         }
         else
         {
-            gate_info.emplace_back(
-                GateType::AND,
-                GateIdContainer{left, right});
+            gate_info.emplace_back(GateType::AND, GateIdContainer{left, right});
         }
-        
+
         // Add recently build output to vector of new output gates.
         new_output_gates.push_back(output);
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

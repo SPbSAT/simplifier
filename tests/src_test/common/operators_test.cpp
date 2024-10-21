@@ -165,4 +165,4 @@ TEST(OperatorsTest, GetOperator)
     ASSERT_TRUE(csat::op::getOperator(csat::GateType::CONST_TRUE) == (csat::op::Operator) &csat::op::CONST_TRUE);
 }
 
-} // anonymous namespace
+} // namespace

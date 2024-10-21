@@ -71,4 +71,4 @@ TEST(EncoderTest, Merge)
     ASSERT_TRUE(merged->encodeGate("d") == second.encodeGate(first.encodeGate("d")));
 }
 
-} // anonymous namespace
+} // namespace

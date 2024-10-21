@@ -1,0 +1,10 @@
+import click
+
+
+@click.group()
+def simplify_tools_suite():
+    pass
+
+
+if __name__ == "__main__":
+    simplify_tools_suite()

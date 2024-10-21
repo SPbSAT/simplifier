@@ -1,14 +1,14 @@
 #pragma once
 
-#include "src/simplification/transformer_base.hpp"
-
-#include <type_traits>
 #include <memory>
+#include <string>
+#include <type_traits>
 
+#include "src/simplification/transformer_base.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 
 namespace csat::simplification
 {
-
 
 /**
  * Class that represents a composition of transformers.
@@ -17,27 +17,15 @@ namespace csat::simplification
  * @tparam TransformerT -- first transformer to be applied in composition.
  * @tparam OtherTransformersT -- other transformers in composition.
  */
-template<
-    class CircuitT,
-    class TransformerT,
-    class ...OtherTransformersT
->
+template<class CircuitT, class TransformerT, class... OtherTransformersT>
 struct Composition : public ITransformer<CircuitT>
 {
+    static_assert(std::is_base_of<ICircuit, CircuitT>::value, "CircuitT must be implementation of an ICircuit.");
     static_assert(
-        std::is_base_of<ICircuit, CircuitT>::value,
-        "CircuitT must be implementation of an ICircuit."
-    );
-    static_assert(
-        (
-            std::is_base_of_v<
-                ITransformer<CircuitT>, OtherTransformersT
-            > && ...
-        ),
+        (std::is_base_of_v<ITransformer<CircuitT>, OtherTransformersT> && ...),
         "All simplifier template args of Composition must implement "
-        "ITransformer and be parametrized with CircuitT type."
-    );
- 
+        "ITransformer and be parametrized with CircuitT type.");
+
   public:
     /**
      * Applies all defined in template TransformersT to
@@ -53,19 +41,13 @@ struct Composition : public ITransformer<CircuitT>
         std::unique_ptr<CircuitT> circuit,
         std::unique_ptr<GateEncoder<std::string>> encoder)
     {
-        auto _transformer = TransformerT();
-        auto [_circuit, _encoder] = _transformer.transform(
-            std::move(circuit),
-            std::move(encoder));
-        
+        auto _transformer         = TransformerT();
+        auto [_circuit, _encoder] = _transformer.transform(std::move(circuit), std::move(encoder));
+
         Composition<CircuitT, OtherTransformersT...> obj_composition;
-        return obj_composition.transform(
-            std::move(_circuit),
-            std::move(_encoder)
-        );
+        return obj_composition.transform(std::move(_circuit), std::move(_encoder));
     }
 };
-
 
 /**
  * Composition specification for one Transformer.
@@ -73,10 +55,7 @@ struct Composition : public ITransformer<CircuitT>
  * @tparam CircuitT -- class that carries circuit.
  * @tparam TransformerT -- first transformer to be applied in composition.
  */
-template<
-    class CircuitT,
-    class TransformerT
->
+template<class CircuitT, class TransformerT>
 struct Composition<CircuitT, TransformerT> : public ITransformer<CircuitT>
 {
   public:
@@ -85,10 +64,8 @@ struct Composition<CircuitT, TransformerT> : public ITransformer<CircuitT>
         std::unique_ptr<GateEncoder<std::string>> encoder)
     {
         auto _transformer = TransformerT();
-        return _transformer.transform(
-            std::move(circuit),
-            std::move(encoder));
+        return _transformer.transform(std::move(circuit), std::move(encoder));
     }
 };
 
-} // csat namespace
+}  // namespace csat::simplification

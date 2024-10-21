@@ -1,8 +1,8 @@
 #pragma once
 
-#include "src/structures/circuit/icircuit.hpp"
-
 #include <memory>
+
+#include "src/structures/circuit/icircuit.hpp"
 
 namespace csat
 {
@@ -12,19 +12,13 @@ namespace csat
  * @tparam CircuitT -- data structure that will
  * be returned by member-function `instantiate`.
  */
-template<
-    class CircuitT,
-    typename = std::enable_if_t<
-        std::is_base_of_v<ICircuit, CircuitT>
-    >
->
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
 class ICircuitBuilder
 {
     static_assert(
         std::is_base_of<ICircuit, CircuitT>::value,
-        "CircuitT template parameter must be a class, derived from ICircuit."
-     );
-    
+        "CircuitT template parameter must be a class, derived from ICircuit.");
+
   public:
     /**
      * Instantiates d CircuitT.
@@ -33,4 +27,4 @@ class ICircuitBuilder
     virtual std::unique_ptr<CircuitT> instantiate() = 0;
 };
 
-} // csat::namespace
+}  // namespace csat

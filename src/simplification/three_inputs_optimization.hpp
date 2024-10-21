@@ -75,6 +75,8 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
      */
     class SubcircuitStats
     {
+        csat::Logger logger{"SubcircuitStats"};
+        
       public:
         int32_t not_in_db{0};
         int32_t smaller_size{0};
@@ -87,9 +89,9 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
 
         void print()
         {
-            std::cout << "Many outputs: " << many_outputs << " | Smaller size: " << smaller_size
-                      << " | Same size: " << same_size << " | Bigger size: " << bigger_size
-                      << " | Subcircuits count: " << subcircuits_count << std::endl;
+            logger.debug("Many outputs: ", many_outputs, " | Smaller size: ", smaller_size
+                     , " | Same size: ", same_size, " | Bigger size: ", bigger_size
+                     , " | Subcircuits count: ", subcircuits_count);
         }
     };
 

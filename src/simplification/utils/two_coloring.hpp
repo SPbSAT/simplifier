@@ -29,7 +29,7 @@ struct TwoColor
   public:
     TwoColor(GateId first_parent, GateId second_parent)
         : first_parent(std::min(first_parent, second_parent))
-        , second_parent(std::max(first_parent, second_parent)) {};
+        , second_parent(std::max(first_parent, second_parent)){};
 
     void addGate(GateId gateId)
     {

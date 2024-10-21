@@ -126,7 +126,7 @@ class BenchToCircuit : public IBenchParser, public ICircuitBuilder<CircuitT>
         else if (op == "vdd")
         {
             _addGate(gateId, GateType::CONST_TRUE, {});
-            return true;  
+            return true;
         }
 
         // `op` is not a special operator.

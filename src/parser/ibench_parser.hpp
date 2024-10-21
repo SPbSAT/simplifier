@@ -247,7 +247,7 @@ class IBenchParser : public ICircuitParser
             csat::utils::string_utils::trimSpaces(is_operator_vdd);
             if (is_operator_vdd == "vdd")
             {
-                return {eq_idx, line_size, line_size}; 
+                return {eq_idx, line_size, line_size};
             }
         }
 

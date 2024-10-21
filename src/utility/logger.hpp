@@ -61,7 +61,7 @@ class Logger
     std::string name;
 
     Logger() noexcept
-        : name("Logger"){};
+        : name("Logger") {};
     explicit Logger(std::string const& _name) noexcept
         : name(_name)
     {

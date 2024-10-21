@@ -93,4 +93,14 @@ Though it may break code in some cases, so be careful and check all made fixes.
 
 ### Tools
 
-... todo (python scripts)
+Python >=3.8 is used for scripts in the `tools/` directory.
+
+1. Install following packages using your package manager:
+    - dev version of `python3.9` and `python3.9-distutils` (e.g. `sudo apt install python3.9-dev`)
+1. Install `poetry` ([instruction](https://python-poetry.org/docs/)).
+1. Change directory `cd tools`
+1. Setup virtual environment by running `poetry install`
+1. Set your env to the oldest supported Python version `poetry env use 3.9`
+1. Enable virtual environment using `poetry shell`
+
+Now you should be able to run CLI of tools. Use `python ./cli --help` to get more info.

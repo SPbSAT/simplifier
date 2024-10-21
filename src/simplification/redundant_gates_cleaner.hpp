@@ -61,7 +61,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
 
             logger.debug("Gate number ", gateId, " is redundant and will be removed");
         }
-        
+
         // Rebuid circuit
         GateInfoContainer gate_info(encoder_old_to_new.size());
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)

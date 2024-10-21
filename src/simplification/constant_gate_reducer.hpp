@@ -80,8 +80,8 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
             GateType gate_type = circuit->getGateType(gate_id);
             GateIdContainer operands{};
 
-            // After partial circuit calculation, we need to leave only undefined gates. 
-            // Defined gates from the circuit must be removed, and users of these gates 
+            // After partial circuit calculation, we need to leave only undefined gates.
+            // Defined gates from the circuit must be removed, and users of these gates
             // must now use CONST_TRUE or CONST_FALSE as their operands.
             if (result_assignment->isUndefined(gate_id) || gate_type == GateType::CONST_TRUE ||
                 gate_type == GateType::CONST_FALSE)
@@ -236,11 +236,10 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
     };
 
   private:
-
     /**
      * Give a link either to the gate itself, or to the gate where the users of the gate should refer.
      * @param gate_id gate's id for which you need to find a link
-     * @param old_to_new_gateId -- Surjection of old gate ids to new gate ids. For using 
+     * @param old_to_new_gateId -- Surjection of old gate ids to new gate ids. For using
      *                             the final (after transformation) operand in the gate (= rehung)
      * @return gate's id like a link
      **/
@@ -252,9 +251,9 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
         }
         return gate_id;
     }
-    
+
     /**
-     * Create a subcircuit whose response will be the output (created instead of the outputs 
+     * Create a subcircuit whose response will be the output (created instead of the outputs
      * already existing in the original circuit, the value of which became known after the transformation)
      * @param gate_info -- container of the new (transformer-modified) circuit
      * @param encoder -- encoder of the new circuit

@@ -77,12 +77,11 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
     };
 
   private:
-
     /**
-     * Receives gate's ID which type is NOT. If the operand of this gate is also NOT, then the algorithm 
-     * looks at the operand of this (finded) gate and so on until it reaches an operand whose type is not NOT. 
-     * After counting the number of NOT's encountered, the algorithm reduces them pairwise. As a result, 
-     * the output will be either gate's ID whose type is not NOT, or gate's ID whose type is NOT, but its 
+     * Receives gate's ID which type is NOT. If the operand of this gate is also NOT, then the algorithm
+     * looks at the operand of this (finded) gate and so on until it reaches an operand whose type is not NOT.
+     * After counting the number of NOT's encountered, the algorithm reduces them pairwise. As a result,
+     * the output will be either gate's ID whose type is not NOT, or gate's ID whose type is NOT, but its
      * operand is definitely not NOT.
      * @param circuit -- circuit to transform.
      * @param gateId -- gate's ID which type is NOT and for the user of which we should find operand

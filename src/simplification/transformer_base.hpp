@@ -38,7 +38,6 @@ class ITransformer
         std::unique_ptr<GateEncoder<std::string>>) = 0;
 };
 
-
 static std::string getUniqueId_()
 {
     // Currently not the best way of random number generation

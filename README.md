@@ -87,7 +87,7 @@ Though it may break code in some cases, so be careful and check all made fixes.
 
 #### Formatter
 
-`clang-format` is used to maintain code uniformity.
+`clang-format-18` is used to maintain code uniformity.
 
 `find ./src/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" -i`
 

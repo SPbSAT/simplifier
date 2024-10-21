@@ -61,7 +61,7 @@ jobs:
         run: sudo apt install --only-upgrade clang -y
 
       - name: Install clang-format
-        run: sudo apt install -y clang-format
+        run: sudo apt install -y clang-format-18
 
       - name: Run clang-format
         working-directory: ${{github.workspace}}

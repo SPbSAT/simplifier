@@ -146,12 +146,12 @@ class IBenchParser : public ICircuitParser
             if (r_bkt_idx > l_bkt_idx)
             {
                 operands_str = line.substr(l_bkt_idx + 1, r_bkt_idx - l_bkt_idx - 1);
+                csat::utils::string_utils::trimSpaces(operands_str);
             }
             else
             {
-                operands_str = line.substr(l_bkt_idx + 1, 0);
+                operands_str = line.substr(0, 0);
             }
-            csat::utils::string_utils::trimSpaces(operands_str);
 
             GateId const gateId = encodeGate(var_name);
 

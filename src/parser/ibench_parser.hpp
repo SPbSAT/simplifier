@@ -142,12 +142,16 @@ class IBenchParser : public ICircuitParser
             std::string_view op = line.substr(eq_idx + 1, l_bkt_idx - eq_idx - 1);
             csat::utils::string_utils::trimSpaces(op);
 
-            std::string_view operands_str = "";
+            std::string_view operands_str;
             if (r_bkt_idx > l_bkt_idx)
             {
                 operands_str = line.substr(l_bkt_idx + 1, r_bkt_idx - l_bkt_idx - 1);
-                csat::utils::string_utils::trimSpaces(operands_str);
             }
+            else
+            {
+                operands_str = line.substr(l_bkt_idx + 1, 0);
+            }
+            csat::utils::string_utils::trimSpaces(operands_str);
 
             GateId const gateId = encodeGate(var_name);
 
@@ -241,12 +245,17 @@ class IBenchParser : public ICircuitParser
         }
 
         // Check validity of delimiters position
-        if (l_bkt_idx == std::string::npos)
+        if (eq_idx != std::string::npos && l_bkt_idx == std::string::npos && r_bkt_idx == std::string::npos)
         {
-            std::string_view is_operator_vdd = line.substr(eq_idx + 1, line_size - eq_idx - 1);
-            csat::utils::string_utils::trimSpaces(is_operator_vdd);
-            if (is_operator_vdd == "vdd")
+            std::string_view token = line.substr(eq_idx + 1, line_size - eq_idx - 1);
+            csat::utils::string_utils::trimSpaces(token);
+            if (token == "vdd")
             {
+                // The line with the operator `vdd` does not contain any brackets or operands. 
+                // After `=` char there is only token `vdd` written (despite spaces),
+                // therefore the index of the left bracket is set to be equal to the end of the line.
+                // The index of the right bracket is also made equal to the end of the line, 
+                // for this case a separate processing is implemented.
                 return {eq_idx, line_size, line_size};
             }
         }

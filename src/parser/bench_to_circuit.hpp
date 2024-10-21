@@ -122,9 +122,9 @@ class BenchToCircuit : public IBenchParser, public ICircuitBuilder<CircuitT>
             }
             return true;
         }
-        // Another specific gate is `vdd`, which is formed by ABC and is always equal to true
         else if (op == "vdd")
         {
+            // Another specific gate is `vdd`, which is formed by ABC and is always equal to true
             _addGate(gateId, GateType::CONST_TRUE, {});
             return true;
         }

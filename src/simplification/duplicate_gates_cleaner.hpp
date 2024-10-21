@@ -7,11 +7,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "core/framework/algorithms/algo.hpp"
-#include "core/framework/preprocessing/transformer_base.hpp"
-#include "core/framework/utility/converters.hpp"
+#include "src/algo.hpp"
+#include "src/simplification/transformer_base.hpp"
+#include "src/utility/converters.hpp"
 
-namespace csat::preprocessing
+namespace csat::simplification
 {
 
 /**
@@ -199,4 +199,4 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
     }
 };
 
-}  // namespace csat::preprocessing
+}  // namespace csat::simplification

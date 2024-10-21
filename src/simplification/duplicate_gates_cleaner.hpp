@@ -45,7 +45,7 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
 
         logger.debug("Building mask to delete gates and filling map -- old_to_new_gateId");
         // 0 -- if gate is a duplicate, 1 -- otherwise
-        BoolVector safe_mask(circuit->getNumberOfGates(), true);
+        BoolVector safe_mask(circuit->getNumberOfGates(), 1);
         // maps encoded (`operator_operand1_operand2...`) gate to new gate id
         GateEncoder<std::string> auxiliary_names_encoder{};
         // surjection of old gate ids to new gate ids

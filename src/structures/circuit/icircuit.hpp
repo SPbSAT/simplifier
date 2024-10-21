@@ -111,7 +111,7 @@ class ICircuit
             if (getGateType(currentGateId) == GateType::INPUT || !input_asmt.isUndefined(currentGateId))
             {
                 internal_asmt.assign(currentGateId, input_asmt.getGateState(currentGateId));
-                evaluated_.at(currentGateId) = true;
+                evaluated_.at(currentGateId) = 1;
                 queue_.pop();
                 continue;
             }
@@ -119,7 +119,7 @@ class ICircuit
             bool operandsEvaluated = true;
             for (auto operandId : getGateOperands(currentGateId))
             {
-                if (!evaluated_.at(operandId))
+                if (evaluated_.at(operandId) == 0)
                 {
                     operandsEvaluated = false;
                     queue_.push(operandId);
@@ -131,7 +131,7 @@ class ICircuit
                 op::OperatorNT<GateId> oper = op::getOperatorNT<GateId>(getGateType(currentGateId));
 
                 internal_asmt.assign(currentGateId, oper(getGateOperands(currentGateId), get_gate_state_));
-                evaluated_.at(currentGateId) = true;
+                evaluated_.at(currentGateId) = 1;
                 queue_.pop();
                 continue;
             }

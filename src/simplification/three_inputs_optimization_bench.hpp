@@ -51,7 +51,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     class SubcircuitStats
     {
         csat::Logger logger{"SubcircuitStats"};
-  
+
       public:
         int32_t not_in_db{0};
         int32_t smaller_size{0};
@@ -63,9 +63,17 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
 
         void print()
         {
-            logger.debug("Many outputs: ", many_outputs, " | Not in db patterns: ", not_in_db
-                     , " | Smaller size: ", smaller_size, " | Same size: ", same_size
-                     , " | Bigger size: ", bigger_size);
+            logger.debug(
+                "Many outputs: ",
+                many_outputs,
+                " | Not in db patterns: ",
+                not_in_db,
+                " | Smaller size: ",
+                smaller_size,
+                " | Same size: ",
+                same_size,
+                " | Bigger size: ",
+                bigger_size);
         }
     };
 

@@ -32,7 +32,7 @@ class ICircuit
     ICircuit()                = default;
     ICircuit(ICircuit const&) = default;
     virtual ~ICircuit()       = default;
-    ICircuit(GateInfoContainer const& /*unused*/, GateIdContainer const& /*unused*/) {};
+    ICircuit(GateInfoContainer const& /*unused*/, GateIdContainer const& /*unused*/){};
 
     // ========== Circuit Info ========== //
     /* Returns type of gate. */

@@ -251,10 +251,10 @@ class IBenchParser : public ICircuitParser
             csat::utils::string_utils::trimSpaces(token);
             if (token == "vdd")
             {
-                // The line with the operator `vdd` does not contain any brackets or operands. 
+                // The line with the operator `vdd` does not contain any brackets or operands.
                 // After `=` char there is only token `vdd` written (despite spaces),
                 // therefore the index of the left bracket is set to be equal to the end of the line.
-                // The index of the right bracket is also made equal to the end of the line, 
+                // The index of the right bracket is also made equal to the end of the line,
                 // for this case a separate processing is implemented.
                 return {eq_idx, line_size, line_size};
             }

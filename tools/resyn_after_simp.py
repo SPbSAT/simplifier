@@ -1,8 +1,9 @@
-import pandas as pd
-import subprocess
-import shutil
-import time
 import os
+import shutil
+import subprocess
+import time
+
+import pandas as pd
 from tqdm import tqdm  # Import tqdm for progress bar
 
 BENCHMARKS_DIRECTORY = "all_sets_under_50000"
@@ -25,9 +26,7 @@ def circuit_size(filename):
 
 
 def construct_command(command_list):
-    """
-    Constructs one command line from several commands, separating them with ;
-    """
+    """Constructs one command line from several commands, separating them with ;"""
     return "; ".join(command_list)
 
 
@@ -56,7 +55,7 @@ def run_abc_command(command):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
         )
 
         out, err = process.communicate(command, timeout=TL)
@@ -93,7 +92,11 @@ def resyn(input_path, output_path):
 
 
 def resyn_iter(input_path, output_path, iterations):
-    command_list = [read_command(input_path), strash_command()] + [resyn_command()] * iterations + [write_command(output_path)]
+    command_list = (
+        [read_command(input_path), strash_command()]
+        + [resyn_command()] * iterations
+        + [write_command(output_path)]
+    )
     command = construct_command(command_list)
     return run_abc_command(command)
 
@@ -107,7 +110,9 @@ def main():
         os.makedirs(SIMP_DIRECTORY)
 
     # Get all subdirectories with '_simp' suffix
-    simp_folders = [folder for folder in os.listdir(SIMP_DIRECTORY) if folder.endswith("_simp")]
+    simp_folders = [
+        folder for folder in os.listdir(SIMP_DIRECTORY) if folder.endswith("_simp")
+    ]
 
     for simp_folder in simp_folders:
         simp_folder_path = os.path.join(SIMP_DIRECTORY, simp_folder)
@@ -116,7 +121,9 @@ def main():
         total_files = sum([len(files) for _, _, files in os.walk(simp_folder_path)])
 
         for root, _, files in os.walk(simp_folder_path):
-            for file in tqdm(files, total=total_files, desc=f"Processing {simp_folder}"):
+            for file in tqdm(
+                files, total=total_files, desc=f"Processing {simp_folder}"
+            ):
                 if os.path.splitext(file)[1] != ".bench":
                     print(f"Skipping {file}")
                     continue

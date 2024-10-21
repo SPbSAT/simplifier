@@ -23,6 +23,8 @@ typing-extensions = "^4.12.2"
 click = "^8.1.7"
 tqdm = "^4.66.5"
 pandas = "^2.2.3"
+usort = "^1.0.8.post1"
+docformatter = "^1.7.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
@@ -30,3 +32,12 @@ black = "^24.4.2"
 [tool.black]
 line-length = 88
 skip-string-normalization = 1
+
+[tool.usort]
+merge_imports = true
+
+[tool.docformatter]
+black = true
+blank = true
+recursive = true
+pre-summary-newline = true

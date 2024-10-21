@@ -1,8 +1,8 @@
-import pandas as pd
-import subprocess
-import shutil
-import time
 import os
+import subprocess
+import time
+
+import pandas as pd
 from tqdm import tqdm  # Import tqdm for progress bar
 
 BENCHMARKS_DIRECTORY = "all_sets_under_50000"
@@ -25,9 +25,7 @@ def circuit_size(filename):
 
 
 def construct_command(command_list):
-    """
-    Constructs one command line from several commands, separating them with ;
-    """
+    """Constructs one command line from several commands, separating them with ;"""
     return "; ".join(command_list)
 
 
@@ -56,7 +54,7 @@ def run_abc_command(command):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
         )
 
         out, err = process.communicate(command, timeout=TL)
@@ -167,6 +165,7 @@ def resyn6(input_path, output_path):
     )
     return run_abc_command(command)
 
+
 def resyn7(input_path, output_path):
     command = construct_command(
         [
@@ -183,7 +182,6 @@ def resyn7(input_path, output_path):
         ]
     )
     return run_abc_command(command)
-
 
 
 def main():
@@ -238,12 +236,14 @@ def main():
                 # origin_path = resyn_path  # Update for next resyn step
 
             # Adding results to list
-            results.append({
-                'Benchmark': file,
-                'Original Size': original_size,
-                **resyn_times,
-                **resyn_sizes
-            })
+            results.append(
+                {
+                    'Benchmark': file,
+                    'Original Size': original_size,
+                    **resyn_times,
+                    **resyn_sizes,
+                }
+            )
 
     # Convert results list to DataFrame
     results_df = pd.DataFrame(results)

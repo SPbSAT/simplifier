@@ -141,7 +141,7 @@ class TwoColoring
             {
                 std::cerr << "TwoColoring got circuit which gate has more than two operands. Gate id: " << gateId
                           << std::endl;
-                std::exit(-1);
+                std::abort();
             }
 
             GateId child_1 = operands[0];

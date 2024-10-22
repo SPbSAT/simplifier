@@ -263,8 +263,8 @@ class IBenchParser : public ICircuitParser
         if (eq_idx == std::string::npos || l_bkt_idx == std::string::npos || r_bkt_idx == std::string::npos ||
             eq_idx >= l_bkt_idx || eq_idx >= r_bkt_idx || l_bkt_idx >= r_bkt_idx)
         {
-            logger.error("\tCan't parse line: \"", line, "\"");
-            throw std::runtime_error("Can't parse file");
+            std::cerr << "Can't parse line: \"" <<  line << "\"" << std::endl;
+            std::abort();
         }
 
         return {eq_idx, l_bkt_idx, r_bkt_idx};

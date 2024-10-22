@@ -61,15 +61,15 @@ void parseArguments(int argn, char **argv, argparse::ArgumentParser &program) {
     } catch (const std::runtime_error &err) {
         std::cerr << err.what() << std::endl;
         std::cerr << program;
-        std::exit(1);
+        std::abort();
     }
 }
 
 std::ifstream openInputFile(const std::string &file_path, csat::Logger &logger) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
-        logger.error("Can't open file, path is incorrect.");
-        std::exit(EINVAL);
+        std::cerr << "Can't open file, path is incorrect." << std::endl;
+        std::abort();
     }
     return file;
 }
@@ -117,8 +117,8 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
             csat::simplification::DuplicateOperandsCleaner<csat::DAG>
         >().apply(*csat_instance, encoder);
     } else {
-        std::cout << "Incorrect basis! Choose one of [AIG, BENCH]\n";
-        std::exit(1);
+        std::cerr << "Incorrect basis! Choose one of [AIG, BENCH]" << std::endl;
+        std::abort();
     }
 }
 

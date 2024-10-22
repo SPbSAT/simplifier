@@ -1,5 +1,6 @@
 #include <cerrno>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include "src/utility/logger.hpp"
 #include "src/utility/write_utils.hpp"
 #include "third_party/argparse/include/argparse/argparse.hpp"
+
 
 /**
  * prints circuit (encoded name => name from file)
@@ -150,7 +152,15 @@ void writeOutputFiles(
 {
     if (auto output_dir = program.present("-o"))
     {
-        std::ofstream file_out(*output_dir / std::filesystem::path(file_path).filename());
+        // Create directory if it doesn't exist yet.
+        std::filesystem::path output_path{*output_dir};
+        if (!std::filesystem::exists(output_path))
+        {
+            std::filesystem::create_directories(output_path);
+        }
+        
+        // Write resulting circuit to an output path by original name.
+        std::ofstream file_out(output_path / std::filesystem::path(file_path).filename());
         WriteBenchFile(*csat_instance, encoder, file_out);
     }
     else
@@ -280,7 +290,7 @@ void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
             std::make_shared<csat::simplification::CircuitDB>("database_bench.txt", csat::Basis::BENCH);
         auto timeEnd         = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
-        logger.info("Reading databases from database_bench.txt: ", duration, "sec\n");
+        logger.debug("Reading databases from database_bench.txt: ", duration, "sec.");
     }
     if (basis == "AIG")
     {
@@ -289,7 +299,7 @@ void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
             std::make_shared<csat::simplification::CircuitDB>("database_aig.txt", csat::Basis::AIG);
         auto timeEnd         = std::chrono::steady_clock::now();
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
-        logger.info("Reading databases from database_aig.txt: ", duration, "sec\n");
+        logger.debug("Reading databases from database_aig.txt: ", duration, "sec.");
     }
 }
 
@@ -321,14 +331,10 @@ int main(int argn, char** argv)
         {
             continue;
         }
-        try
-        {
-            runBenchmark(file_path.path().string(), program, logger, file_stat);
-        }
-        catch (std::exception const& err)
-        {
-            std::cerr << err.what() << std::endl;
-        }
+        
+        std::string path = file_path.path().string();
+        logger.info("Processing benchmark ", path, ".");
+        runBenchmark(path, program, logger, file_stat);
     }
 
     return 0;

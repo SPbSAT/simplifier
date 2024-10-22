@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 import typing as tp
+import pathlib
 
 import click
 import pandas as pd
@@ -143,12 +144,11 @@ def abc_resyn2(
                 }
             )
 
-    # Consider stats_path a dir, if it doesn't exist yet, and create it.
-    if not os.path.exists(stats_path):
-        os.makedirs(stats_path)
-
     # Resolve stats csv path.
-    if os.path.isdir(stats_path):
+    stats_path_object = pathlib.Path(stats_path)
+    if stats_path_object.is_dir():
+        if not os.path.exists(stats_path):
+            os.makedirs(stats_path)
         stats_filepath = os.path.join(stats_path, f"abc_resyn2_experiment_results.csv")
     else:
         stats_filepath = stats_path

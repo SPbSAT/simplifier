@@ -148,7 +148,7 @@ inline MinArity gateTypeToMinArity(GateType gate_type) noexcept
 }
 
 /**
- * @return True if the given `gate_type` can have arity greater than `gateTypeToMinArity(gate_type)`.
+ * @return True iff the given `gate_type` can have arity greater than `gateTypeToMinArity(gate_type)`.
  */
 [[maybe_unused]]
 inline bool expandableArityQ(GateType gate_type) noexcept
@@ -173,7 +173,7 @@ inline bool expandableArityQ(GateType gate_type) noexcept
 }
 
 /**
- * @return True if operands can be swapped without changing the results.
+ * @return True iff operands can be swapped without changing the results.
  */
 [[maybe_unused]]
 inline bool symmetricOperatorQ(GateType gate_type) noexcept
@@ -193,6 +193,33 @@ inline bool symmetricOperatorQ(GateType gate_type) noexcept
         {GateType::CONST_FALSE, true },
         {GateType::CONST_TRUE,  true }
     };
+
+    return _type_map.at(gate_type);
+}
+
+/**
+ * @return True iff two gates of given type that differ only by number of multiple operands
+ *         are equivalent (e.g. `AND(X, X, Y) ~ AND(X, Y)`, but `XOR(X, X, Y) !~ XOR(X, Y)`).
+ */
+inline bool reducibleMultipleOperandsQ(GateType gate_type)
+noexcept
+{
+    static const std::unordered_map<GateType, bool> _type_map
+        {
+            {GateType::INPUT,           true},
+            {GateType::NOT,             true},
+            {GateType::AND,             true},
+            {GateType::NAND,            true},
+            {GateType::OR,              true},
+            {GateType::NOR,             true},
+            {GateType::XOR,             false},
+            {GateType::NXOR,            false},
+            {GateType::IFF,             true},
+            {GateType::MUX,             false},
+            {GateType::BUFF,            true},
+            {GateType::CONST_FALSE,     true},
+            {GateType::CONST_TRUE,      true}
+        };
 
     return _type_map.at(gate_type);
 }

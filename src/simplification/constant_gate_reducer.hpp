@@ -53,7 +53,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      */
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
-        std::unique_ptr<GateEncoder<std::string>> encoder)
+        std::unique_ptr<GateEncoder> encoder)
     {
         logger.debug("START ConstantGateReducer");
 
@@ -232,7 +232,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
 
         return {
             std::make_unique<CircuitT>(std::move(gate_info), std::move(new_output_gates)),
-            std::make_unique<GateEncoder<std::string>>(*encoder)};
+            std::make_unique<GateEncoder>(*encoder)};
     };
 
   private:
@@ -265,7 +265,7 @@ class ConstantGateReducer_ : public ITransformer<CircuitT>
      */
     void createMiniCircuit_(
         GateInfoContainer& gate_info,
-        GateEncoder<std::string>& encoder,
+        GateEncoder& encoder,
         GateIdContainer& new_output_gates,
         std::string const& new_gate_name_prefix,
         GateId& circuit_size,

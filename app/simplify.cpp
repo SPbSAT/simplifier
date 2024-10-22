@@ -24,7 +24,7 @@
 /**
  * prints circuit (encoded name => name from file)
  */
-void printCircuit(csat::DAG const &circuit, csat::utils::GateEncoder<std::string> const &encoder) {
+void printCircuit(csat::DAG const &circuit, csat::utils::GateEncoder const &encoder) {
     for (auto input: circuit.getInputGates()) {
         std::cout << "INPUT(" << input << " => " << encoder.decodeGate(input) << ")\n";
     }
@@ -75,7 +75,7 @@ std::ifstream openInputFile(const std::string &file_path, csat::Logger &logger) 
 }
 
 std::unique_ptr<csat::DAG> parseCircuitFile(std::ifstream &file, const std::string &file_path, csat::Logger &logger,
-                                            csat::utils::GateEncoder<std::string> &encoder) {
+                                            csat::utils::GateEncoder  &encoder) {
     logger.debug("Reading file ", file_path, ".");
     auto parser = csat::parser::BenchToCircuit<csat::DAG>();
     parser.parseStream(file);
@@ -83,9 +83,9 @@ std::unique_ptr<csat::DAG> parseCircuitFile(std::ifstream &file, const std::stri
     return parser.instantiate();
 }
 
-std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<std::string> > > applyPreprocessing(
+std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder > > applyPreprocessing(
     std::string const& basis, std::unique_ptr<csat::DAG> &csat_instance,
-    csat::utils::GateEncoder<std::string> &encoder) {
+    csat::utils::GateEncoder &encoder) {
     if (basis == "AIG") {
         return csat::simplification::Composition<
             csat::DAG,
@@ -123,7 +123,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
 }
 
 void writeOutputFiles(const argparse::ArgumentParser &program, std::unique_ptr<csat::DAG> &csat_instance,
-                      csat::utils::GateEncoder<std::string> &encoder, const std::string &file_path) {
+                      csat::utils::GateEncoder &encoder, const std::string &file_path) {
     if (auto output_dir = program.present("-o")) {
         std::ofstream file_out(*output_dir / std::filesystem::path(file_path).filename());
         WriteBenchFile(*csat_instance, encoder, file_out);
@@ -185,7 +185,7 @@ void runBenchmark(const std::string &file_path, const argparse::ArgumentParser &
                   std::optional<std::ofstream> &file_stat) {
     auto file = openInputFile(file_path, logger);
 
-    csat::utils::GateEncoder<std::string> encoder;
+    csat::utils::GateEncoder encoder;
     auto csat_instance = parseCircuitFile(file, file_path, logger, encoder);
 
     int64_t gatesBefore = csat_instance->getNumberOfGates();

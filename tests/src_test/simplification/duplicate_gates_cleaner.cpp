@@ -30,7 +30,7 @@ TEST(DuplicateGatesCleaner, SimpleTest)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -62,7 +62,7 @@ TEST(DuplicateGatesCleaner, NoSorted)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -103,7 +103,7 @@ TEST(DuplicateGatesCleaner, SeveralLevels)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -145,7 +145,7 @@ TEST(DuplicateGatesCleaner, SeveralOutput)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -184,7 +184,7 @@ TEST(DuplicateGatesCleaner, SeveralLevelsMUX)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,

@@ -44,13 +44,13 @@ class IBenchParser : public ICircuitParser
     }
 
     /* Encoder of inputs and gates. */
-    csat::utils::GateEncoder<std::string> encoder;
+    csat::utils::GateEncoder encoder;
 
     /**
      * @return Encoder, built according to parser info.
      */
     [[nodiscard]]
-    csat::utils::GateEncoder<std::string> const& getEncoder() const
+    csat::utils::GateEncoder const& getEncoder() const
     {
         return encoder;
     }

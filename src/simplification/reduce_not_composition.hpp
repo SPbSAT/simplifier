@@ -72,8 +72,7 @@ class ReduceNotComposition_ : public ITransformer<CircuitT>
         logger.debug("=========================================================================================");
 
         return {
-            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
-            std::make_unique<GateEncoder>(*encoder)};
+            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()), std::make_unique<GateEncoder>(*encoder)};
     };
 
   private:

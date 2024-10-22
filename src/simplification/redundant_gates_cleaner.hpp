@@ -2,9 +2,9 @@
 
 #include <cassert>
 #include <memory>
-#include <type_traits>
-#include <utility> 
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 #include "src/algo.hpp"
 #include "src/common/csat_types.hpp"
@@ -86,7 +86,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
                     encoded_operands_.push_back(new_encoder.encodeGate(operand_name));
                 }
                 // Build new gate info object for current gate.
-                 gate_info.at(new_encoder.encodeGate(gate_name)) = {
+                gate_info.at(new_encoder.encodeGate(gate_name)) = {
                     circuit->getGateType(gateId), std::move(encoded_operands_)};
             }
         }
@@ -98,8 +98,8 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
         for (GateId output_gate : circuit->getOutputGates())
         {
             assert(
-                mask_use_output.at(output_gate) != algo::DFSState::UNVISITED
-                || (preserveInputs && circuit->getGateType(output_gate) == GateType::INPUT));
+                mask_use_output.at(output_gate) != algo::DFSState::UNVISITED ||
+                (preserveInputs && circuit->getGateType(output_gate) == GateType::INPUT));
 
             std::string_view output_name = encoder->decodeGate(output_gate);
             new_output_gates.push_back(new_encoder.encodeGate(output_name));

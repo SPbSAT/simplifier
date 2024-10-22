@@ -71,6 +71,7 @@ std::ifstream openInputFile(const std::string &file_path, csat::Logger &logger) 
         std::cerr << "Can't open file, path is incorrect." << std::endl;
         std::abort();
     }
+    logger.error("File opened.");
     return file;
 }
 

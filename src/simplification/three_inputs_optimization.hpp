@@ -368,8 +368,8 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 }
                 else
                 {
-                    std::cout << "Error! Incorrect operation!\n";
-                    std::exit(EINVAL);
+                    std::cerr << "Error! Incorrect operation!" << std::endl;
+                    std::abort();
                 }
 
                 if (all_patterns[0][gateId] == 0 || all_patterns[0][gateId] == 255 || all_patterns[0][gateId] == 240 ||

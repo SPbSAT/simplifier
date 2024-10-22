@@ -18,6 +18,9 @@
 #include "third_party/argparse/include/argparse/argparse.hpp"
 
 
+std::string const DEFAULT_BASIS = "BENCH";
+
+
 /**
  * prints circuit (encoded name => name from file)
  */
@@ -302,8 +305,6 @@ void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
         logger.debug("Reading databases from database_aig.txt: ", duration, "sec.");
     }
 }
-
-std::string const DEFAULT_BASIS = "BENCH";
 
 /**
  * Clearing the transferred schema with the ability to write a new schema to a file

@@ -1,10 +1,9 @@
-import click
+from cli_group import tools_cli
 
-
-@click.group()
-def simplify_tools_suite():
-    pass
+from abc_resyn2 import *
+from check_equiv import *
+from collect_sizes_aig import *
 
 
 if __name__ == "__main__":
-    simplify_tools_suite()
+    tools_cli()

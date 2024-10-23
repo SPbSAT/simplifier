@@ -49,8 +49,8 @@ struct CircuitDB
      * Each row of the database must encode a circuit. Where:
      *  -- the first number in the line is the number of inputs, which are numbered from 0 to this number - 1;
      *  -- the second number is the number of outputs;
-     *  -- next "outputs" number of numbers are output codes, which are truth tables written in decimal form;
-     *  -- next "outputs" number of numbers are indexes of outputs;
+     *  -- the subsequent "outputs" entries represent output codes, which are truth tables written in decimal form;
+     *  -- the subsequent "outputs" entries represent indeces of outputs;
      *  -- the following is a description of the gates. A gate is an operator and the operand indices it uses.
      *
      * @param db_path -- path to the database text file

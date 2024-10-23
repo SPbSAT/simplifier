@@ -19,8 +19,9 @@
 /**
  * prints circuit (encoded name => name from file)
  */
-void printCircuit(csat::DAG const &circuit, csat::utils::GateEncoder const &encoder) {
-    for (auto input: circuit.getInputGates()) 
+void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder const& encoder) 
+{
+    for (auto input : circuit.getInputGates())
     {
         std::cout << "INPUT(" << input << " => " << encoder.decodeGate(input) << ")\n";
     }

@@ -143,7 +143,7 @@ class ThreeColoring
             {
                 std::cerr << "ThreeColoring got circuit which gate has more than two operands. Gate id: " << gateId
                           << std::endl;
-                std::exit(-1);
+                std::abort();
             }
 
             ColorId const two_color = twoColoring.gateColor.at(gateId);

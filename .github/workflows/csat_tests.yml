@@ -65,7 +65,7 @@ jobs:
 
       - name: Run clang-format
         working-directory: ${{github.workspace}}
-        run: find ./src/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" --dry-run -Werror
+        run: find ./src/ ./app/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" --dry-run -Werror
 
   # Check if there are problems in code using linter
   linter-check:

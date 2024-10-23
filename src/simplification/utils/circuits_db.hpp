@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "src/common/csat_types.hpp"
+#include "src/utility/converters.hpp"
 
 namespace csat::simplification
 {

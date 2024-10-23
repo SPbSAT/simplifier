@@ -122,7 +122,7 @@ std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& progra
     {
         std::ofstream statistics_stream(*output_file);
         statistics_stream << std::setprecision(3) << std::fixed;
-        statistics_stream << "File path,Gates before,Gates after,Simplify time";
+        statistics_stream << "File path,Gates before,Gates after,Simplify time,Reduced subcircuits by iter";
         for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
         {
             statistics_stream << ",subcircuits_number_" << i;
@@ -146,6 +146,26 @@ std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& progra
 }
 
 /**
+ * Helper to dump a vector to ofstream.
+ */
+template<class T>
+void dumpVector(
+    std::ofstream& stream,
+    std::vector<T> const& vec)
+{
+    stream << "," << "[";
+    if (!vec.empty())
+    {
+        stream << vec.at(0);
+        for (std::size_t idx = 1; idx < vec.size(); ++idx)
+        {
+            stream << ";" << vec.at(idx);
+        }
+    }
+    stream << "]";
+}
+
+/**
  * Dumps current subcircuit simplification statistics to the stats file.
  */
 void dumpStatistics(
@@ -157,6 +177,9 @@ void dumpStatistics(
 {
     statistics_stream << std::setprecision(3) << std::fixed;
     statistics_stream << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
+    
+    dumpVector(statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
+    
     for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
     {
         statistics_stream << "," << t;

@@ -70,6 +70,8 @@ Sections below are structured as follows:
 3. Subsection with step-by-step guide on how results are computed.
 4. Description of resulting artifacts and their mappings to results in the paper.
 
+Statistics is written in `.csv` files with `,` delimiter. Note that in some statistics `;` is used in a value part.
+
 ### Table 2. Comparison of several runs of resyn2 against several runs of resyn2 followed by a run of simplify.
 
 #### All-in-one command
@@ -110,7 +112,7 @@ python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s expe
 
 #### All-in-one command
 
-```
+```sh
 mkdir experiment_table_3
 tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
 python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a .tmp/abc-master/abc -n 1 -s experiment_table_3/r_results.csv

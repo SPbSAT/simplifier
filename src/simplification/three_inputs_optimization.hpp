@@ -35,13 +35,14 @@ namespace csat::simplification
 struct CircuitStatsSingleton
 {
   public:
-    int32_t iter_number                              = 0;
-    std::vector<int32_t> subcircuits_number_by_iter  = {0, 0, 0, 0, 0};
-    std::vector<int32_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
-    std::vector<int32_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
-    std::vector<int32_t> circuit_size_by_iter        = {0, 0, 0, 0, 0};
-    std::size_t total_gates_in_subcircuits           = 0;
-    std::size_t last_iter_gates_simplification       = 0;
+    std::size_t iter_number                              = 0;
+    std::vector<std::size_t> subcircuits_number_by_iter  = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> circuit_size_by_iter        = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> reduced_subcircuit_by_iter  = {};
+    std::size_t total_gates_in_subcircuits               = 0;
+    std::size_t last_iter_gates_simplification           = 0;
 
     static CircuitStatsSingleton& getInstance()
     {
@@ -63,6 +64,7 @@ struct CircuitStatsSingleton
         skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
         max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
         circuit_size_by_iter        = {0, 0, 0, 0, 0};
+        reduced_subcircuit_by_iter  = {};
         total_gates_in_subcircuits  = 0;
     }
 
@@ -90,12 +92,12 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         csat::Logger logger{"SubcircuitStats"};
 
       public:
-        int32_t not_in_db{0};
-        int32_t smaller_size{0};
-        int32_t same_size{0};
-        int32_t bigger_size{0};
-        int32_t many_outputs{0};
-        int32_t subcircuits_count{0};
+        std::size_t not_in_db{0};
+        std::size_t smaller_size{0};
+        std::size_t same_size{0};
+        std::size_t bigger_size{0};
+        std::size_t many_outputs{0};
+        std::size_t subcircuits_count{0};
 
         SubcircuitStats() = default;
 
@@ -294,7 +296,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = std::max(
                 CircuitStatsSingleton::getInstance()
                     .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1],
-                static_cast<int32_t>(gatesByColor.size()) + 3);
+                gatesByColor.size()) + 3;
             CircuitStatsSingleton::getInstance().total_gates_in_subcircuits += gatesByColor.size() + 3;
 
             // Check whether subcircuit has modified gates (in this case we do not observe it)
@@ -743,6 +745,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         stats.subcircuits_count = colors.size();
         CircuitStatsSingleton::getInstance()
             .subcircuits_number_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] += colors.size();
+        CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter.push_back(stats.smaller_size);
         stats.print();
 
         return {

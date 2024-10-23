@@ -51,11 +51,11 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         csat::Logger logger{"SubcircuitStats"};
 
       public:
-        int32_t not_in_db{0};
-        int32_t smaller_size{0};
-        int32_t same_size{0};
-        int32_t bigger_size{0};
-        int32_t many_outputs{0};
+        std::size_t not_in_db{0};
+        std::size_t smaller_size{0};
+        std::size_t same_size{0};
+        std::size_t bigger_size{0};
+        std::size_t many_outputs{0};
 
         SubcircuitStats() = default;
 

@@ -110,7 +110,15 @@ python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s expe
 
 #### All-in-one command
 
-...
+```
+mkdir experiment_table_3
+tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
+python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a .tmp/abc-master/abc -n 1 -s experiment_table_3/r_results.csv
+./build/simplify experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
+python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+```
 
 #### Step-by-step guide
 
@@ -122,7 +130,7 @@ python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s expe
 
 `tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/`
 
-In result `all_sets_for_stat` directory must appear.
+In result `benchmarks` directory must appear.
 
 3. Run `ABC` `resyn2` on the extracted benchmarks using provided CLI command:
 
@@ -132,21 +140,22 @@ In result `all_sets_for_stat` directory must appear.
 
 `./build/simplify experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/`
 
-5. To validate ...
-
-`python tools/cli check-equiv experiment_table_3/benchmarks experiment_table_3/benchmarks_rs -a .tmp/abc-master/abc`
-
-6. Collect statistics
+5. Collect statistics
 
 ```sh
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
 ```
+6. To validate ...
+
+`python tools/cli check-equiv experiment_table_3/benchmarks experiment_table_3/benchmarks_rs -a .tmp/abc-master/abc`
+
 
 After all commands completed, results are located as follows.
 
 TODO: not true, simplify should write better statistics
+
 1. `r_result` contains information about circuit sizes before and after `resyn2` execution.
 2. `rs_result` contains information about circuit sizes before and after `simplify` execution, including information about per-iteration sizes (see `circuit_size_*` columns).
 
@@ -167,7 +176,7 @@ TODO: not true, simplify should write better statistics
 
 `tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./experiment_table_4/`
 
-In result `all_sets_for_stat` directory must appear.
+In result `benchmarks` directory must appear.
 
 3. Run `simplify` tool on resulting circuits:
 

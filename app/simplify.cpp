@@ -18,7 +18,10 @@
 #include "third_party/argparse/include/argparse/argparse.hpp"
 
 
-std::string const DEFAULT_BASIS = "BENCH";
+std::string const AIG_BASIS = "AIG";
+std::string const BENCH_BASIS = "BENCH";
+std::string const DEFAULT_BASIS = BENCH_BASIS;
+std::string const DEFAULT_DATABASES_PATH = "databases/";
 
 
 /**
@@ -64,16 +67,7 @@ void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string
 
 void parseArguments(int argn, char** argv, argparse::ArgumentParser& program)
 {
-    try
-    {
-        program.parse_args(argn, argv);
-    }
-    catch (std::runtime_error const& err)
-    {
-        std::cerr << err.what() << std::endl;
-        std::cerr << program;
-        std::abort();
-    }
+
 }
 
 std::ifstream openInputFile(std::string const& file_path, csat::Logger& logger)
@@ -106,7 +100,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
     std::unique_ptr<csat::DAG>& csat_instance,
     csat::utils::GateEncoder<std::string>& encoder)
 {
-    if (basis == "AIG")
+    if (basis == AIG_BASIS)
     {
         return csat::simplification::Composition<
                    csat::DAG,
@@ -123,7 +117,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
                    csat::simplification::DuplicateOperandsCleaner<csat::DAG> >()
             .apply(*csat_instance, encoder);
     }
-    else if (basis == "BENCH")
+    else if (basis == BENCH_BASIS)
     {
         return csat::simplification::Composition<
                    csat::DAG,
@@ -172,77 +166,80 @@ void writeOutputFiles(
     }
 }
 
+/**
+ * If path for statistics is specified, opens `ofstream` to write statistics.
+ * Writes file column names before any statistics is collected.
+ *
+ * If path is not given, returns `nullopt`.
+ *
+ * @param program argparse program.
+ * @return either opened `ofstream`, or `nullopt`.
+ */
 std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& program)
 {
     if (auto output_file = program.present("-s"))
     {
-        std::ofstream file_stat(*output_file);
-        file_stat << std::setprecision(3) << std::fixed;
-        file_stat << "File path,Gates before,Gates after,Preprocessing time";
+        std::ofstream statistics_stream(*output_file);
+        statistics_stream << std::setprecision(3) << std::fixed;
+        statistics_stream << "File path,Gates before,Gates after,Preprocessing time";
         for (int i = 0; i < 5; ++i)
         {
-            file_stat << ",subcircuits_number_" << i;
+            statistics_stream << ",subcircuits_number_" << i;
         }
         for (int i = 0; i < 5; ++i)
         {
-            file_stat << ",skipped_subcircuits_" << i;
+            statistics_stream << ",skipped_subcircuits_" << i;
         }
         for (int i = 0; i < 5; ++i)
         {
-            file_stat << ",max_subcircuits_size_" << i;
+            statistics_stream << ",max_subcircuits_size_" << i;
         }
         for (int i = 0; i < 5; ++i)
         {
-            file_stat << ",circuit_size_" << i;
+            statistics_stream << ",circuit_size_" << i;
         }
-        file_stat << ",iter_number,total_gates_in_subcircuits\n";
-        return file_stat;
+        statistics_stream << ",iter_number,total_gates_in_subcircuits\n";
+        return statistics_stream;
     }
     return std::nullopt;
 }
 
+/**
+ * Writes current subcircuit simplification statistics to the stats file.
+ */
 void writeStatistics(
-    std::optional<std::ofstream>& file_stat,
+    std::ofstream& statistics_stream,
     std::string const& file_path,
     int64_t gatesBefore,
     int64_t gatesAfter,
-    long double simplifyTime,
-    std::vector<int32_t> const& subcircuits_number_by_iter,
-    std::vector<int32_t> const& skipped_subcircuits_by_iter,
-    std::vector<int32_t> const& max_subcircuit_size_by_iter,
-    std::vector<int32_t> const& circuit_size_by_iter,
-    int64_t iterationsNumber,
-    int64_t total_gates_in_subcircuits)
+    long double simplifyTime)
 {
-    if (file_stat)
+    statistics_stream << std::setprecision(3) << std::fixed;
+    statistics_stream << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
+    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
     {
-        *file_stat << std::setprecision(3) << std::fixed;
-        *file_stat << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
-        for (auto t : subcircuits_number_by_iter)
-        {
-            *file_stat << "," << t;
-        }
-        for (auto t : skipped_subcircuits_by_iter)
-        {
-            *file_stat << "," << t;
-        }
-        for (auto t : max_subcircuit_size_by_iter)
-        {
-            *file_stat << "," << t;
-        }
-        for (auto t : circuit_size_by_iter)
-        {
-            *file_stat << "," << t;
-        }
-        *file_stat << "," << iterationsNumber << "," << total_gates_in_subcircuits << "\n";
+        statistics_stream << "," << t;
     }
+    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter)
+    {
+        statistics_stream << "," << t;
+    }
+    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter)
+    {
+        statistics_stream << "," << t;
+    }
+    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter)
+    {
+        statistics_stream << "," << t;
+    }
+    statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << "," << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits << "\n";
 }
 
 void runBenchmark(
     std::string const& file_path,
     argparse::ArgumentParser const& program,
     csat::Logger& logger,
-    std::optional<std::ofstream>& file_stat)
+    std::optional<std::ofstream>& statistics_stream)
 {
     auto file = openInputFile(file_path, logger);
 
@@ -269,65 +266,92 @@ void runBenchmark(
     double simplifyTime = std::chrono::duration<double>(timeEnd - timeStart).count();
 
     writeOutputFiles(program, processed_instance, encoder, file_path);
-    writeStatistics(
-        file_stat,
-        file_path,
-        gatesBefore,
-        gatesAfter,
-        simplifyTime,
-        csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter,
-        csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter,
-        csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter,
-        csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter,
-        csat::simplification::CircuitStatsSingleton::getInstance().iter_number,
-        csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits);
+    
+    if (statistics_stream)
+    {
+        writeStatistics(
+            statistics_stream.value(),
+            file_path,
+            gatesBefore,
+            gatesAfter,
+            simplifyTime);
+    }
 }
 
+/**
+ * Reads needed database and saves it into a singleton object.
+ */
 void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& logger)
 {
     std::string basis = program.get<std::string>("--basis");
-    if (basis == "BENCH")
+    std::string databases_path = program.get<std::string>("--databases");
+    if (basis == BENCH_BASIS)
     {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::DBSingleton::getInstance().bench_db =
-            std::make_shared<csat::simplification::CircuitDB>("database_bench.txt", csat::Basis::BENCH);
+            std::make_shared<csat::simplification::CircuitDB>(databases_path / std::filesystem::path("database_bench.txt"), csat::Basis::BENCH);
         auto timeEnd         = std::chrono::steady_clock::now();
+        
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.debug("Reading databases from database_bench.txt: ", duration, "sec.");
     }
-    if (basis == "AIG")
+    if (basis == AIG_BASIS)
     {
         auto timeStart = std::chrono::steady_clock::now();
         csat::simplification::DBSingleton::getInstance().aig_db =
-            std::make_shared<csat::simplification::CircuitDB>("database_aig.txt", csat::Basis::AIG);
+            std::make_shared<csat::simplification::CircuitDB>(databases_path / std::filesystem::path("database_aig.txt"), csat::Basis::AIG);
         auto timeEnd         = std::chrono::steady_clock::now();
+        
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.debug("Reading databases from database_aig.txt: ", duration, "sec.");
     }
 }
 
 /**
- * Clearing the transferred schema with the ability to write a new schema to a file
+ * Performs simplification of circuits provided in the `input-path`.
+ * Writes resulting simplified circuits to the `--output`, and dumps
+ * statistics at the `--statistics`.
+ *
+ * Allows to manually hint a circuit basis, which will result in
+ * executing a right version of a subcircuit minimization algorithm.
+ *
  */
 int main(int argn, char** argv)
 {
     csat::Logger logger("Simplify");
+    
+    // Set up argument parser.
     argparse::ArgumentParser program("simplify", "0.1");
-
     program.add_argument("input-path").help("directory with input .BENCH files");
     program.add_argument("-o", "--output").help("path to resulting directory");
     program.add_argument("-s", "--statistics").metavar("FILE").help("path to file for statistics writing");
     program.add_argument("-b", "--basis").default_value(std::string(DEFAULT_BASIS)).help("Choose basis [AIG|BENCH]");
+    program.add_argument("-d", "--databases").default_value(std::string(DEFAULT_DATABASES_PATH)).help("Path to a directory with databases.");
 
-    parseArguments(argn, argv, program);
-
-    auto file_stat = openFileStat(program);
-
-    std::string input_dir = program.get<std::string>("input-path");
+    // Parse provided program arguments.
+    try
+    {
+        program.parse_args(argn, argv);
+    }
+    catch (std::runtime_error const& err)
+    {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        std::abort();
+    }
+    
+    // Open file where statistics will be dumped.
+    auto statistics_stream = openFileStat(program);
+    
+    // Read small circuit databases apriori to allow simplification use them.
     readDatabases(program, logger);
 
+    // Iterate over input directory of circuits.
+    // Program will perform simplification of each found circuit.
+    std::string input_dir = program.get<std::string>("input-path");
     for (auto& file_path : std::filesystem::directory_iterator(input_dir))
     {
+        // Skip directories and other specific files.
         if (!file_path.is_regular_file())
         {
             continue;
@@ -335,7 +359,7 @@ int main(int argn, char** argv)
         
         std::string path = file_path.path().string();
         logger.info("Processing benchmark ", path, ".");
-        runBenchmark(path, program, logger, file_stat);
+        runBenchmark(path, program, logger, statistics_stream);
     }
 
     return 0;

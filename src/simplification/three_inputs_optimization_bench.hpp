@@ -16,8 +16,8 @@
 
 #include "src/algo.hpp"
 #include "src/common/csat_types.hpp"
-#include "src/simplification/circuits_db.hpp"
 #include "src/simplification/transformer_base.hpp"
+#include "src/simplification/utils/circuits_db.hpp"
 #include "src/simplification/utils/three_coloring.hpp"
 #include "src/simplification/utils/two_coloring.hpp"
 #include "src/structures/circuit/gate_info.hpp"

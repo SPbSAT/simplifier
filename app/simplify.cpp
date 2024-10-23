@@ -17,12 +17,10 @@
 #include "src/utility/write_utils.hpp"
 #include "third_party/argparse/include/argparse/argparse.hpp"
 
-
-std::string const AIG_BASIS = "AIG";
-std::string const BENCH_BASIS = "BENCH";
-std::string const DEFAULT_BASIS = BENCH_BASIS;
+std::string const AIG_BASIS              = "AIG";
+std::string const BENCH_BASIS            = "BENCH";
+std::string const DEFAULT_BASIS          = BENCH_BASIS;
 std::string const DEFAULT_DATABASES_PATH = "databases/";
-
 
 /**
  * prints circuit (encoded name => name from file)
@@ -63,11 +61,6 @@ void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string
                       << ")\n";
         }
     }
-}
-
-void parseArguments(int argn, char** argv, argparse::ArgumentParser& program)
-{
-
 }
 
 std::ifstream openInputFile(std::string const& file_path, csat::Logger& logger)
@@ -155,7 +148,7 @@ void writeOutputFiles(
         {
             std::filesystem::create_directories(output_path);
         }
-        
+
         // Write resulting circuit to an output path by original name.
         std::ofstream file_out(output_path / std::filesystem::path(file_path).filename());
         WriteBenchFile(*csat_instance, encoder, file_out);
@@ -232,7 +225,8 @@ void writeStatistics(
     {
         statistics_stream << "," << t;
     }
-    statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << "," << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits << "\n";
+    statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << ","
+                      << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits << "\n";
 }
 
 void runBenchmark(
@@ -266,15 +260,10 @@ void runBenchmark(
     double simplifyTime = std::chrono::duration<double>(timeEnd - timeStart).count();
 
     writeOutputFiles(program, processed_instance, encoder, file_path);
-    
+
     if (statistics_stream)
     {
-        writeStatistics(
-            statistics_stream.value(),
-            file_path,
-            gatesBefore,
-            gatesAfter,
-            simplifyTime);
+        writeStatistics(statistics_stream.value(), file_path, gatesBefore, gatesAfter, simplifyTime);
     }
 }
 
@@ -283,25 +272,25 @@ void runBenchmark(
  */
 void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& logger)
 {
-    std::string basis = program.get<std::string>("--basis");
+    std::string basis          = program.get<std::string>("--basis");
     std::string databases_path = program.get<std::string>("--databases");
     if (basis == BENCH_BASIS)
     {
-        auto timeStart = std::chrono::steady_clock::now();
-        csat::simplification::DBSingleton::getInstance().bench_db =
-            std::make_shared<csat::simplification::CircuitDB>(databases_path / std::filesystem::path("database_bench.txt"), csat::Basis::BENCH);
-        auto timeEnd         = std::chrono::steady_clock::now();
-        
+        auto timeStart                                            = std::chrono::steady_clock::now();
+        csat::simplification::DBSingleton::getInstance().bench_db = std::make_shared<csat::simplification::CircuitDB>(
+            databases_path / std::filesystem::path("database_bench.txt"), csat::Basis::BENCH);
+        auto timeEnd = std::chrono::steady_clock::now();
+
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.debug("Reading databases from database_bench.txt: ", duration, "sec.");
     }
     if (basis == AIG_BASIS)
     {
-        auto timeStart = std::chrono::steady_clock::now();
-        csat::simplification::DBSingleton::getInstance().aig_db =
-            std::make_shared<csat::simplification::CircuitDB>(databases_path / std::filesystem::path("database_aig.txt"), csat::Basis::AIG);
-        auto timeEnd         = std::chrono::steady_clock::now();
-        
+        auto timeStart                                          = std::chrono::steady_clock::now();
+        csat::simplification::DBSingleton::getInstance().aig_db = std::make_shared<csat::simplification::CircuitDB>(
+            databases_path / std::filesystem::path("database_aig.txt"), csat::Basis::AIG);
+        auto timeEnd = std::chrono::steady_clock::now();
+
         long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
         logger.debug("Reading databases from database_aig.txt: ", duration, "sec.");
     }
@@ -319,14 +308,16 @@ void readDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
 int main(int argn, char** argv)
 {
     csat::Logger logger("Simplify");
-    
+
     // Set up argument parser.
     argparse::ArgumentParser program("simplify", "0.1");
     program.add_argument("input-path").help("directory with input .BENCH files");
     program.add_argument("-o", "--output").help("path to resulting directory");
     program.add_argument("-s", "--statistics").metavar("FILE").help("path to file for statistics writing");
     program.add_argument("-b", "--basis").default_value(std::string(DEFAULT_BASIS)).help("Choose basis [AIG|BENCH]");
-    program.add_argument("-d", "--databases").default_value(std::string(DEFAULT_DATABASES_PATH)).help("Path to a directory with databases.");
+    program.add_argument("-d", "--databases")
+        .default_value(std::string(DEFAULT_DATABASES_PATH))
+        .help("Path to a directory with databases.");
 
     // Parse provided program arguments.
     try
@@ -339,10 +330,10 @@ int main(int argn, char** argv)
         std::cerr << program;
         std::abort();
     }
-    
+
     // Open file where statistics will be dumped.
     auto statistics_stream = openFileStat(program);
-    
+
     // Read small circuit databases apriori to allow simplification use them.
     readDatabases(program, logger);
 
@@ -356,7 +347,7 @@ int main(int argn, char** argv)
         {
             continue;
         }
-        
+
         std::string path = file_path.path().string();
         logger.info("Processing benchmark ", path, ".");
         runBenchmark(path, program, logger, statistics_stream);

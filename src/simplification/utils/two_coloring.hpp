@@ -16,6 +16,12 @@ namespace csat::utils
 
 using ColorId = size_t;
 
+/**
+ * Class for selecting a subcircuit of two inputs and the gates that use them. To distinguish
+ * this subcircuit from the other gates of the circuit, we will put color marks. If the gates
+ * have the same color, then the gates are part of one subcircuit, which can be simplified
+ * if a smaller circuit is found
+ */
 struct TwoColor
 {
   public:
@@ -60,13 +66,15 @@ struct TwoColor
     }
 };
 
+/**
+ * Сlass for coloring the whole circuit.
+ */
 class TwoColoring
 {
   public:
-    std::vector<TwoColor> colors;
-    std::vector<ColorId> gateColor;  // if vertex is not colored, then value is 'SIZE_MAX'
-    // TODO: use better key type for this map.
-    std::map<GateIdContainer, ColorId> parentsToColor;
+    std::vector<TwoColor> colors;    // list of all colors
+    std::vector<ColorId> gateColor;  // what color is the gate, if vertex is not colored, then value is 'SIZE_MAX'
+    std::map<GateIdContainer, ColorId> parentsToColor;  // map of parents of colors (inputs subcircuit)
 
     [[nodiscard]]
     size_t getColorsNumber() const
@@ -86,6 +94,13 @@ class TwoColoring
   protected:
     ColorId next_color_id_ = 0;
 
+    /**
+     * Create a new object of ThreeColor. This object represents a two-input subcircuit
+     * that is planned to be simplified if possible.
+     * @param first_parent -- first input
+     * @param second_parent -- second input
+     * @return new color ID
+     */
     ColorId addColor(GateId first_parent, GateId second_parent)
     {
         colors.emplace_back(first_parent, second_parent);
@@ -93,6 +108,11 @@ class TwoColoring
         return next_color_id_++;
     }
 
+    /**
+     * Add new gate to existing color (object of ThreeColor; three-input subcircuit).
+     * @param gateId -- gate ID what needs to be added
+     * @param colorId -- color ID where need to add
+     */
     void paintGate(GateId gateId, ColorId colorId)
     {
         colors.at(colorId).addGate(gateId);
@@ -100,17 +120,18 @@ class TwoColoring
     }
 
   public:
+    /**
+     * Painting the whole circuit.
+     */
     explicit TwoColoring(ICircuit const& circuit)
     {
+        // Top sort and some preparations
         csat::GateIdContainer gate_sorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(circuit));
         size_t const circuit_size = circuit.getNumberOfGates();
         gateColor.resize(circuit_size, SIZE_MAX);
-
-        // TODO: maybe remove from here and evaluate in block with strategy
-        // User constructed as negation of chosen gate ('SIZE_MAX' if there is no such users)
         GateIdContainer negationUsers(circuit_size, SIZE_MAX);
 
-        // Painting process
+        // Painting process in two color start from input to output
         for (uint64_t const gateId : std::ranges::reverse_view(gate_sorting))
         {
             GateIdContainer const& operands = circuit.getGateOperands(gateId);
@@ -144,6 +165,7 @@ class TwoColoring
                 std::abort();
             }
 
+            // Find the operands (except NOT)
             GateId child_1 = operands[0];
             GateId child_2 = operands[1];
             while (circuit.getGateOperands(child_1).size() == 1)
@@ -158,6 +180,7 @@ class TwoColoring
             ColorId const color_1 = gateColor.at(child_1);
             ColorId const color_2 = gateColor.at(child_2);
 
+            // Сolor our gate if the operands have a color and these operands are actually one gate
             if (child_1 == child_2)
             {
                 if (color_1 != SIZE_MAX)
@@ -170,23 +193,30 @@ class TwoColoring
             GateIdContainer const children = TwoColor::sortedParents(child_1, child_2);
             if (color_1 != SIZE_MAX && color_1 == color_2)
             {
+                // we color our gate if the operands have a color and they match
                 paintGate(gateId, color_1);
             }
             else if (color_1 != SIZE_MAX && isParentOfColor(child_2, color_1))
             {
+                // we paint our gate in the color of the first operand if it has a color
+                // and the second operand is its parent (the input of the subcircuit)
                 paintGate(gateId, color_1);
             }
             else if (color_2 != SIZE_MAX && isParentOfColor(child_1, color_2))
             {
+                // we paint our gate in the color of the second operand if it has a color
+                // and the first operand is its parent (the input of the subcircuit)
                 paintGate(gateId, color_2);
             }
             else if (parentsToColor.find(children) == parentsToColor.end())
             {
+                // Create new color if the operands are not parents of any color
                 ColorId const newColor = addColor(child_1, child_2);
                 paintGate(gateId, newColor);
             }
             else
             {
+                // Paint in the color of the operands, which in turn are parents of the same color
                 paintGate(gateId, parentsToColor.at(children));
             }
         }

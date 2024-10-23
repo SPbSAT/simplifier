@@ -139,14 +139,34 @@ struct DBSingleton
     std::shared_ptr<CircuitDB> bench_db = nullptr;
     std::shared_ptr<CircuitDB> aig_db   = nullptr;
 
+    DBSingleton(DBSingleton const&)            = delete;
+    DBSingleton& operator=(DBSingleton const&) = delete;
+
     static DBSingleton& getInstance()
     {
         static DBSingleton s;
         return s;
     }
-
-    DBSingleton(DBSingleton const&)            = delete;
-    DBSingleton& operator=(DBSingleton const&) = delete;
+    
+    static std::shared_ptr<CircuitDB> getAigDB()
+    {
+        if (DBSingleton::getInstance().aig_db == nullptr)
+        {
+            std::cerr << "Aig database is not available, aborting." << std::endl;
+            std::abort();
+        }
+        return DBSingleton::getInstance().aig_db;
+    }
+    
+    static std::shared_ptr<CircuitDB> getBenchDB()
+    {
+        if (DBSingleton::getInstance().bench_db == nullptr)
+        {
+            std::cerr << "Bench database is not available, aborting." << std::endl;
+            std::abort();
+        }
+        return DBSingleton::getInstance().bench_db;
+    }
 
   private:
     DBSingleton()  = default;

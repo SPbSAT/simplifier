@@ -8,7 +8,7 @@
 
 ABC dependency
 
-Tools dependencies: python3.9, pipx, poetry, clang-tidy, clang-format
+Tools dependencies: python3.9, pipx, poetry, ..., clang-tidy, clang-format
 
 
 ## Code structure
@@ -58,6 +58,9 @@ to table 3.
 
 todo: opportunity to calculate something on the one class only.
 
+To validate simplification results, one may use an utility cli command `check-equiv`:
+
+`python tools/cli check-equiv --help`
 
 ## Main results reproduction
 
@@ -71,6 +74,9 @@ Sections below are structured as follows:
 4. Description of resulting artifacts and their mappings to results in the paper.
 
 Statistics is written in `.csv` files with `,` delimiter. Note that in some statistics `;` is used in a value part.
+
+Note that circuit sizes for `AIG`-related tables is given as a nubmer of `AND` gates, while for
+`BENCH`-related tables size is represented as total number of gates.
 
 ### Table 2. Comparison of several runs of resyn2 against several runs of resyn2 followed by a run of simplify.
 
@@ -120,6 +126,7 @@ python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_tabl
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+python tools/cli table-3-finalizer -e experiment_table_3/
 ```
 
 #### Step-by-step guide
@@ -142,24 +149,24 @@ In result `benchmarks` directory must appear.
 
 `./build/simplify experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/`
 
-5. Collect statistics
+5. Collect benchmark sizes
 
 ```sh
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
 python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
 ```
-6. To validate ...
 
-`python tools/cli check-equiv experiment_table_3/benchmarks experiment_table_3/benchmarks_rs -a .tmp/abc-master/abc`
+6. Finalize statistics
 
+`python tools/cli table-3-finalizer -e experiment_table_3/`
 
 After all commands completed, results are located as follows.
 
-TODO: not true, simplify should write better statistics
-
-1. `r_result` contains information about circuit sizes before and after `resyn2` execution.
-2. `rs_result` contains information about circuit sizes before and after `simplify` execution, including information about per-iteration sizes (see `circuit_size_*` columns).
+1. `final_results.csv` contains final as it is presented in the paper.
+2. `benchmark_sizes.csv` contains information about original circuit sizes.
+3. `benchmark_r_sizes.csv` contains information about circuit after `resyn2`.
+4. `benchmark_rs_sizes.csv` contains information about circuit after `simplify`.
 
 
 ### Table 4. Simplification statistics for various classes of circuits in the BENCH basis.

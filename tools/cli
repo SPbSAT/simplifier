@@ -3,6 +3,7 @@ from cli_group import tools_cli
 from abc_resyn2 import *
 from check_equiv import *
 from collect_sizes_aig import *
+from table_3_finalizer import *
 
 
 if __name__ == "__main__":

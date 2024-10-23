@@ -17,6 +17,9 @@
 namespace csat::simplification
 {
 
+/**
+ * Structure for storing a circuit database.
+ */
 struct CircuitDB
 {
     std::map<std::vector<int32_t>, int32_t> subcircuit_pattern_to_index;
@@ -46,15 +49,15 @@ struct CircuitDB
      * Each row of the database must encode a circuit. Where:
      *  -- the first number in the line is the number of inputs, which are numbered from 0 to this number - 1;
      *  -- the second number is the number of outputs;
-     *  -- next outputs number are output codes, which are truth tables written in decimal form;
-     *  -- next outputs number are indexes of outputs;
+     *  -- next "outputs" number of numbers are output codes, which are truth tables written in decimal form;
+     *  -- next "outputs" number of numbers are indexes of outputs;
      *  -- the following is a description of the gates. A gate is an operator and the operand indices it uses.
      *
      * @param db_path -- path to the database text file
      */
     void read_db(std::filesystem::path const& db_path)
     {
-        // Creates a `database` object to read from the file whose path is passed as an argument.
+        // Creates ifstream object to read from the file whose path is passed as an argument.
         std::ifstream database(db_path);
 
         int32_t subcircuit_index = 0;
@@ -68,7 +71,7 @@ struct CircuitDB
             size_t outputs_number = 0;
             database >> outputs_number;
 
-            // Remembers the output codes
+            // Read the output codes
             std::vector<int32_t> outputs_patterns(outputs_number);
             for (size_t i = 0; i < outputs_number; ++i)
             {
@@ -76,7 +79,7 @@ struct CircuitDB
             }
             subcircuit_pattern_to_index[outputs_patterns] = subcircuit_index;
 
-            // Remembers the output indixes and determine their maximum index for further gate parsing
+            // Read the output indices and determine their maximum index for further gate parsing
             std::vector<GateId> cur_outputs(outputs_number);
             GateId max_index = 0;
             for (size_t i = 0; i < outputs_number; ++i)
@@ -122,6 +125,9 @@ struct CircuitDB
     }
 };
 
+/**
+ * Carries globally accecible pointers to the database of optimal circuits.
+ */
 struct DBSingleton
 {
   public:

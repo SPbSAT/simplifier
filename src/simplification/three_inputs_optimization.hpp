@@ -52,7 +52,7 @@ struct CircuitStatsSingleton
 
     CircuitStatsSingleton(CircuitStatsSingleton const&)            = delete;
     CircuitStatsSingleton& operator=(CircuitStatsSingleton const&) = delete;
-    
+
     /**
      * Cleans state of this statistics collector.
      * Usable when need to collect distinct statistics on several consequent simplification runs.
@@ -122,7 +122,8 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     std::vector<std::vector<size_t>> gateColors;  // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor;  // parent ids must be in a sorted order
 
-    bool update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
+    bool
+    update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
     {
         if (pattern == 0)
         {
@@ -291,12 +292,12 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 gatesByColor.push_back(gateId);
                 used_gates.at(gateId) = color_id;
             }
-
+    
             CircuitStatsSingleton::getInstance()
                 .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = std::max(
                 CircuitStatsSingleton::getInstance()
                     .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1],
-                gatesByColor.size()) + 3;
+                gatesByColor.size() + 3);
             CircuitStatsSingleton::getInstance().total_gates_in_subcircuits += gatesByColor.size() + 3;
 
             // Check whether subcircuit has modified gates (in this case we do not observe it)

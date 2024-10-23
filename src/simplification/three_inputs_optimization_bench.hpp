@@ -80,7 +80,8 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     std::vector<std::vector<size_t>> gateColors;  // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor;  // parent ids must be in a sorted order
 
-    bool update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
+    bool
+    update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
     {
         if (pattern == 0)
         {

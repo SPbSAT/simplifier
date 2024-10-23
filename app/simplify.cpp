@@ -9,14 +9,12 @@
 #include "src/simplification/strategy.hpp"
 #include "src/simplification/three_inputs_optimization.hpp"
 #include "src/simplification/three_inputs_optimization_bench.hpp"
-#include "src/utility/write_utils.hpp"
 #include "src/utility/encoder.hpp"
+#include "src/utility/write_utils.hpp"
 #include "third_party/argparse/include/argparse/argparse.hpp"
-
 
 // Controls the number of subcircuit minimization iterations.
 constexpr size_t NUMBER_OF_ITERATIONS = 5;
-
 
 std::string const AIG_BASIS              = "AIG";
 std::string const BENCH_BASIS            = "BENCH";
@@ -49,13 +47,12 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
     if (basis == AIG_BASIS)
     {
         return csat::simplification::Composition<
-                    csat::DAG,
-                    csat::simplification::Nest<
-                        csat::DAG,
-                        NUMBER_OF_ITERATIONS,
-                        csat::simplification::DuplicateOperandsCleaner<csat::DAG>,
-                        csat::simplification::ThreeInputsSubcircuitMinimization<csat::DAG>
-                    >,
+                   csat::DAG,
+                   csat::simplification::Nest<
+                       csat::DAG,
+                       NUMBER_OF_ITERATIONS,
+                       csat::simplification::DuplicateOperandsCleaner<csat::DAG>,
+                       csat::simplification::ThreeInputsSubcircuitMinimization<csat::DAG> >,
                    csat::simplification::DuplicateOperandsCleaner<csat::DAG> >()
             .apply(*csat_instance, encoder);
     }
@@ -67,8 +64,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
                        csat::DAG,
                        NUMBER_OF_ITERATIONS,
                        csat::simplification::DuplicateOperandsCleaner<csat::DAG>,
-                       csat::simplification::ThreeInputsSubcircuitMinimizationBench<csat::DAG>
-                   >,
+                       csat::simplification::ThreeInputsSubcircuitMinimizationBench<csat::DAG> >,
                    csat::simplification::DuplicateOperandsCleaner<csat::DAG> >()
             .apply(*csat_instance, encoder);
     }
@@ -149,9 +145,7 @@ std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& progra
  * Helper to dump a vector to ofstream.
  */
 template<class T>
-void dumpVector(
-    std::ofstream& stream,
-    std::vector<T> const& vec)
+void dumpVector(std::ofstream& stream, std::vector<T> const& vec)
 {
     stream << "," << "[";
     if (!vec.empty())
@@ -177,9 +171,10 @@ void dumpStatistics(
 {
     statistics_stream << std::setprecision(3) << std::fixed;
     statistics_stream << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
-    
-    dumpVector(statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
-    
+
+    dumpVector(
+        statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
+
     for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
     {
         statistics_stream << "," << t;
@@ -221,28 +216,28 @@ void simplify(
     logger.debug("Parsing a circuit file ", instance_path, ".");
     csat::parser::BenchToCircuit<csat::DAG> parser{};
     parser.parseStream(circuit_fs);
-    
-    auto encoder = parser.getEncoder();
+
+    auto encoder       = parser.getEncoder();
     auto csat_instance = parser.instantiate();
 
     // Start simplification step.
     std::size_t gatesBefore = csat_instance->getNumberOfGates();
-    auto timeStart      = std::chrono::steady_clock::now();
+    auto timeStart          = std::chrono::steady_clock::now();
 
     logger.debug(instance_path, ": simplification start.");
     csat::simplification::CircuitStatsSingleton::getInstance().cleanState();
-    
+
     std::string basis = program.get<std::string>("--basis");
-    
+
     auto [simplified_instance, simplified_encoder] = applySimplification(basis, csat_instance, encoder);
     logger.debug(instance_path, ": simplification end.");
 
-    auto timeEnd        = std::chrono::steady_clock::now();
-    double simplifyTime = std::chrono::duration<double>(timeEnd - timeStart).count();
-    std::size_t gatesAfter  = simplified_instance->getNumberOfGates();
+    auto timeEnd           = std::chrono::steady_clock::now();
+    double simplifyTime    = std::chrono::duration<double>(timeEnd - timeStart).count();
+    std::size_t gatesAfter = simplified_instance->getNumberOfGates();
 
     writeResult(program, *simplified_instance, *simplified_encoder, instance_path);
-    
+
     // Dump simplification statistics if statistics path was specified.
     if (statistics_stream.has_value())
     {
@@ -257,21 +252,21 @@ void loadDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
 {
     std::string basis          = program.get<std::string>("--basis");
     std::string databases_path = program.get<std::string>("--databases");
-    
+
     std::filesystem::path database_abs_path;
-    
+
     auto timeStart = std::chrono::steady_clock::now();
     if (basis == BENCH_BASIS)
     {
         database_abs_path = databases_path / std::filesystem::path("database_bench.txt");
-        csat::simplification::DBSingleton::getInstance().bench_db = std::make_shared<csat::simplification::CircuitDB>(
-            database_abs_path, csat::Basis::BENCH);
+        csat::simplification::DBSingleton::getInstance().bench_db =
+            std::make_shared<csat::simplification::CircuitDB>(database_abs_path, csat::Basis::BENCH);
     }
     else if (basis == AIG_BASIS)
     {
         database_abs_path = databases_path / std::filesystem::path("database_aig.txt");
-        csat::simplification::DBSingleton::getInstance().aig_db = std::make_shared<csat::simplification::CircuitDB>(
-            database_abs_path, csat::Basis::AIG);
+        csat::simplification::DBSingleton::getInstance().aig_db =
+            std::make_shared<csat::simplification::CircuitDB>(database_abs_path, csat::Basis::AIG);
     }
     else
     {
@@ -279,7 +274,7 @@ void loadDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
         std::abort();
     }
     auto timeEnd = std::chrono::steady_clock::now();
-    
+
     long double duration = std::chrono::duration<double>(timeEnd - timeStart).count();
     logger.debug("Read database from ", database_abs_path.string(), ": ", duration, "sec.");
 }

@@ -30,7 +30,7 @@ struct CircuitDB
             std::cerr << "There is no small-circuit database at " << db_path.string() << std::endl;
             std::abort();
         }
-        
+
         if (basis == Basis::BENCH)
         {
             read_bench(db_path);
@@ -201,7 +201,7 @@ struct DBSingleton
         static DBSingleton s;
         return s;
     }
-    
+
     static std::shared_ptr<CircuitDB> getAigDB()
     {
         if (DBSingleton::getInstance().aig_db == nullptr)
@@ -211,7 +211,7 @@ struct DBSingleton
         }
         return DBSingleton::getInstance().aig_db;
     }
-    
+
     static std::shared_ptr<CircuitDB> getBenchDB()
     {
         if (DBSingleton::getInstance().bench_db == nullptr)

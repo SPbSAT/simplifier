@@ -6,8 +6,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "src/simplification/transformer_base.hpp"
 #include "src/simplification/composition.hpp"
+#include "src/simplification/transformer_base.hpp"
 #include "src/structures/circuit/icircuit.hpp"
 
 namespace csat::simplification
@@ -29,7 +29,7 @@ struct Nest : public ITransformer<CircuitT>
         (std::is_base_of_v<ITransformer<CircuitT>, OtherTransformersT> && ...),
         "All simplifier template args of Composition must implement "
         "ITransformer and be parametrized with CircuitT type.");
-  
+
   public:
     /**
      * Applies all defined in template TransformersT to
@@ -48,11 +48,11 @@ struct Nest : public ITransformer<CircuitT>
         std::unique_ptr<CircuitT> circuit,
         std::unique_ptr<GateEncoder<std::string>> encoder)
     {
-        std::unique_ptr<CircuitT> circuit_ = std::move(circuit);
+        std::unique_ptr<CircuitT> circuit_                 = std::move(circuit);
         std::unique_ptr<GateEncoder<std::string>> encoder_ = std::move(encoder);
         for (std::size_t it = 0; it < n; ++it)
         {
-            auto comp = Composition<CircuitT, OtherTransformersT...>();
+            auto comp                    = Composition<CircuitT, OtherTransformersT...>();
             std::tie(circuit_, encoder_) = comp.transform(std::move(circuit_), std::move(encoder_));
         }
         return CircuitAndEncoder<CircuitT, std::string>(std::move(circuit_), std::move(encoder_));

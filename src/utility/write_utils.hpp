@@ -77,28 +77,28 @@ void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string
     {
         std::cout << "INPUT(" << input << " => " << encoder.decodeGate(input) << ")\n";
     }
-    
+
     for (auto output : circuit.getOutputGates())
     {
         std::cout << "OUTPUT(" << output << " => " << encoder.decodeGate(output) << ")\n";
     }
-    
+
     for (size_t gateId = 0; gateId < circuit.getNumberOfGates(); ++gateId)
     {
         if (circuit.getGateType(gateId) != csat::GateType::INPUT)
         {
             std::cout << gateId << " => " << encoder.decodeGate(gateId) << " = "
                       << csat::utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
-            
+
             auto operands       = circuit.getGateOperands(gateId);
             size_t num_operands = operands.size();
-            
+
             if (num_operands == 0)
             {
                 std::cout << ")\n";
                 continue;
             }
-            
+
             for (size_t operand = 0; operand < (num_operands - 1); ++operand)
             {
                 std::cout << operands.at(operand) << " => " << encoder.decodeGate(operands.at(operand)) << ", ";
@@ -106,7 +106,7 @@ void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string
             std::cout << operands.at(num_operands - 1) << " => " << encoder.decodeGate(operands.at(num_operands - 1))
                       << ")\n";
         }
-        
+
         std::cout << std::flush;
     }
 }

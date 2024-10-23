@@ -19,7 +19,7 @@
 /**
  * prints circuit (encoded name => name from file)
  */
-void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string> const& encoder)
+void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder const& encoder)
 {
     for (auto input : circuit.getInputGates())
     {
@@ -87,7 +87,7 @@ std::unique_ptr<csat::DAG> parseCircuitFile(
     std::ifstream& file,
     std::string const& file_path,
     csat::Logger& logger,
-    csat::utils::GateEncoder<std::string>& encoder)
+    csat::utils::GateEncoder& encoder)
 {
     logger.debug("Reading file ", file_path, ".");
     auto parser = csat::parser::BenchToCircuit<csat::DAG>();
@@ -96,10 +96,10 @@ std::unique_ptr<csat::DAG> parseCircuitFile(
     return parser.instantiate();
 }
 
-std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<std::string> > > applyPreprocessing(
+std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder> > applyPreprocessing(
     std::string const& basis,
     std::unique_ptr<csat::DAG>& csat_instance,
-    csat::utils::GateEncoder<std::string>& encoder)
+    csat::utils::GateEncoder& encoder)
 {
     if (basis == "AIG")
     {
@@ -145,7 +145,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
 void writeOutputFiles(
     argparse::ArgumentParser const& program,
     std::unique_ptr<csat::DAG>& csat_instance,
-    csat::utils::GateEncoder<std::string>& encoder,
+    csat::utils::GateEncoder& encoder,
     std::string const& file_path)
 {
     if (auto output_dir = program.present("-o"))
@@ -233,7 +233,7 @@ void runBenchmark(
 {
     auto file = openInputFile(file_path, logger);
 
-    csat::utils::GateEncoder<std::string> encoder;
+    csat::utils::GateEncoder encoder;
     auto csat_instance = parseCircuitFile(file, file_path, logger, encoder);
 
     int64_t gatesBefore = csat_instance->getNumberOfGates();

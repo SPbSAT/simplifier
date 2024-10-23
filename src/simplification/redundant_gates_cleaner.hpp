@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <memory>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -40,61 +41,75 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
      */
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
-        std::unique_ptr<GateEncoder<std::string>> encoder)
+        std::unique_ptr<GateEncoder> encoder)
     {
         logger.debug("=========================================================================================");
         logger.debug("START RedundantGatesCleaner.");
 
-        GateEncoder<GateId> encoder_old_to_new{};
+        GateEncoder new_encoder{};
         // Use dfs to get markers of visited and unvisited gates
         auto mask_use_output = algo::performDepthFirstSearch(*circuit, circuit->getOutputGates());
 
-        // first step: getting valid encoding
+        // First step: getting valid encoding -- encode only gates, which will
+        // be taken to the new circuit (hence discarding all redundant gates).
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
+            std::string_view gate_name = encoder->decodeGate(gateId);
             if (mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
                 (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT))
             {
-                encoder_old_to_new.encodeGate(gateId);
+                new_encoder.encodeGate(gate_name);
                 continue;
             }
 
-            logger.debug("Gate number ", gateId, " is redundant and will be removed");
+            logger.debug("Gate '", gate_name, "' (#", gateId, ") is redundant and will be removed");
         }
 
-        // Rebuid circuit
-        GateInfoContainer gate_info(encoder_old_to_new.size());
+        // Second step: recollect each gate data by encoding all its operands with
+        // new encoder build above.
+        GateInfoContainer gate_info(new_encoder.size());
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
-            if (encoder_old_to_new.keyExists(gateId))
+            std::string_view gate_name = encoder->decodeGate(gateId);
+            // If new encoder doesn't contain name of a gate, this gate is redundant.
+            if (new_encoder.keyExists(gate_name))
             {
                 GateIdContainer encoded_operands_{};
                 for (GateId operand : circuit->getGateOperands(gateId))
                 {
+                    // All operands must be visited, since current gate was visited.
                     assert(
                         mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
                         (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT));
 
-                    encoded_operands_.push_back(encoder_old_to_new.encodeGate(operand));
+                    std::string_view operand_name = encoder->decodeGate(operand);
+                    encoded_operands_.push_back(new_encoder.encodeGate(operand_name));
                 }
-                gate_info.at(encoder_old_to_new.encodeGate(gateId)) = {
+                // Build new gate info object for current gate.
+                gate_info.at(new_encoder.encodeGate(gate_name)) = {
                     circuit->getGateType(gateId), std::move(encoded_operands_)};
             }
         }
 
+        // Third step: recollect output gates.
         // All outputs must be visited since DFS starts from them.
         GateIdContainer new_output_gates{};
         new_output_gates.reserve(circuit->getOutputGates().size());
         for (GateId output_gate : circuit->getOutputGates())
         {
-            new_output_gates.push_back(encoder_old_to_new.encodeGate(output_gate));
+            assert(
+                mask_use_output.at(output_gate) != algo::DFSState::UNVISITED ||
+                (preserveInputs && circuit->getGateType(output_gate) == GateType::INPUT));
+
+            std::string_view output_name = encoder->decodeGate(output_gate);
+            new_output_gates.push_back(new_encoder.encodeGate(output_name));
         }
 
         logger.debug("END RedundantGatesCleaner.");
         logger.debug("=========================================================================================");
         return {
             std::make_unique<CircuitT>(std::move(gate_info), std::move(new_output_gates)),
-            utils::mergeGateEncoders(*encoder, encoder_old_to_new)};
+            std::make_unique<GateEncoder>(new_encoder)};
     };
 };
 

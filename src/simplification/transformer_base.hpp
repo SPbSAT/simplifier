@@ -16,8 +16,8 @@ namespace csat::simplification
 
 using csat::utils::GateEncoder;
 
-template<class CircuitT, class KeyT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT>>>
-using CircuitAndEncoder = std::pair<std::unique_ptr<CircuitT>, std::unique_ptr<GateEncoder<KeyT>>>;
+template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT>>>
+using CircuitAndEncoder = std::pair<std::unique_ptr<CircuitT>, std::unique_ptr<GateEncoder>>;
 
 /**
  * Base interface for all circuit transformers.
@@ -28,14 +28,14 @@ template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit,
 class ITransformer
 {
   public:
-    CircuitAndEncoder<CircuitT, std::string> apply(CircuitT const& circuit, GateEncoder<std::string> const& encoder)
+    CircuitAndEncoder<CircuitT, std::string> apply(CircuitT const& circuit, GateEncoder const& encoder)
     {
-        return transform(std::make_unique<CircuitT>(circuit), std::make_unique<GateEncoder<std::string>>(encoder));
+        return transform(std::make_unique<CircuitT>(circuit), std::make_unique<GateEncoder>(encoder));
     }
 
     virtual CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT>,
-        std::unique_ptr<GateEncoder<std::string>>) = 0;
+        std::unique_ptr<GateEncoder>) = 0;
 };
 
 static std::string getUniqueId_()

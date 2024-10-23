@@ -18,10 +18,7 @@ namespace csat
  * @tparam CircuitT
  */
 template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
-void WriteBenchFile(
-    CircuitT const& circuit,
-    csat::utils::GateEncoder<std::string> const& encoder,
-    std::ofstream& file_out)
+void WriteBenchFile(CircuitT const& circuit, csat::utils::GateEncoder const& encoder, std::ofstream& file_out)
 {
     csat::Logger const logger("WriteBenchFile");
     logger.debug("WriteBenchFile start.");

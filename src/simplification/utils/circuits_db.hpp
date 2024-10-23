@@ -40,6 +40,11 @@ struct CircuitDB
             std::cerr << "Incorrect basis! Choose one of [AIG, BENCH]" << std::endl;
             std::abort();
         }
+        if (!std::filesystem::exists(db_path))
+        {
+            std::cerr << "There is no small-circuit database at " << db_path.string() << std::endl;
+            std::abort();
+        }
 
         read_db(db_path);
     }

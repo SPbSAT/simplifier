@@ -126,10 +126,10 @@ def abc_resyn2(
                         timelimit=timelimit,
                         number_of_iterations=noi,
                     )
-                    size_after_resyn = number_of_ands(resyn_path)
                 else:
                     time_taken = None
-                    size_after_resyn = number_of_ands(resyn_path)
+
+                size_after_resyn = number_of_ands(resyn_path)
 
                 resyn_times[f'resyn2_{noi} Time'] = time_taken
                 resyn_sizes[f'resyn2_{noi} Size'] = size_after_resyn

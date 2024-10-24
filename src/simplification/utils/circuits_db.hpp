@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -131,7 +132,7 @@ struct CircuitDB
 };
 
 /**
- * Carries globally accecible pointers to the database of optimal circuits.
+ * Carries globally accessible pointers to the database of optimal circuits.
  */
 struct DBSingleton
 {
@@ -147,7 +148,7 @@ struct DBSingleton
         static DBSingleton s;
         return s;
     }
-    
+
     static std::shared_ptr<CircuitDB> getAigDB()
     {
         if (DBSingleton::getInstance().aig_db == nullptr)
@@ -157,7 +158,7 @@ struct DBSingleton
         }
         return DBSingleton::getInstance().aig_db;
     }
-    
+
     static std::shared_ptr<CircuitDB> getBenchDB()
     {
         if (DBSingleton::getInstance().bench_db == nullptr)

@@ -72,12 +72,12 @@ Partial results suitable for light review can be produced in following steps:
     ```sh
     mkdir experiment_table_3
     tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
-    python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+    python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
     ./build/simplify -i experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
-    python tools/cli table-3-finalizer -e experiment_table_3/
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+    python3.10 tools/cli table-3-finalizer -e experiment_table_3/
     ```
 
 3. The Table 4 allows one to select an arbitrary subset of classes to reproduce
@@ -88,7 +88,7 @@ Partial results suitable for light review can be produced in following steps:
     tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./light_review_table_4/
     ./build/simplify -i light_review_table_4/benchmarks/php/ -o light_review_table_4/benchmarks_s/php/ -s light_review_table_4/php_result.csv --basis BENCH --databases databases/
     ./build/simplify -i light_review_table_4/benchmarks/mult_miter/ -o light_review_table_4/benchmarks_s/mult_miter/ -s light_review_table_4/mult_miter_result.csv --basis BENCH --databases databases/
-    python tools/cli table-4-finalizer -e light_review_table_4/
+    python3.10 tools/cli table-4-finalizer -e light_review_table_4/
     ```
 
 
@@ -108,8 +108,8 @@ As a result of configuration steps of this section one should have:
 - Compiled `ABC` executable located at `third_party/abc/abc`;
 
 In the other sections of this README it will be assumed, that all shell commands are executed
-within python environment, with `abc` and `simplify` executables available at paths specified
-above.
+in the environment with python dependencies, with `abc` and `simplify` executables available at
+the paths specified above.
 
 ### All-in-one command
 
@@ -165,9 +165,10 @@ in the `third_party/` directory. To compile it, one need to execute following co
 
 #### Python dependencies
 
-Python 3.10 is used for scripts located in the `tools/` directory.
+Python 3.10 is available in the provided virtual machine and is used
+for the scripts located in the `tools/` directory.
 
-To install dependencies globally execute:
+To install additional python dependencies globally execute:
 
 ```sh
 pip3 install tools/dependencies/*
@@ -220,7 +221,7 @@ All instructions presented below carry results of main intermediate steps. To va
 correctness any stage of simplification, one may use utility CLI command `check-equiv`:
 
 ```sh
-python tools/cli check-equiv --help
+python3.10 tools/cli check-equiv --help
 ```
 
 #### Statistics descriptions
@@ -252,15 +253,15 @@ to fix it when paper is accepted for publication.
 ```sh
 mkdir experiment_table_2
 tar -xvf ./benchmark/all_sets_under_50000_for_stat.tar.xz -C ./experiment_table_2/
-python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
 ./build/simplify -i experiment_table_2/benchmarks_r/resyn2_2/ -o experiment_table_2/benchmarks_r2_s/ -s experiment_table_2/r2_s_result.csv --basis AIG --databases databases/
 ./build/simplify -i experiment_table_2/benchmarks_r/resyn2_6/ -o experiment_table_2/benchmarks_r6_s/ -s experiment_table_2/r6_s_result.csv --basis AIG --databases databases/
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
-python tools/cli table-2-finalizer -e experiment_table_2/
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
+python3.10 tools/cli table-2-finalizer -e experiment_table_2/
 ```
 
 #### Step-by-step guide:
@@ -280,7 +281,7 @@ tar -xvf ./benchmark/all_sets_under_50000_for_stat.tar.xz -C ./experiment_table_
 3. Run `ABC` `resyn2` on the extracted benchmarks using provided CLI command:
 
 ```sh
-python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
 ```
 
 4. Run `simplify` tool on several configurations of resulting circuits:
@@ -293,17 +294,17 @@ python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_tabl
 5. Collect statistics
 
 ```sh
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
 ```
 
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-2-finalizer -e experiment_table_2/
+python3.10 tools/cli table-2-finalizer -e experiment_table_2/
 ```
 
 After all commands completed, results are located as follows:
@@ -321,12 +322,12 @@ After all commands completed, results are located as follows:
 ```sh
 mkdir experiment_table_3
 tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
-python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
 ./build/simplify -i experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
-python tools/cli table-3-finalizer -e experiment_table_3/
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+python3.10 tools/cli table-3-finalizer -e experiment_table_3/
 ```
 
 #### Step-by-step guide
@@ -346,7 +347,7 @@ tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
 3. Run `ABC` `resyn2` on the extracted benchmarks using provided CLI command:
 
 ```sh
-python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
 ```
 
 4. Run `simplify` tool on resulting circuits:
@@ -358,15 +359,15 @@ python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_tabl
 5. Collect benchmark sizes
 
 ```sh
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
 ```
 
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-3-finalizer -e experiment_table_3/
+python3.10 tools/cli table-3-finalizer -e experiment_table_3/
 ```
 
 After all commands completed, results are located as follows:
@@ -402,7 +403,7 @@ tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./experiment_table_4/
 ./build/simplify -i experiment_table_4/benchmarks/miter_transalg_sort/ -o experiment_table_4/benchmarks_s/miter_transalg_sort/ -s experiment_table_4/miter_transalg_sort_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/mult_miter/ -o experiment_table_4/benchmarks_s/mult_miter/ -s experiment_table_4/mult_miter_result.csv --basis BENCH --databases databases/ &
 wait
-python tools/cli table-4-finalizer -e experiment_table_4/
+python3.10 tools/cli table-4-finalizer -e experiment_table_4/
 ```
 
 #### Step-by-step guide
@@ -444,7 +445,7 @@ wait
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-4-finalizer -e experiment_table_4/
+python3.10 tools/cli table-4-finalizer -e experiment_table_4/
 ```
 
 After all commands completed, results are located as follows:

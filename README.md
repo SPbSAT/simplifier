@@ -82,7 +82,7 @@ Partial results suitable for light review can be produced in following steps:
     python tools/cli table-3-finalizer -e experiment_table_3/
     ```
 
-2. The Table 4 allows one to select an arbitrary subset of classes to reproduce
+3. The Table 4 allows one to select an arbitrary subset of classes to reproduce
    results, for example following commands should give results in appropriate time:
 
     ```sh

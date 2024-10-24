@@ -114,28 +114,38 @@ void writeResult(
  */
 std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& program)
 {
+    std::string basis = program.get<std::string>("--basis");
+
     if (auto output_file = program.present("-s"))
     {
         std::ofstream statistics_stream(*output_file);
         statistics_stream << std::setprecision(3) << std::fixed;
-        statistics_stream << "File path,Gates before,Gates after,Simplify time,Reduced subcircuits by iter";
-        for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
+        statistics_stream << "File path,Gates before,Gates after,Simplify time";
+
+        // The following statistics is currently supported only for AIG basis.
+        if (basis == AIG_BASIS)
         {
-            statistics_stream << ",subcircuits_number_" << i;
+            statistics_stream << ",Reduced subcircuits by iter";
+            for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
+            {
+                statistics_stream << ",subcircuits_number_" << i;
+            }
+            for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
+            {
+                statistics_stream << ",skipped_subcircuits_" << i;
+            }
+            for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
+            {
+                statistics_stream << ",max_subcircuits_size_" << i;
+            }
+            for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
+            {
+                statistics_stream << ",circuit_size_" << i;
+            }
+            statistics_stream << ",iter_number,total_gates_in_subcircuits";
         }
-        for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
-        {
-            statistics_stream << ",skipped_subcircuits_" << i;
-        }
-        for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
-        {
-            statistics_stream << ",max_subcircuits_size_" << i;
-        }
-        for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
-        {
-            statistics_stream << ",circuit_size_" << i;
-        }
-        statistics_stream << ",iter_number,total_gates_in_subcircuits\n";
+        statistics_stream << "\n";
+
         return statistics_stream;
     }
     return std::nullopt;
@@ -164,6 +174,7 @@ void dumpVector(std::ofstream& stream, std::vector<T> const& vec)
  */
 void dumpStatistics(
     std::ofstream& statistics_stream,
+    std::string const& basis,
     std::string const& file_path,
     std::size_t gatesBefore,
     std::size_t gatesAfter,
@@ -172,27 +183,32 @@ void dumpStatistics(
     statistics_stream << std::setprecision(3) << std::fixed;
     statistics_stream << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
 
-    dumpVector(
-        statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
+    // The following statistics is currently supported only for AIG basis.
+    if (basis == AIG_BASIS)
+    {
+        dumpVector(
+            statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
 
-    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
-    {
-        statistics_stream << "," << t;
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
+        {
+            statistics_stream << "," << t;
+        }
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter)
+        {
+            statistics_stream << "," << t;
+        }
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter)
+        {
+            statistics_stream << "," << t;
+        }
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter)
+        {
+            statistics_stream << "," << t;
+        }
+        statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << ","
+                          << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits;
     }
-    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter)
-    {
-        statistics_stream << "," << t;
-    }
-    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter)
-    {
-        statistics_stream << "," << t;
-    }
-    for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter)
-    {
-        statistics_stream << "," << t;
-    }
-    statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << ","
-                      << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits << "\n";
+    statistics_stream << "\n";
 }
 
 /**
@@ -241,7 +257,7 @@ void simplify(
     // Dump simplification statistics if statistics path was specified.
     if (statistics_stream.has_value())
     {
-        dumpStatistics(statistics_stream.value(), instance_path, gatesBefore, gatesAfter, simplifyTime);
+        dumpStatistics(statistics_stream.value(), basis, instance_path, gatesBefore, gatesAfter, simplifyTime);
     }
 }
 
@@ -280,12 +296,14 @@ void loadDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
 }
 
 /**
- * Performs simplification of circuits provided in the `input-path`.
+ * Performs simplification of circuits provided in the `--input-path`.
  * Writes resulting simplified circuits to the `--output`, and dumps
  * statistics at the `--statistics`.
  *
  * Allows to manually hint a circuit basis, which will result in
  * executing a right version of a subcircuit minimization algorithm.
+ *
+ * For more details see description of argparse program below.
  *
  */
 int main(int argn, char** argv)
@@ -294,13 +312,36 @@ int main(int argn, char** argv)
 
     // Set up argument parser.
     argparse::ArgumentParser program("simplify", "0.1");
-    program.add_argument("input-path").help("directory with input .BENCH files");
+    program.add_argument("-i", "--input-path").help("directory with input .BENCH files");
     program.add_argument("-o", "--output").help("path to resulting directory");
     program.add_argument("-s", "--statistics").metavar("FILE").help("path to file for statistics writing");
     program.add_argument("-b", "--basis").default_value(std::string(DEFAULT_BASIS)).help("Choose basis [AIG|BENCH]");
     program.add_argument("-d", "--databases")
         .default_value(std::string(DEFAULT_DATABASES_PATH))
         .help("Path to a directory with databases.");
+
+    program.add_description(
+        "Simplify tool provides simplification of boolean circuits provided in one of\n"
+        "two bases: `AIG` or `BENCH`.\n"
+        "\n"
+        "To run simplification one should provide an `--input-path` and `--output`\n"
+        "arguments, describing a path to the directory where simplified boolean\n"
+        "circuits should be stored. Both input and output paths should be directories.\n"
+        "Input directory should contain '*.bench' files, which are processed by tool\n"
+        "distinctly.\n"
+        "\n"
+        "Also required basis should be specified manually using a `--basis` parameter\n"
+        "and provide a path to the directory with databases describing small circuits\n"
+        "on three inputs an three outputs by providing a `--databases` parameter. Note\n"
+        "that databases are available at `databases/` project's root directory.\n"
+        "\n"
+        "Note that databases are already available in the `databases/` at the project's\n"
+        "root and are ready to be used for a circuit simplification.\n"
+        "\n"
+        "To store statistics on simplification process one may additionally specify\n"
+        "a `--statistics` parameter, which is a path to location where a `*.csv` file\n"
+        "with statistics will be stored. Note that resulting csv will be written using\n"
+        "',' delimiter, whilst ';' character may be a part of a valid value.");
 
     // Parse provided program arguments.
     try
@@ -322,7 +363,7 @@ int main(int argn, char** argv)
 
     // Iterate over input directory of circuits.
     // Program will perform simplification of each found circuit.
-    std::string input_dir = program.get<std::string>("input-path");
+    std::string input_dir = program.get<std::string>("--input-path");
     for (auto& instance_path : std::filesystem::directory_iterator(input_dir))
     {
         // Skip directories and other specific files.

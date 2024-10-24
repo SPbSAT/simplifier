@@ -1,8 +1,8 @@
 import os
+import pathlib
 import subprocess
 import time
 import typing as tp
-import pathlib
 
 import click
 import pandas as pd

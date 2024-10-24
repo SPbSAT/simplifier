@@ -115,17 +115,17 @@ void writeResult(
 std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& program)
 {
     std::string basis = program.get<std::string>("--basis");
-    
+
     if (auto output_file = program.present("-s"))
     {
         std::ofstream statistics_stream(*output_file);
         statistics_stream << std::setprecision(3) << std::fixed;
         statistics_stream << "File path,Gates before,Gates after,Simplify time";
-        
+
         // The following statistics is currently supported only for AIG basis.
         if (basis == AIG_BASIS)
         {
-            statistics_stream <<",Reduced subcircuits by iter";
+            statistics_stream << ",Reduced subcircuits by iter";
             for (std::size_t i = 0; i < NUMBER_OF_ITERATIONS; ++i)
             {
                 statistics_stream << ",subcircuits_number_" << i;
@@ -145,7 +145,7 @@ std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& progra
             statistics_stream << ",iter_number,total_gates_in_subcircuits";
         }
         statistics_stream << "\n";
-        
+
         return statistics_stream;
     }
     return std::nullopt;
@@ -182,33 +182,33 @@ void dumpStatistics(
 {
     statistics_stream << std::setprecision(3) << std::fixed;
     statistics_stream << file_path << "," << gatesBefore << "," << gatesAfter << "," << simplifyTime;
-    
+
     // The following statistics is currently supported only for AIG basis.
     if (basis == AIG_BASIS)
     {
         dumpVector(
             statistics_stream, csat::simplification::CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter);
-    
-        for (auto t: csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
+
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().subcircuits_number_by_iter)
         {
             statistics_stream << "," << t;
         }
-        for (auto t: csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter)
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().skipped_subcircuits_by_iter)
         {
             statistics_stream << "," << t;
         }
-        for (auto t: csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter)
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().max_subcircuit_size_by_iter)
         {
             statistics_stream << "," << t;
         }
-        for (auto t: csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter)
+        for (auto t : csat::simplification::CircuitStatsSingleton::getInstance().circuit_size_by_iter)
         {
             statistics_stream << "," << t;
         }
         statistics_stream << "," << csat::simplification::CircuitStatsSingleton::getInstance().iter_number << ","
                           << csat::simplification::CircuitStatsSingleton::getInstance().total_gates_in_subcircuits;
     }
-    statistics_stream<< "\n";
+    statistics_stream << "\n";
 }
 
 /**
@@ -319,7 +319,7 @@ int main(int argn, char** argv)
     program.add_argument("-d", "--databases")
         .default_value(std::string(DEFAULT_DATABASES_PATH))
         .help("Path to a directory with databases.");
-    
+
     program.add_description(
         "Simplify tool provides simplification of boolean circuits provided in one of\n"
         "two bases: `AIG` or `BENCH`.\n"

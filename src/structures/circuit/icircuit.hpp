@@ -47,6 +47,9 @@ class ICircuit
     /* Returns number of gates in structures. */
     [[nodiscard]]
     virtual GateId getNumberOfGates() const = 0;
+    /* @return Number of gates in Circuit instance. */
+    [[nodiscard]]
+    virtual GateId getNumberOfGatesWithoutInputs() const = 0;
     /* Returns constant reference to GateIdContainer with all output gates. */
     [[nodiscard]]
     virtual GateIdContainer const& getOutputGates() const = 0;

@@ -8,15 +8,14 @@ the number of gates in it.
 
 ### Building
 
-Simplify can be built using `cmake` tool.
+Simplify can be built using `cmake` tool and some standard `C++` compiler (`gcc` and `clang`
+should do). To build `simplify` binary execute following steps:
 
-To build `simplify` binary execute following steps
-
-```
-$ mkdir build
-$ cd build
-$ cmake [-DCMAKE_BUILD_TYPE=[Release|Debug]] ..
-$ cmake --build .
+```sh
+mkdir build
+cd build
+cmake [-DCMAKE_BUILD_TYPE=[Release|Debug]] ..
+cmake --build .
 ```
 
 As a result ``simplify`` binary will be built.
@@ -24,7 +23,7 @@ As a result ``simplify`` binary will be built.
 To get info on how ``simplify`` should be used execute resulting binary with following command:
 
 ```sh
-$ simplify --help
+simplify --help
 ```
 
 ### Execution
@@ -36,12 +35,6 @@ same directory with running script named as `database_aig.txt` or `database_benc
 
 Both databases are already presented in the `./databases` directory and are ready to be used for a
 circuit simplification.
-
-
-## Source code structure
-
-...
-
 
 ## Technical info
 
@@ -96,11 +89,12 @@ Though it may break code in some cases, so be careful and check all made fixes.
 Python >=3.9 is used for scripts in the `tools/` directory.
 
 1. Install following packages using your package manager:
-    - dev version of `python3.9` and `python3.9-distutils` (e.g. `sudo apt install python3.9-dev`)
-1. Install `poetry` ([instruction](https://python-poetry.org/docs/)).
-1. Change directory `cd tools`
-1. Setup virtual environment by running `poetry install`
-1. Set your env to the oldest supported Python version `poetry env use 3.9`
-1. Enable virtual environment using `poetry shell`
+   - dev version of `python3.9` and `python3.9-distutils` (e.g. `sudo apt install python3.9-dev`)
+2. Install `poetry` ([instruction](https://python-poetry.org/docs/)).
+3. Change directory `cd tools`
+4. Setup virtual environment by running `poetry install`
+5. Set your env to the oldest supported Python version `poetry env use 3.9`
+6. Enable virtual environment using `poetry shell`
+7. Leave directory and return to project's root `cd ..`
 
 Now you should be able to run CLI of tools. Use `python ./cli --help` to get more info.

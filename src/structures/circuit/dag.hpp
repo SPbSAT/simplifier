@@ -195,6 +195,15 @@ class DAG : public ICircuit
     {
         return gates_.size();
     };
+    
+    /**
+     * @return Number of gates in Circuit instance.
+     */
+    [[nodiscard]]
+    GateId getNumberOfGatesWithoutInputs() const noexcept override
+    {
+        return gates_.size() - input_gates_.size();
+    };
 
     /**
      * @return Container with all Output gates.

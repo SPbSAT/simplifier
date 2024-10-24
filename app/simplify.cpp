@@ -221,7 +221,7 @@ void simplify(
     auto csat_instance = parser.instantiate();
 
     // Start simplification step.
-    std::size_t gatesBefore = csat_instance->getNumberOfGates();
+    std::size_t gatesBefore = csat_instance->getNumberOfGatesWithoutInputs();
     auto timeStart          = std::chrono::steady_clock::now();
 
     logger.debug(instance_path, ": simplification start.");
@@ -234,7 +234,7 @@ void simplify(
 
     auto timeEnd           = std::chrono::steady_clock::now();
     double simplifyTime    = std::chrono::duration<double>(timeEnd - timeStart).count();
-    std::size_t gatesAfter = simplified_instance->getNumberOfGates();
+    std::size_t gatesAfter = simplified_instance->getNumberOfGatesWithoutInputs();
 
     writeResult(program, *simplified_instance, *simplified_encoder, instance_path);
 

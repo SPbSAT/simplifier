@@ -64,7 +64,7 @@ Partial results suitable for light review can be produced in following steps:
     cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
     cmake --build build/ --config RELEASE
     # Python environment
-    python3.9 -m virtualenv tools/.env
+    python3.10 -m virtualenv tools/.env
     . tools/.env/bin/activate
     pip3 install tools/dependencies/*
     ```
@@ -127,7 +127,7 @@ above.
 cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
 cmake --build build/ --config RELEASE
 # Python environment
-python3.9 -m virtualenv tools/.env
+python3.10 -m virtualenv tools/.env
 . tools/.env/bin/activate
 pip3 install tools/dependencies/*
 ```
@@ -183,9 +183,9 @@ in the `third_party/` directory. To compile it, one need to execute following co
 
 #### Python environment
 
-Python 3.9 is used for scripts located in the `tools/` directory.
+Python 3.10 is used for scripts located in the `tools/` directory.
 
-1. Create virtual environment by running `python3.9 -m virtualenv tools/.env`
+1. Create virtual environment by running `python3.10 -m virtualenv tools/.env`
 2. Activate virtual environment `. tools/.env/bin/activate`
 3. Install dependencies `pip3 install tools/dependencies/*`
 
@@ -489,7 +489,7 @@ Main `simplify` directory contains following directories:
   code quality checks (`GTest`), or for the experiments conduction (`ABC`). Those libraries are vendored
   with the artifact for the completeness and reproducibility.
 - `tools/` directory contains CLI utilities useful for experiments and are to be run within
-  right `python 3.9` environment.
+  right `python 3.10` environment.
 
 ### Platform
 
@@ -498,7 +498,7 @@ equipped with `gcc x86-64` compiler, but should not cause any problems on other
 common Linux distributions.
 
 Experiment environment of a tool includes additional dependencies such as
-`ABC tool` and `python 3.9` virtual environment.
+`ABC tool` and `python 3.10` virtual environment.
 
 ### Dependencies
 

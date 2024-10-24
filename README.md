@@ -61,9 +61,7 @@ Partial results suitable for light review can be produced in following steps:
     # The simplify tool
     cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
     cmake --build build/ --config RELEASE
-    # Python environment
-    python3.10 -m virtualenv tools/.env
-    . tools/.env/bin/activate
+    # Install python dependencies globally
     pip3 install tools/dependencies/*
     ```
 
@@ -105,10 +103,9 @@ python environment for the utility scripts.
 As a result of configuration steps of this section one should have:
 
 - Installed additional Ubuntu dependencies;
+- Installed `python` packages.
 - Compiled `simplify` executable located at `build/simplify`;
 - Compiled `ABC` executable located at `third_party/abc/abc`;
-- Python virtual environment located in the `tools/.env`.
-- Shell process with activated python environment.
 
 In the other sections of this README it will be assumed, that all shell commands are executed
 within python environment, with `abc` and `simplify` executables available at paths specified
@@ -122,9 +119,7 @@ above.
 # The simplify tool
 cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
 cmake --build build/ --config RELEASE
-# Python environment
-python3.10 -m virtualenv tools/.env
-. tools/.env/bin/activate
+# Install python dependencies globally
 pip3 install tools/dependencies/*
 ```
 
@@ -168,18 +163,17 @@ in the `third_party/` directory. To compile it, one need to execute following co
 
 (see. original repository for details https://github.com/berkeley-abc/abc).
 
-#### Python environment
+#### Python dependencies
 
 Python 3.10 is used for scripts located in the `tools/` directory.
 
-1. Create virtual environment by running `python3.10 -m virtualenv tools/.env`
-2. Activate virtual environment `. tools/.env/bin/activate`
-3. Install dependencies `pip3 install tools/dependencies/*`
+To install dependencies globally execute:
 
-Note that step (2) should be executed in every new shell process to activate
-python virtual environment.
+```sh
+pip3 install tools/dependencies/*
+```
 
-Now you should be able to run CLI of tools. Try to use `python tools/cli --help`
+Now you should be able to run CLI of tools. Try to use `python3.10 tools/cli --help`
 to get more info on the available CLI commands.
 
 
@@ -484,7 +478,7 @@ equipped with `gcc x86-64` compiler, but should not cause any problems on other
 common Linux distributions.
 
 Experiment environment of a tool includes additional dependencies such as
-`ABC tool` and `python 3.10` virtual environment.
+`ABC tool` and `python 3.10` environment.
 
 ### Dependencies
 
@@ -511,7 +505,3 @@ for equivalence to the original circuits.
 `clang-format` and `clang-tidy` are used for maintaining code quality.
 Note that both of them are used as a part of `CI` flow in the linked
 GitHub repository, and their execution may be checked there.
-
-For the experiments related python code, `black`, `docformatter` and
-`usort` were used both to check if code is properly formatted and to
-format code locally.

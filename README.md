@@ -56,16 +56,12 @@ Partial results suitable for light review can be produced in following steps:
 1. Configure environment using "all-in-one" command (note that C++ sources may take quite a long time to compile):
 
     ```sh
-    # .deb packages
-    (cd packages && sudo dpkg -i *.deb)
     # ABC tool
     (cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
     # The simplify tool
     cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
     cmake --build build/ --config RELEASE
-    # Python environment
-    python3.9 -m virtualenv tools/.env
-    . tools/.env/bin/activate
+    # Install python dependencies globally
     pip3 install tools/dependencies/*
     ```
 
@@ -76,12 +72,12 @@ Partial results suitable for light review can be produced in following steps:
     ```sh
     mkdir experiment_table_3
     tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
-    python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+    python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
     ./build/simplify -i experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-    python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
-    python tools/cli table-3-finalizer -e experiment_table_3/
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+    python3.10 tools/cli table-3-finalizer -e experiment_table_3/
     ```
 
 3. The Table 4 allows one to select an arbitrary subset of classes to reproduce
@@ -92,7 +88,7 @@ Partial results suitable for light review can be produced in following steps:
     tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./light_review_table_4/
     ./build/simplify -i light_review_table_4/benchmarks/php/ -o light_review_table_4/benchmarks_s/php/ -s light_review_table_4/php_result.csv --basis BENCH --databases databases/
     ./build/simplify -i light_review_table_4/benchmarks/mult_miter/ -o light_review_table_4/benchmarks_s/mult_miter/ -s light_review_table_4/mult_miter_result.csv --basis BENCH --databases databases/
-    python tools/cli table-4-finalizer -e light_review_table_4/
+    python3.10 tools/cli table-4-finalizer -e light_review_table_4/
     ```
 
 
@@ -107,41 +103,27 @@ python environment for the utility scripts.
 As a result of configuration steps of this section one should have:
 
 - Installed additional Ubuntu dependencies;
+- Installed `python` packages.
 - Compiled `simplify` executable located at `build/simplify`;
 - Compiled `ABC` executable located at `third_party/abc/abc`;
-- Python virtual environment located in the `tools/.env`.
-- Shell process with activated python environment.
 
 In the other sections of this README it will be assumed, that all shell commands are executed
-within python environment, with `abc` and `simplify` executables available at paths specified
-above.
+in the environment with python dependencies, with `abc` and `simplify` executables available at
+the paths specified above.
 
 ### All-in-one command
 
 ```sh
-# .deb packages
-(cd packages && sudo dpkg -i *.deb)
 # ABC tool
 (cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
 # The simplify tool
 cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
 cmake --build build/ --config RELEASE
-# Python environment
-python3.9 -m virtualenv tools/.env
-. tools/.env/bin/activate
+# Install python dependencies globally
 pip3 install tools/dependencies/*
 ```
 
 ### Step-by-step guide
-
-#### Ubuntu packages
-
-Several additional `.deb` pacakges are provided in the `packages/` directory,
-and can be installed using the following command:
-
-```sh
-(cd packages && sudo dpkg -i *.deb)
-```
 
 #### Simplify compilation (C++)
 
@@ -181,18 +163,18 @@ in the `third_party/` directory. To compile it, one need to execute following co
 
 (see. original repository for details https://github.com/berkeley-abc/abc).
 
-#### Python environment
+#### Python dependencies
 
-Python 3.9 is used for scripts located in the `tools/` directory.
+Python 3.10 is available in the provided virtual machine and is used
+for the scripts located in the `tools/` directory.
 
-1. Create virtual environment by running `python3.9 -m virtualenv tools/.env`
-2. Activate virtual environment `. tools/.env/bin/activate`
-3. Install dependencies `pip3 install tools/dependencies/*`
+To install additional python dependencies globally execute:
 
-Note that step (2) should be executed in every new shell process to activate
-python virtual environment.
+```sh
+pip3 install tools/dependencies/*
+```
 
-Now you should be able to run CLI of tools. Try to use `python tools/cli --help`
+Now you should be able to run CLI of tools. Try to use `python3.10 tools/cli --help`
 to get more info on the available CLI commands.
 
 
@@ -239,7 +221,7 @@ All instructions presented below carry results of main intermediate steps. To va
 correctness any stage of simplification, one may use utility CLI command `check-equiv`:
 
 ```sh
-python tools/cli check-equiv --help
+python3.10 tools/cli check-equiv --help
 ```
 
 #### Statistics descriptions
@@ -271,15 +253,15 @@ to fix it when paper is accepted for publication.
 ```sh
 mkdir experiment_table_2
 tar -xvf ./benchmark/all_sets_under_50000_for_stat.tar.xz -C ./experiment_table_2/
-python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
 ./build/simplify -i experiment_table_2/benchmarks_r/resyn2_2/ -o experiment_table_2/benchmarks_r2_s/ -s experiment_table_2/r2_s_result.csv --basis AIG --databases databases/
 ./build/simplify -i experiment_table_2/benchmarks_r/resyn2_6/ -o experiment_table_2/benchmarks_r6_s/ -s experiment_table_2/r6_s_result.csv --basis AIG --databases databases/
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
-python tools/cli table-2-finalizer -e experiment_table_2/
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
+python3.10 tools/cli table-2-finalizer -e experiment_table_2/
 ```
 
 #### Step-by-step guide:
@@ -299,7 +281,7 @@ tar -xvf ./benchmark/all_sets_under_50000_for_stat.tar.xz -C ./experiment_table_
 3. Run `ABC` `resyn2` on the extracted benchmarks using provided CLI command:
 
 ```sh
-python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_table_2/benchmarks_r/ -a  third_party/abc/abc -n 2 -n 3 -n 6 -s experiment_table_2/r_results.csv
 ```
 
 4. Run `simplify` tool on several configurations of resulting circuits:
@@ -312,17 +294,17 @@ python tools/cli abc-resyn2 -i experiment_table_2/benchmarks/ -o experiment_tabl
 5. Collect statistics
 
 ```sh
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks -s experiment_table_2/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_3 -s experiment_table_2/benchmark_r3_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r/resyn2_6 -s experiment_table_2/benchmark_r6_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r2_s -s experiment_table_2/benchmark_r2_s_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_2/benchmarks_r6_s -s experiment_table_2/benchmark_r6_s_sizes.csv
 ```
 
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-2-finalizer -e experiment_table_2/
+python3.10 tools/cli table-2-finalizer -e experiment_table_2/
 ```
 
 After all commands completed, results are located as follows:
@@ -340,12 +322,12 @@ After all commands completed, results are located as follows:
 ```sh
 mkdir experiment_table_3
 tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
-python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
 ./build/simplify -i experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
-python tools/cli table-3-finalizer -e experiment_table_3/
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+python3.10 tools/cli table-3-finalizer -e experiment_table_3/
 ```
 
 #### Step-by-step guide
@@ -365,7 +347,7 @@ tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
 3. Run `ABC` `resyn2` on the extracted benchmarks using provided CLI command:
 
 ```sh
-python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
+python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
 ```
 
 4. Run `simplify` tool on resulting circuits:
@@ -377,15 +359,15 @@ python tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_tabl
 5. Collect benchmark sizes
 
 ```sh
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-python tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
+python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
 ```
 
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-3-finalizer -e experiment_table_3/
+python3.10 tools/cli table-3-finalizer -e experiment_table_3/
 ```
 
 After all commands completed, results are located as follows:
@@ -421,7 +403,7 @@ tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./experiment_table_4/
 ./build/simplify -i experiment_table_4/benchmarks/miter_transalg_sort/ -o experiment_table_4/benchmarks_s/miter_transalg_sort/ -s experiment_table_4/miter_transalg_sort_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/mult_miter/ -o experiment_table_4/benchmarks_s/mult_miter/ -s experiment_table_4/mult_miter_result.csv --basis BENCH --databases databases/ &
 wait
-python tools/cli table-4-finalizer -e experiment_table_4/
+python3.10 tools/cli table-4-finalizer -e experiment_table_4/
 ```
 
 #### Step-by-step guide
@@ -463,7 +445,7 @@ wait
 6. Build final paper-ready statistics
 
 ```sh
-python tools/cli table-4-finalizer -e experiment_table_4/
+python3.10 tools/cli table-4-finalizer -e experiment_table_4/
 ```
 
 After all commands completed, results are located as follows:
@@ -482,14 +464,13 @@ Main `simplify` directory contains following directories:
 - `app/` directory contains compilable `simplify.cpp` file, which contains an entry-point (`main`).
 - `benchmarks/` directory contains `tar` archives with boolean circuit benchmarks used for experiments.
 - `databases/` directory contains databases of the (nearly) optimal small circuits for BENCH and AIG bases.
-- `packages/` directory contains several `.deb` packages required to run experiments.
 - `src/` directory implements main tool functionalities, and organized as a header-only library.
 - `tests/` directory implements unit tests for the main functionalities of the tool.
 - `third_party/` directory contains third-party libraries, used either for the tool itself (`argparse`),
   code quality checks (`GTest`), or for the experiments conduction (`ABC`). Those libraries are vendored
   with the artifact for the completeness and reproducibility.
 - `tools/` directory contains CLI utilities useful for experiments and are to be run within
-  right `python 3.9` environment.
+  right `python 3.10` environment.
 
 ### Platform
 
@@ -498,7 +479,7 @@ equipped with `gcc x86-64` compiler, but should not cause any problems on other
 common Linux distributions.
 
 Experiment environment of a tool includes additional dependencies such as
-`ABC tool` and `python 3.9` virtual environment.
+`ABC tool` and `python 3.10` environment.
 
 ### Dependencies
 
@@ -525,7 +506,3 @@ for equivalence to the original circuits.
 `clang-format` and `clang-tidy` are used for maintaining code quality.
 Note that both of them are used as a part of `CI` flow in the linked
 GitHub repository, and their execution may be checked there.
-
-For the experiments related python code, `black`, `docformatter` and
-`usort` were used both to check if code is properly formatted and to
-format code locally.

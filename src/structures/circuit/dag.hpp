@@ -195,7 +195,7 @@ class DAG : public ICircuit
     {
         return gates_.size();
     };
-    
+
     /**
      * @return Number of gates in Circuit instance.
      */

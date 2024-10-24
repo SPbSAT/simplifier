@@ -1,13 +1,13 @@
 #include <cstddef>
-#include <ostream>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <ostream>
 #include <string>
 #include <type_traits>
 
 #include "src/common/csat_types.hpp"
-#include "src/structures/circuit/icircuit.hpp"
 #include "src/structures/circuit/dag.hpp"
+#include "src/structures/circuit/icircuit.hpp"
 #include "src/utility/converters.hpp"
 #include "src/utility/encoder.hpp"
 #include "src/utility/logger.hpp"

@@ -292,7 +292,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 gatesByColor.push_back(gateId);
                 used_gates.at(gateId) = color_id;
             }
-    
+
             CircuitStatsSingleton::getInstance()
                 .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = std::max(
                 CircuitStatsSingleton::getInstance()

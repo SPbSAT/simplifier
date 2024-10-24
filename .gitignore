@@ -2,9 +2,11 @@
 .tmp
 .TMP
 experiment_table_*
+light_review_*
 
 ### ABC specific files
 abc.history
+./third_party/abc/abc
 
 ### IDE
 .idea/

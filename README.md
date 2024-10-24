@@ -101,8 +101,6 @@ itself requires only to be compiled, whilst experiments
 framework requires accessibility of ABC tool executable and
 python environment for the utility scripts.
 
-[//]: # (TODO: list required exetutables)
-
 As a result of configuration (for correctness of guidelines after) one should have:
 
 - Installed additional Ubuntu dependencies.
@@ -191,25 +189,27 @@ to get more info on the available CLI commands.
 
 ## Usage instruction
 
-Simplify tool provides simplification of boolean circuits provided in one of
-two bases: `AIG` or `BENCH`. To run simplification one should provide an
-`--input-path` and `--output` arguments, describing a path to the directory
-where simplified boolean circuits should be stored. Both input and output
-paths should be directories. Input directory should contain '*.bench' files,
-which are processed by tool distinctly.
+The Simplify tool provides simplification of boolean circuits provided in
+one of two bases: `AIG` or `BENCH`. To run simplification one should provide
+an `--input-path` and `--output` parameters: first is a path to the directory
+with boolean circuits, and second is a path where simplified circuits are to
+be stored. Both input and output paths should be directories. Program will
+take attempt to read all files in input directory as `.bench` circuits. Each
+circuit then will be processed by the tool distinctly.
 
-Also required basis should be specified manually using a `--basis` parameter
-and provide a path to the directory with databases describing small circuits
-on three inputs an three outputs by providing a `--databases` parameter. Note
-that databases are available at `databases/` project's root directory.
+Required basis of input circuits should be specified manually using a `--basis`
+parameter. It will serve as a hint for the tool, which will help it to choose
+suitable algorithm.
 
-Note that databases are already available in the `databases/` at the project's
-root and are ready to be used for a circuit simplification.
+One also should provide a path to the directory with databases containing
+(nearly) optimal circuits with three inputs and three outputs by providing
+a `--databases` parameter. Note that databases are available at `databases/`
+project's root directory, which is a default value for `--databases`.
 
-To store statistics on simplification process one may additionally specify
+To store statistics of the simplification process one may additionally specify
 a `--statistics` parameter, which is a path to location where a `*.csv` file
-with statistics will be stored. Note that resulting csv will be written using
-`,` delimiter, whilst `;` character may be a part of a valid value.
+with gathered statistics is to be stored. Note that resulting csv file will use
+a `,` character as a delimiter, whilst `;` character may be a valid item value.
 
 Example usage command:
 
@@ -408,7 +408,6 @@ tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./experiment_table_4/
 ./build/simplify -i experiment_table_4/benchmarks/php/ -o experiment_table_4/benchmarks_s/php/ -s experiment_table_4/php_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/I99T/ -o experiment_table_4/benchmarks_s/I99T/ -s experiment_table_4/I99T_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/BristolFashion/ -o experiment_table_4/benchmarks_s/BristolFashion/ -s experiment_table_4/BristolFashion_result.csv --basis BENCH --databases databases/ &
-./build/simplify -i experiment_table_4/benchmarks/iscas85/ -o experiment_table_4/benchmarks_s/iscas85/ -s experiment_table_4/iscas85_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/miter_sum/ -o experiment_table_4/benchmarks_s/miter_sum/ -s experiment_table_4/miter_sum_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/miter_thr2/ -o experiment_table_4/benchmarks_s/miter_thr2/ -s experiment_table_4/miter_thr2_result.csv --basis BENCH --databases databases/ &
 ./build/simplify -i experiment_table_4/benchmarks/miter_transalg_sort/ -o experiment_table_4/benchmarks_s/miter_transalg_sort/ -s experiment_table_4/miter_transalg_sort_result.csv --basis BENCH --databases databases/ &

@@ -1,6 +1,7 @@
 ### TMP files
 .tmp
 .TMP
+experiment_table_*
 
 ### ABC specific files
 abc.history

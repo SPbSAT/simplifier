@@ -28,22 +28,21 @@ namespace csat::simplification
 {
 
 /**
- * @tparam CircuitT
  * Algorithm works with unary/binary operations, supports AIG/BENCH basis
  * Main idea is to iterate and try to simplify all subcircuits with 3 inputs using
  * database with small subcircuits.
  */
-
 struct CircuitStatsSingleton
 {
   public:
-    int32_t iter_number                              = 0;
-    std::vector<int32_t> subcircuits_number_by_iter  = {0, 0, 0, 0, 0};
-    std::vector<int32_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
-    std::vector<int32_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
-    std::vector<int32_t> circuit_size_by_iter        = {0, 0, 0, 0, 0};
-    std::size_t total_gates_in_subcircuits           = 0;
-    std::size_t last_iter_gates_simplification       = 0;
+    std::size_t iter_number                              = 0;
+    std::vector<std::size_t> subcircuits_number_by_iter  = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> circuit_size_by_iter        = {0, 0, 0, 0, 0};
+    std::vector<std::size_t> reduced_subcircuit_by_iter  = {};
+    std::size_t total_gates_in_subcircuits               = 0;
+    std::size_t last_iter_gates_simplification           = 0;
 
     static CircuitStatsSingleton& getInstance()
     {
@@ -53,6 +52,21 @@ struct CircuitStatsSingleton
 
     CircuitStatsSingleton(CircuitStatsSingleton const&)            = delete;
     CircuitStatsSingleton& operator=(CircuitStatsSingleton const&) = delete;
+
+    /**
+     * Cleans state of this statistics collector.
+     * Usable when need to collect distinct statistics on several consequent simplification runs.
+     */
+    void cleanState()
+    {
+        iter_number                 = 0;
+        subcircuits_number_by_iter  = {0, 0, 0, 0, 0};
+        skipped_subcircuits_by_iter = {0, 0, 0, 0, 0};
+        max_subcircuit_size_by_iter = {0, 0, 0, 0, 0};
+        circuit_size_by_iter        = {0, 0, 0, 0, 0};
+        reduced_subcircuit_by_iter  = {};
+        total_gates_in_subcircuits  = 0;
+    }
 
   private:
     CircuitStatsSingleton()  = default;
@@ -78,12 +92,12 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         csat::Logger logger{"SubcircuitStats"};
 
       public:
-        int32_t not_in_db{0};
-        int32_t smaller_size{0};
-        int32_t same_size{0};
-        int32_t bigger_size{0};
-        int32_t many_outputs{0};
-        int32_t subcircuits_count{0};
+        std::size_t not_in_db{0};
+        std::size_t smaller_size{0};
+        std::size_t same_size{0};
+        std::size_t bigger_size{0};
+        std::size_t many_outputs{0};
+        std::size_t subcircuits_count{0};
 
         SubcircuitStats() = default;
 
@@ -104,16 +118,9 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
     };
 
   public:
-    std::size_t colors_number = 0;
     std::vector<csat::utils::ThreeColor> colors;  // list of all 3-parent colors
     std::vector<std::vector<size_t>> gateColors;  // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor;  // parent ids must be in a sorted order
-
-    std::shared_ptr<CircuitDB> read_db()
-    {
-        assert(DBSingleton::getInstance().aig_db);
-        return DBSingleton::getInstance().aig_db;
-    }
 
     bool
     update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
@@ -186,7 +193,6 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         int circuit_size = circuit->getNumberOfGates();
         gateColors.resize(circuit_size, {});
 
-        colors_number  = threeColoring.getColorsNumber();
         colors         = threeColoring.colors;
         gateColors     = threeColoring.gateColors;
         parentsToColor = threeColoring.parentsToColor;
@@ -211,7 +217,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
             .circuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = circuit_size;
 
         // Store database
-        auto db                           = read_db();
+        auto db                           = DBSingleton::getAigDB();
         auto& subcircuit_pattern_to_index = db->subcircuit_pattern_to_index;
         auto& subcircuit_outputs          = db->subcircuit_outputs;
         auto& subcircuit_gates_operands   = db->gates_operands;
@@ -291,7 +297,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
                 .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] = std::max(
                 CircuitStatsSingleton::getInstance()
                     .max_subcircuit_size_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1],
-                static_cast<int32_t>(gatesByColor.size()) + 3);
+                gatesByColor.size() + 3);
             CircuitStatsSingleton::getInstance().total_gates_in_subcircuits += gatesByColor.size() + 3;
 
             // Check whether subcircuit has modified gates (in this case we do not observe it)
@@ -740,6 +746,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         stats.subcircuits_count = colors.size();
         CircuitStatsSingleton::getInstance()
             .subcircuits_number_by_iter[CircuitStatsSingleton::getInstance().iter_number - 1] += colors.size();
+        CircuitStatsSingleton::getInstance().reduced_subcircuit_by_iter.push_back(stats.smaller_size);
         stats.print();
 
         return {

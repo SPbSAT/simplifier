@@ -2,7 +2,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -33,14 +32,14 @@ class IBenchParser : public ICircuitParser
      */
     void parseStream(std::istream& stream) override
     {
-        logger.info("Started parsing of BENCH stream.");
+        logger.debug("Started parsing of BENCH stream.");
         std::string line;
         while (std::getline(stream, line))
         {
             parseBenchLine_(line);
         }
         _eof();
-        logger.info("Ended parsing of BENCH stream.");
+        logger.debug("Ended parsing of BENCH stream.");
     }
 
     /* Encoder of inputs and gates. */

@@ -56,8 +56,6 @@ Partial results suitable for light review can be produced in following steps:
 1. Configure environment using "all-in-one" command (note that C++ sources may take quite a long time to compile):
 
     ```sh
-    # .deb packages
-    (cd packages && sudo dpkg -i *.deb)
     # ABC tool
     (cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
     # The simplify tool
@@ -119,8 +117,6 @@ above.
 ### All-in-one command
 
 ```sh
-# .deb packages
-(cd packages && sudo dpkg -i *.deb)
 # ABC tool
 (cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
 # The simplify tool
@@ -133,15 +129,6 @@ pip3 install tools/dependencies/*
 ```
 
 ### Step-by-step guide
-
-#### Ubuntu packages
-
-Several additional `.deb` pacakges are provided in the `packages/` directory,
-and can be installed using the following command:
-
-```sh
-(cd packages && sudo dpkg -i *.deb)
-```
 
 #### Simplify compilation (C++)
 
@@ -482,7 +469,6 @@ Main `simplify` directory contains following directories:
 - `app/` directory contains compilable `simplify.cpp` file, which contains an entry-point (`main`).
 - `benchmarks/` directory contains `tar` archives with boolean circuit benchmarks used for experiments.
 - `databases/` directory contains databases of the (nearly) optimal small circuits for BENCH and AIG bases.
-- `packages/` directory contains several `.deb` packages required to run experiments.
 - `src/` directory implements main tool functionalities, and organized as a header-only library.
 - `tests/` directory implements unit tests for the main functionalities of the tool.
 - `third_party/` directory contains third-party libraries, used either for the tool itself (`argparse`),

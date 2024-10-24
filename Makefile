@@ -17,7 +17,6 @@ all:
 	rsync -rv --exclude='*.o' --exclude='*.*.d' app/ build/simplify/simplify/app
 	rsync -rv --exclude='*.o' --exclude='*.*.d' benchmark/ build/simplify/simplify/benchmark
 	rsync -rv --exclude='*.o' --exclude='*.*.d' databases/ build/simplify/simplify/databases
-	rsync -rv --exclude='*.o' --exclude='*.*.d' packages/ build/simplify/simplify/packages
 	rsync -rv --exclude='*.o' --exclude='*.*.d' src/ build/simplify/simplify/src
 	rsync -rv --exclude='*.o' --exclude='*.*.d' tests/ build/simplify/simplify/tests
 	rsync -rv --exclude='*.o' --exclude='*.*.d' third_party/ build/simplify/simplify/third_party

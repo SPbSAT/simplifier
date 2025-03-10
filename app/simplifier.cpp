@@ -120,7 +120,7 @@ std::optional<std::ofstream> openFileStat(argparse::ArgumentParser const& progra
     {
         std::ofstream statistics_stream(*output_file);
         statistics_stream << std::setprecision(3) << std::fixed;
-        statistics_stream << "File path,Gates before,Gates after,Simplify time";
+        statistics_stream << "File path,Gates before,Gates after,Simplificaton time";
 
         // The following statistics is currently supported only for AIG basis.
         if (basis == AIG_BASIS)
@@ -219,7 +219,7 @@ void dumpStatistics(
  * @param logger Logger instance.
  * @param statistics_stream stream for statistics dumping (if provided).
  */
-void simplify(
+void simplifier(
     std::string const& instance_path,
     argparse::ArgumentParser const& program,
     csat::Logger& logger,
@@ -308,10 +308,10 @@ void loadDatabases(argparse::ArgumentParser const& program, csat::Logger const& 
  */
 int main(int argn, char** argv)
 {
-    csat::Logger logger("Simplify");
+    csat::Logger logger("Simplifier");
 
     // Set up argument parser.
-    argparse::ArgumentParser program("simplify", "0.1");
+    argparse::ArgumentParser program("simplifier", "0.1");
     program.add_argument("-i", "--input-path").help("directory with input .BENCH files");
     program.add_argument("-o", "--output").help("path to resulting directory");
     program.add_argument("-s", "--statistics").metavar("FILE").help("path to file for statistics writing");
@@ -321,7 +321,7 @@ int main(int argn, char** argv)
         .help("Path to a directory with databases.");
 
     program.add_description(
-        "The Simplify tool provides simplification of boolean circuits provided in\n"
+        "The Simplifier tool provides simplification of boolean circuits provided in\n"
         "one of two bases: `AIG` or `BENCH`. To run simplification one should provide\n"
         "an `--input-path` and `--output` parameters: first is a path to the directory\n"
         "with boolean circuits, and second is a path where simplified circuits are to\n"
@@ -345,7 +345,7 @@ int main(int argn, char** argv)
         "\n"
         "Example usage command:\n"
         "\n"
-        "    ./build/simplify -i input_circuit/ -o result_circuits/ -s statistics.csv\n"
+        "    ./build/simplifier -i input_circuit/ -o result_circuits/ -s statistics.csv\n"
         "");
 
     // Parse provided program arguments.
@@ -379,7 +379,7 @@ int main(int argn, char** argv)
 
         std::string path = instance_path.path().string();
         logger.info("Processing benchmark ", path, ".");
-        simplify(path, program, logger, statistics_stream);
+        simplifier(path, program, logger, statistics_stream);
     }
 
     return 0;

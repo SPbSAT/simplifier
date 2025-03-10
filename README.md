@@ -1,134 +1,31 @@
-# Simplify: a New Tool for Boolean Circuit Simplification
-
-
-## Abstract
+# Simplifier: a New Tool for Boolean Circuit Simplification
 
 The Boolean circuit simplification problem involves finding a smaller circuit that computes the
 same function as a given Boolean circuit. This problem is closely related to several key areas
 with both theoretical and practical applications, such as logic synthesis, satisfiability, and
 verification.
 
-In the paper, we introduce a new tool for simplifying Boolean circuits. The tool optimizes
-subcircuits with three inputs and at most three outputs, seeking to improve each one. It is
-designed as a low-effort method that runs in just a few seconds for circuits of reasonable
-size. This efficiency is achieved by combining two key strategies. First, the tool utilizes
-a precomputed database of optimized circuits, generated with SAT solvers after carefully
-clustering Boolean functions with three inputs and up to three outputs. Second, we demonstrate
-that it is sufficient to check a linear number of subcircuits, relative to the size of the
-original circuit. This allows a single iteration of the tool to be executed in linear time.
+This repository contains source files for ``simplifier``, a tool for boolean circuit simplification.
 
-This artifact contains the paper and the tool together with detailed instructions on how to
-run the tool and reproduce the results from the paper.
-
-The tool was evaluated on a wide range of Boolean circuits, including both industrial and
-hand-crafted examples, in two popular bases: AIG and BENCH. For AIG circuits, after
-applying the state-of-the-art ABC framework, the tool achieved an additional 4% average
-reduction in size. For BENCH circuits, the tool reduced their size by an average of 30%.
-
-We pretend to achieve Functional, Reusable, and Available badges.
-
-The Simplify tool is available both at GitHub repository https://github.com/SPbSAT/circuitsat_tool,
-and at Zenodo: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13987644.svg)](https://doi.org/10.5281/zenodo.13987644)
-
-The Simplify tool is ready to be used on the **TACAS 2023 Artifact Evaluation Virtual Machine**
-https://zenodo.org/records/7113223 (for more details see sections **Environment configuration** and **Technical info**).
-It requires no additional proprietary software, or specific hardware (any moderately modern computer should do).
-
-The rest of this README contains following sections:
-
-1. **Early light review** section provides a guideline on performing a **light review** of a tool.
-2. **Environment configuration** section contains instructions on installation of requirements.
-3. **Usage instruction** section contains instructions on how Simplify tool can be used.
-4. **Main results reproduction** provides guidelines on how experiment results presented in the
-paper can be reproduced.
-5. **Technical info** provides some specific technical details, irrelevant for the paper, but
-   still giving additional information on the tool itself.
-
-Each guideline section provides two paths: "all-in-one" command to complete section
-and "step-by-step" guide to allow one to evaluate process in details. Note that instructions
-in this README are given for the default Ubuntu shell and may not work in other environment.
-
-
-## Early light review
-
-Partial results suitable for light review can be produced in following steps:
-
-1. Configure environment using "all-in-one" command (note that C++ sources may take quite a long time to compile):
-
-    ```sh
-    # ABC tool
-    (cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
-    # The simplify tool
-    cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
-    cmake --build build/ --config RELEASE
-    # Install python dependencies globally
-    pip3 install tools/dependencies/*
-    ```
-
-2. The Table 3 is quite easily reproducible, so if there is a need to check
-   that tool works at all, one can execute following command (which is a copy
-   of command in relevant section below):
-
-    ```sh
-    mkdir experiment_table_3
-    tar -xvf ./benchmark/representative_benchmarks.tar.xz -C ./experiment_table_3/
-    python3.10 tools/cli abc-resyn2 -i experiment_table_3/benchmarks/ -o experiment_table_3/benchmarks_r/ -a  third_party/abc/abc -n 1 -s experiment_table_3/r_results.csv
-    ./build/simplify -i experiment_table_3/benchmarks_r/resyn2_1/ -o experiment_table_3/benchmarks_rs/ -s experiment_table_3/rs_result.csv --basis AIG --databases databases/
-    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks -s experiment_table_3/benchmark_sizes.csv
-    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_r/resyn2_1 -s experiment_table_3/benchmark_r_sizes.csv
-    python3.10 tools/cli collect-sizes-aig -i experiment_table_3/benchmarks_rs -s experiment_table_3/benchmark_rs_sizes.csv
-    python3.10 tools/cli table-3-finalizer -e experiment_table_3/
-    ```
-
-3. The Table 4 allows one to select an arbitrary subset of classes to reproduce
-   results, for example following commands should give results in appropriate time:
-
-    ```sh
-    mkdir light_review_table_4
-    tar -xvf ./benchmark/bench_for_stat.tar.xz -C ./light_review_table_4/
-    ./build/simplify -i light_review_table_4/benchmarks/php/ -o light_review_table_4/benchmarks_s/php/ -s light_review_table_4/php_result.csv --basis BENCH --databases databases/
-    ./build/simplify -i light_review_table_4/benchmarks/mult_miter/ -o light_review_table_4/benchmarks_s/mult_miter/ -s light_review_table_4/mult_miter_result.csv --basis BENCH --databases databases/
-    python3.10 tools/cli table-4-finalizer -e light_review_table_4/
-    ```
-
-
-## Environment configuration
-
-Before conducting any executions of the tool, it is necessary
-to perform a mandatory environment configuration. The tool
-itself requires only to be compiled, whilst experiments
-framework requires access to the ABC tool executable and
-python environment for the utility scripts.
-
-As a result of configuration steps of this section one should have:
-
-- Installed additional Ubuntu dependencies;
-- Installed `python` packages.
-- Compiled `simplify` executable located at `build/simplify`;
-- Compiled `ABC` executable located at `third_party/abc/abc`;
-
-In the other sections of this README it will be assumed, that all shell commands are executed
-in the environment with python dependencies, with `abc` and `simplify` executables available at
-the paths specified above.
-
-### All-in-one command
-
-```sh
-# ABC tool
-(cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
-# The simplify tool
-cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
-cmake --build build/ --config RELEASE
-# Install python dependencies globally
-pip3 install tools/dependencies/*
-```
-
-### Step-by-step guide
-
-#### Simplify compilation (C++)
+## Building
 
 Simplify tool can be compiled using `cmake` tool and a standard `C++` compiler
-(`gcc` should do). To build `simplify` binary execute following steps:
+supporing C++20 standard (`gcc` should do). To build ``simplifier`` binary execute
+following steps:
+
+```sh
+cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
+cmake --build build/ --config RELEASE
+```
+
+As a result ``simplifier`` binary will be built. To get info on how
+``simplifier`` should be used execute resulting binary with following
+command:
+
+```sh
+build/simplify --help
+```
+
 
 1. Compile `cmake` project using command:
     ```sh
@@ -142,40 +39,6 @@ Simplify tool can be compiled using `cmake` tool and a standard `C++` compiler
 (Note that in `Release` build wast amount of logs is disabled.
 If one need more logs, `DEBUG` compilation type may be useful.)
 
-As a result ``simplify`` binary will be built. To get info on how ``simplify`` should be used
-execute resulting binary with following command:
-
-```sh
-build/simplify --help
-```
-
-#### ABC compilation
-
-ABC synthesis tool (and patricullary its `resyn2` command) is a state-of-art framework for circuit
-synthesis. It is used in the paper as a baseline solution for a circuit simplification, which allows
-one to access contribution and novelty of the Simplify tool.
-
-For convenience and reproducibility, specific revision of the ABC synthesis tool is vendored
-in the `third_party/` directory. To compile it, one need to execute following command:
-```sh
-(cd third_party/abc/ && make ABC_USE_NO_READLINE=1)
-```
-
-(see. original repository for details https://github.com/berkeley-abc/abc).
-
-#### Python dependencies
-
-Python 3.10 is available in the provided virtual machine and is used
-for the scripts located in the `tools/` directory.
-
-To install additional python dependencies globally execute:
-
-```sh
-pip3 install tools/dependencies/*
-```
-
-Now you should be able to run CLI of tools. Try to use `python3.10 tools/cli --help`
-to get more info on the available CLI commands.
 
 
 ## Usage instruction

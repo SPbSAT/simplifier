@@ -23,7 +23,7 @@ def table_3_finalizer(
 ):
     """
     Finalizes statistics collected during "Table 3. Comparison of circuit sizes and
-    running times between resyn2 and resyn2+simplify" described in the README.
+    running times between resyn2 and resyn2+Simplifier" described in the README.
 
     Note that some paths are hardcoded by intention because this script purpose is
     solely to finalize a specific experiment (as result, it expects specific files to be
@@ -56,7 +56,7 @@ def table_3_finalizer(
 
     rs_result = pd.read_csv(experiment_dir_path / "rs_result.csv", delimiter=',')
     rs_result['circuit_name'] = rs_result['File path'].map(lambda x: x.rsplit('/')[-1])
-    rs_result = rs_result.rename(columns={"Simplify time": "time_s"})
+    rs_result = rs_result.rename(columns={"Simplifier time": "time_s"})
 
     rs_result = rs_result[['circuit_name', 'time_s', 'Reduced subcircuits by iter']]
     rs_result['circuit_name'] = rs_result[['circuit_name']].map(

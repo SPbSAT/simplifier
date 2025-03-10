@@ -1,6 +1,8 @@
 ### TMP files
 .tmp
 .TMP
+_tmp
+_TMP
 experiment_table_*
 light_review_*
 

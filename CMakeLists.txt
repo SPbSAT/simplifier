@@ -78,7 +78,7 @@ endif()
 
 # ===================================== SIMPLIFY ==================================== #
 
-add_executable(simplify app/simplify.cpp)
-target_link_libraries(simplify argparse)
+add_executable(simplifier app/simplifier.cpp)
+target_link_libraries(simplifier argparse)
 
 # *********************************************************************************** #

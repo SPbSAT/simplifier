@@ -23,7 +23,7 @@ def table_2_finalizer(
 ):
     """
     Finalizes statistics collected during "Table 2. Comparison of several runs of resyn2
-    against several runs of resyn2 followed by a run of simplify." described in the
+    against several runs of resyn2 followed by a run of Simplifier." described in the
     README.
 
     Note that some paths are hardcoded by intention because this script purpose is
@@ -62,7 +62,7 @@ def table_2_finalizer(
 
     r6_s_result = pd.read_csv(experiment_dir_path / "r6_s_result.csv", delimiter=',')
     r6_s_result = r6_s_result.rename(
-        columns={'File path': 'circuit_name', 'Simplify time': 'time_r6_s'}
+        columns={'File path': 'circuit_name', 'Simplifier time': 'time_r6_s'}
     )
     r6_s_result = r6_s_result[['circuit_name', 'time_r6_s']]
     r6_s_result['circuit_name'] = r6_s_result['circuit_name'].apply(
@@ -71,7 +71,7 @@ def table_2_finalizer(
 
     r2_s_result = pd.read_csv(experiment_dir_path / "r2_s_result.csv", delimiter=',')
     r2_s_result = r2_s_result.rename(
-        columns={'File path': 'circuit_name', 'Simplify time': 'time_r2_s'}
+        columns={'File path': 'circuit_name', 'Simplifier time': 'time_r2_s'}
     )
     r2_s_result = r2_s_result[['circuit_name', 'time_r2_s']]
     r2_s_result['circuit_name'] = r2_s_result['circuit_name'].apply(

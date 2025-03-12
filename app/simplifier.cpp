@@ -86,16 +86,27 @@ void writeResult(
 {
     if (auto output_dir = program.present("-o"))
     {
-        // Create directory if it doesn't exist yet.
         std::filesystem::path output_path{*output_dir};
-        if (!std::filesystem::exists(output_path))
+        std::string input_dir = program.get<std::string>("--input-path");
+        // If input is a directory, treat output as directory as well.
+        if (std::filesystem::is_directory(input_dir))
         {
-            std::filesystem::create_directories(output_path);
-        }
+            // Create output directory if it doesn't exist yet.
+            if (!std::filesystem::exists(output_path))
+            {
+                std::filesystem::create_directories(output_path);
+            }
 
-        // Write resulting circuit to an output path by original name.
-        std::ofstream file_out(output_path / std::filesystem::path(file_path).filename());
-        writeBenchFile(simplified_circuit, encoder, file_out);
+            // Write resulting circuit to an output path by original name.
+            std::ofstream file_out(output_path / std::filesystem::path(file_path).filename());
+            writeBenchFile(simplified_circuit, encoder, file_out);
+        }
+        else
+        {
+            // Write resulting circuit to an output path by original name.
+            std::ofstream file_out(output_path);
+            writeBenchFile(simplified_circuit, encoder, file_out);
+        }
     }
     else
     {
@@ -312,8 +323,8 @@ int main(int argn, char** argv)
 
     // Set up argument parser.
     argparse::ArgumentParser program("simplifier", "0.1");
-    program.add_argument("-i", "--input-path").help("directory with input .BENCH files");
-    program.add_argument("-o", "--output").help("path to resulting directory");
+    program.add_argument("-i", "--input-path").help("directory with input .BENCH files (or a single .BENCH file)");
+    program.add_argument("-o", "--output").help("path to resulting directory or to a resulting single .BENCH file");
     program.add_argument("-s", "--statistics").metavar("FILE").help("path to file for statistics writing");
     program.add_argument("-b", "--basis").default_value(std::string(DEFAULT_BASIS)).help("Choose basis [AIG|BENCH]");
     program.add_argument("-d", "--databases")
@@ -324,9 +335,9 @@ int main(int argn, char** argv)
         "The Simplifier tool provides simplification of boolean circuits provided in\n"
         "one of two bases: `AIG` or `BENCH`. To run simplification one should provide\n"
         "an `--input-path` and `--output` parameters: first is a path to the directory\n"
-        "with boolean circuits, and second is a path where simplified circuits are to\n"
-        "be stored. Both input and output paths should be directories. Program will\n"
-        "take attempt to read all files in input directory as `.bench` circuits. Each\n"
+        "with boolean circuits (or to a single .bench file), and second is a path where\n"
+        "simplified circuits are to be stored (or path to a single .bench file). Program\n"
+        "will take attempt to read all files in input directory as `.bench` circuits. Each\n"
         "circuit then will be processed by the tool distinctly.\n"
         "\n"
         "Required basis of input circuits should be specified manually using a `--basis`\n"
@@ -368,18 +379,27 @@ int main(int argn, char** argv)
 
     // Iterate over input directory of circuits.
     // Program will perform simplification of each found circuit.
-    std::string input_dir = program.get<std::string>("--input-path");
-    for (auto& instance_path : std::filesystem::directory_iterator(input_dir))
+    std::string input_dir  = program.get<std::string>("--input-path");
+    std::string output_dir = program.get<std::string>("--output");
+    if (std::filesystem::is_directory(input_dir))
     {
-        // Skip directories and other specific files.
-        if (!instance_path.is_regular_file())
+        for (auto& instance_path : std::filesystem::directory_iterator(input_dir))
         {
-            continue;
-        }
+            // Skip directories and other specific files.
+            if (!instance_path.is_regular_file())
+            {
+                continue;
+            }
 
-        std::string path = instance_path.path().string();
-        logger.info("Processing benchmark ", path, ".");
-        simplifier(path, program, logger, statistics_stream);
+            std::string path = instance_path.path().string();
+            logger.info("Processing benchmark ", path, ".");
+            simplifier(path, program, logger, statistics_stream);
+        }
+    }
+    else
+    {
+        logger.info("Processing benchmark ", input_dir, ".");
+        simplifier(input_dir, program, logger, statistics_stream);
     }
 
     return 0;

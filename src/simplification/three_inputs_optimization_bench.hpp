@@ -134,7 +134,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
 
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
-        std::unique_ptr<GateEncoder<std::string>> encoder)
+        std::unique_ptr<GateEncoder> encoder)
     {
         logger.debug("=========================================================================================");
         logger.debug("START ThreeInputsSubcircuitMinimization");
@@ -703,8 +703,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         stats.print();
 
         return {
-            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
-            std::make_unique<GateEncoder<std::string>>(*encoder)};
+            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()), std::make_unique<GateEncoder>(*encoder)};
     }
 };
 

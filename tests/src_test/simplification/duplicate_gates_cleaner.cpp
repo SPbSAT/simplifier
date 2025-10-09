@@ -30,7 +30,7 @@ TEST(DuplicateGatesCleaner, SimpleTest)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -62,7 +62,7 @@ TEST(DuplicateGatesCleaner, NoSorted)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -103,7 +103,7 @@ TEST(DuplicateGatesCleaner, SeveralLevels)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -145,7 +145,7 @@ TEST(DuplicateGatesCleaner, SeveralOutput)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -184,7 +184,7 @@ TEST(DuplicateGatesCleaner, SeveralLevelsMUX)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -211,6 +211,81 @@ TEST(DuplicateGatesCleaner, SeveralLevelsMUX)
     ASSERT_EQ(circuit->getGateOperands(9), GateIdContainer({5, 8}));
     ASSERT_EQ(circuit->getGateType(10), GateType::AND);
     ASSERT_EQ(circuit->getGateOperands(10), GateIdContainer({6, 9}));
+}
+
+
+TEST(DuplicateGatesCleaner, ReducibleDuplicateOfOperands)
+{
+    std::string const dag = "INPUT(0)\n"
+                            "INPUT(1)\n"
+                            "\n"
+                            "2 = AND(1, 0)\n"
+                            "3 = AND(0, 1)\n"
+                            "4 = AND(0, 2, 3)\n"
+                            "5 = AND(0, 2)\n"
+                            "6 = OR(4, 5)\n"
+                            "\n"
+                            "OUTPUT(6)\n";
+
+    std::istringstream stream(dag);
+    csat::parser::BenchToCircuit<csat::DAG> parser;
+    parser.parseStream(stream);
+
+    std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
+
+    auto [circuit, _] = Composition<
+        DAG,
+        DuplicateGatesCleaner<DAG>
+    >().apply(*csat_instance, encoder);
+
+    ASSERT_EQ(circuit->getNumberOfGates(), 5);
+    ASSERT_EQ(circuit->getGateType(0), GateType::INPUT);
+    ASSERT_EQ(circuit->getGateType(1), GateType::INPUT);
+    ASSERT_EQ(circuit->getGateType(2), GateType::AND);
+    ASSERT_EQ(circuit->getGateOperands(2), GateIdContainer({0, 1}));
+    ASSERT_EQ(circuit->getGateType(3), GateType::AND);
+    ASSERT_EQ(circuit->getGateOperands(3), GateIdContainer({0, 2, 2}));
+    ASSERT_EQ(circuit->getGateType(4), GateType::OR);
+    ASSERT_EQ(circuit->getGateOperands(4), GateIdContainer({3, 3}));
+}
+
+TEST(DuplicateGatesCleaner, XorNotReducible)
+{
+    std::string const dag = "INPUT(0)\n"
+                            "INPUT(1)\n"
+                            "\n"
+                            "2 = AND(1, 0)\n"
+                            "3 = AND(0, 1)\n"
+                            "4 = XOR(0, 2, 3)\n"
+                            "5 = XOR(0, 2)\n"
+                            "6 = OR(4, 5)\n"
+                            "\n"
+                            "OUTPUT(6)\n";
+
+    std::istringstream stream(dag);
+    csat::parser::BenchToCircuit<csat::DAG> parser;
+    parser.parseStream(stream);
+
+    std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
+
+    auto [circuit, _] = Composition<
+        DAG,
+        DuplicateGatesCleaner<DAG>
+    >().apply(*csat_instance, encoder);
+
+    ASSERT_EQ(circuit->getNumberOfGates(), 6);
+    ASSERT_EQ(circuit->getGateType(0), GateType::INPUT);
+    ASSERT_EQ(circuit->getGateType(1), GateType::INPUT);
+    ASSERT_EQ(circuit->getGateType(2), GateType::AND);
+    ASSERT_EQ(circuit->getGateOperands(2), GateIdContainer({0, 1}));
+    ASSERT_EQ(circuit->getGateType(3), GateType::XOR);
+    ASSERT_EQ(circuit->getGateOperands(3), GateIdContainer({0, 2, 2}));
+    ASSERT_EQ(circuit->getGateType(4), GateType::XOR);
+    ASSERT_EQ(circuit->getGateOperands(4), GateIdContainer({0, 2}));
+    ASSERT_EQ(circuit->getGateType(5), GateType::OR);
+    ASSERT_EQ(circuit->getGateOperands(5), GateIdContainer({3, 4}));
 }
 
 } // namespace

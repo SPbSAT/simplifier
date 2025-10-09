@@ -19,7 +19,7 @@ using namespace csat::utils;
 std::pair<std::vector<std::vector<std::string>>, std::vector<std::vector<std::string>>> parse_colors
 (
     ThreeColoring& threeColoring,
-    csat::utils::GateEncoder<std::string>& encoder
+    csat::utils::GateEncoder& encoder
 ) {
     std::vector<std::vector<std::string>> color_parents;
     std::vector<std::vector<std::string>> gates_by_color;
@@ -57,7 +57,7 @@ TEST(ThreeColoring, SmallTest)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> circuit = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     ThreeColoring threeColoring = ThreeColoring(*circuit);
     auto [color_parents, gates_by_color] = parse_colors(threeColoring, encoder);
@@ -90,7 +90,7 @@ TEST(ThreeColoring, BiggerTest)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> circuit = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     ThreeColoring threeColoring = ThreeColoring(*circuit);
     auto [color_parents, gates_by_color] = parse_colors(threeColoring, encoder);
@@ -132,7 +132,7 @@ TEST(ThreeColoring, HardTest)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> circuit = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     ThreeColoring threeColoring = ThreeColoring(*circuit);
     auto [color_parents, gates_by_color] = parse_colors(threeColoring, encoder);

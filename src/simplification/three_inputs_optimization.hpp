@@ -176,7 +176,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
 
     CircuitAndEncoder<CircuitT, std::string> transform(
         std::unique_ptr<CircuitT> circuit,
-        std::unique_ptr<GateEncoder<std::string>> encoder)
+        std::unique_ptr<GateEncoder> encoder)
     {
         logger.debug("=========================================================================================");
         logger.debug("START ThreeInputsSubcircuitMinimization");
@@ -209,7 +209,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         {
             return {
                 std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
-                std::make_unique<GateEncoder<std::string>>(*encoder)};
+                std::make_unique<GateEncoder>(*encoder)};
         }
         CircuitStatsSingleton::getInstance().iter_number += 1;
         CircuitStatsSingleton::getInstance().last_iter_gates_simplification = 0;
@@ -750,8 +750,7 @@ class ThreeInputsSubcircuitMinimization : public ITransformer<CircuitT>
         stats.print();
 
         return {
-            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()),
-            std::make_unique<GateEncoder<std::string>>(*encoder)};
+            std::make_unique<CircuitT>(gate_info, circuit->getOutputGates()), std::make_unique<GateEncoder>(*encoder)};
     }
 };
 

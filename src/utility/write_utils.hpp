@@ -21,12 +21,9 @@ namespace csat
  * @tparam CircuitT
  */
 template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
-void writeBenchFile(
-    CircuitT const& circuit,
-    csat::utils::GateEncoder<std::string> const& encoder,
-    std::ofstream& file_out)
+void writeBenchFile(CircuitT const& circuit, utils::GateEncoder const& encoder, std::ofstream& file_out)
 {
-    csat::Logger const logger("writeBenchFile");
+    Logger const logger("writeBenchFile");
     logger.debug("writeBenchFile start.");
 
     logger.debug("recording INPUTs.");
@@ -48,8 +45,8 @@ void writeBenchFile(
     {
         if (circuit.getGateType(gateId) != GateType::INPUT)
         {
-            file_out << encoder.decodeGate(gateId) << " = "
-                     << csat::utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
+            file_out << encoder.decodeGate(gateId) << " = " << utils::gateTypeToString(circuit.getGateType(gateId))
+                     << "(";
 
             auto operands       = circuit.getGateOperands(gateId);
             size_t num_operands = operands.size();
@@ -74,7 +71,7 @@ void writeBenchFile(
  * Prints circuit to stdout where each gate is written in the following notation
  * "<encoded name> => <name from original file>"
  */
-void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string> const& encoder)
+inline void printCircuit(DAG const& circuit, utils::GateEncoder const& encoder)
 {
     for (auto input : circuit.getInputGates())
     {
@@ -88,10 +85,10 @@ void printCircuit(csat::DAG const& circuit, csat::utils::GateEncoder<std::string
 
     for (size_t gateId = 0; gateId < circuit.getNumberOfGates(); ++gateId)
     {
-        if (circuit.getGateType(gateId) != csat::GateType::INPUT)
+        if (circuit.getGateType(gateId) != GateType::INPUT)
         {
             std::cout << gateId << " => " << encoder.decodeGate(gateId) << " = "
-                      << csat::utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
+                      << utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
 
             auto operands       = circuit.getGateOperands(gateId);
             size_t num_operands = operands.size();

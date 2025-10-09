@@ -17,7 +17,7 @@ TEST(EncoderTest, EncodeDecode)
 {
     logger.info("Testing simple encoding/decoding");
     
-    GateEncoder<std::string> enc;
+    GateEncoder enc;
     enc.encodeGate("a");
     enc.encodeGate("b");
     enc.encodeGate("c");
@@ -38,37 +38,6 @@ TEST(EncoderTest, EncodeDecode)
     ASSERT_TRUE(enc.decodeGate(3) == "d");
     ASSERT_TRUE(enc.decodeGate(4) == "e");
     
-}
-
-
-TEST(EncoderTest, Merge)
-{
-    logger.info("Testing simple encoder merging cases");
-    
-    GateEncoder<std::string> first;
-    first.encodeGate("a");
-    first.encodeGate("b");
-    first.encodeGate("c");
-    first.encodeGate("d");
-    first.encodeGate("e");
-    
-    GateEncoder<GateId> second;
-    second.encodeGate(0);
-    second.encodeGate(2);
-    second.encodeGate(3);
-    
-    auto merged = mergeGateEncoders(first, second);
-    
-    ASSERT_TRUE(merged->size() == 3);
-
-    ASSERT_TRUE(merged->decodeGate(0) == "a");
-    ASSERT_TRUE(merged->encodeGate("a") == second.encodeGate(first.encodeGate("a")));
-    
-    ASSERT_TRUE(merged->decodeGate(1) == "c");
-    ASSERT_TRUE(merged->encodeGate("c") == second.encodeGate(first.encodeGate("c")));
-    
-    ASSERT_TRUE(merged->decodeGate(2) == "d");
-    ASSERT_TRUE(merged->encodeGate("d") == second.encodeGate(first.encodeGate("d")));
 }
 
 } // namespace

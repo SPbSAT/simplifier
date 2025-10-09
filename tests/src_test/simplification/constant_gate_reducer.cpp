@@ -30,7 +30,7 @@ TEST(ConstantGateReducer, SimpleTest)
         {5}
     );
     
-    GateEncoder<std::string> encoder{};
+    GateEncoder encoder{};
     encoder.encodeGate("0");
     encoder.encodeGate("1");
     encoder.encodeGate("2");
@@ -64,7 +64,7 @@ TEST(ConstantGateReducer, ChangeOutput)
         {2}
     );
     
-    GateEncoder<std::string> encoder{};
+    GateEncoder encoder{};
     encoder.encodeGate("0");
     encoder.encodeGate("2");
     encoder.encodeGate("1");
@@ -91,7 +91,7 @@ TEST(ConstantGateReducer, KnownAnswer)
         {2}
     );
     
-    GateEncoder<std::string> encoder{};
+    GateEncoder encoder{};
     encoder.encodeGate("0");
     encoder.encodeGate("2");
     encoder.encodeGate("1");
@@ -122,7 +122,7 @@ TEST(ConstantGateReducer, NoChanges)
         {2}
     );
     
-    GateEncoder<std::string> encoder{};
+    GateEncoder encoder{};
     encoder.encodeGate("0");
     encoder.encodeGate("1");
     encoder.encodeGate("2");
@@ -154,10 +154,12 @@ TEST(ConstantGateReducer, UnusedGates)
         {4}
     );
     
-    GateEncoder<std::string> encoder{};
+    GateEncoder encoder{};
     encoder.encodeGate("0");
     encoder.encodeGate("1");
-    encoder.encodeGate("2");
+    encoder.encodeGate("2");     
+    encoder.encodeGate("3");
+    encoder.encodeGate("4");
 
     auto [circuit, _] = Composition<
         DAG,
@@ -185,7 +187,7 @@ TEST(ConstantGateReducer, SeveralOutputs)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,
@@ -218,7 +220,7 @@ TEST(ConstantGateReducer, SaveCONST)
     parser.parseStream(stream);
     
     std::unique_ptr<csat::DAG> csat_instance = parser.instantiate();
-    csat::utils::GateEncoder<std::string> encoder = parser.getEncoder();
+    csat::utils::GateEncoder encoder = parser.getEncoder();
     
     auto [circuit, _] = Composition<
         DAG,

@@ -39,10 +39,10 @@ std::ifstream openFileStream(std::string const& file_path, csat::Logger& logger)
 /**
  * Helper to run specific simplification strategies on the circuit in the provided basis.
  */
-std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<std::string> > > applySimplification(
+std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder> > applySimplification(
     std::string const& basis,
     std::unique_ptr<csat::DAG>& csat_instance,
-    csat::utils::GateEncoder<std::string>& encoder)
+    csat::utils::GateEncoder& encoder)
 {
     if (basis == AIG_BASIS)
     {
@@ -81,7 +81,7 @@ std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder<
 void writeResult(
     argparse::ArgumentParser const& program,
     csat::DAG const& simplified_circuit,
-    csat::utils::GateEncoder<std::string> const& encoder,
+    csat::utils::GateEncoder const& encoder,
     std::string const& file_path)
 {
     if (auto output_dir = program.present("-o"))

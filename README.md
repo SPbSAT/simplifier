@@ -1,106 +1,126 @@
-# Simplify: a tool for a boolean circuit simplification.
+# Simplifier: a New Tool for Boolean Circuit Simplification
 
-Simplify is a program, that accepts an arbitrary circuit instance provided in `BENCH` or `AIG`
-format and returns (stdout or file) equivalent circuit, transformed in such a way as to reduce
-the number of gates in it.
+The Boolean circuit simplification problem involves finding a smaller circuit that computes the
+same function as a given Boolean circuit. This problem is closely related to several key areas
+with both theoretical and practical applications, such as logic synthesis, satisfiability, and
+verification.
 
-## Building and execution
+This repository contains source files for ``simplifier``, a tool for boolean circuit simplification.
 
-### Building
+## Building
 
-Simplify can be built using `cmake` tool.
-
-To build `simplify` binary execute following steps
-
-```
-$ mkdir build
-$ cd build
-$ cmake [-DCMAKE_BUILD_TYPE=[Release|Debug]] ..
-$ cmake --build .
-```
-
-As a result ``simplify`` binary will be built.
-
-To get info on how ``simplify`` should be used execute resulting binary with following command:
+Simplifier tool can be compiled using `cmake` tool and a standard `C++` compiler
+supporing C++20 standard (`gcc` should do). To build ``simplifier`` binary execute
+following steps:
 
 ```sh
-$ simplify --help
+cmake -B build/ -DCMAKE_BUILD_TYPE=RELEASE
+cmake --build build/ --config RELEASE
 ```
 
-### Execution
+(Note that in `Release` build wast amount of logs is disabled.
+If one need more logs, `DEBUG` compilation type may be useful.)
 
-Simplify supports simplification of circuit provided in one of two bases: `AIG` or `BENCH`.
+As a result ``simplifier`` binary will be built. To get info on how
+``simplifier`` should be used execute resulting binary with following
+command:
 
-To run simplification in the following basis you need to have a database with small circuits in the
-same directory with running script named as `database_aig.txt` or `database_bench.txt` respectively.
+```sh
+build/simplifier --help
+```
 
-Both databases are already presented in the `./databases` directory and are ready to be used for a
-circuit simplification.
+## Usage instruction
 
+The Simplifier tool performs simplification of boolean circuits provided in
+one of two bases: `AIG` or `BENCH`. To run simplification one should provide
+an `--input-path` and `--output` parameters: first is a path to the directory
+with boolean circuits, and second is a path where simplified circuits are to
+be stored. Both input and output paths should be directories. The tool will
+take an attempt to read all files in input directory as `.bench` circuits.
+Each circuit will be processed by the tool distinctly.
 
-## Source code structure
+Required basis of input circuits should be specified manually using a `--basis`
+parameter. It will serve as a hint for the tool, which will help it to choose
+suitable simplification algorithms.
 
-...
+One also should provide a path to the directory with databases containing
+(nearly) optimal circuits with three inputs and three outputs by providing
+a `--databases` parameter. Note that databases are available in `databases/`
+directory located at the repository root, which is a default value for `--databases`.
 
+To store statistics of the simplification process one may additionally specify
+a `--statistics` parameter, which is a path to location where a `*.csv` file
+with gathered statistics should be dumped. Note that resulting csv file will use
+a `,` character as a delimiter, whilst `;` character may be a valid item value.
+
+Example usage command:
+
+```sh
+./build/simplifier -i input_circuit/ -o result_circuits/ -s statistics.csv
+```
+
+### Statistics format descriptions
+
+Statistics is written in `.csv` files with `,` delimiter. Note that in some
+values character `;` is used as internal value separator.
+
+Circuit sizes for `AIG` based tables are given as number of `AND` gates, while for the
+`BENCH` based tables size is represented by total number of gates excluding `INPUT`gates.
+
+## Benchmarking
+
+A detailed step-by-step guide on the tool benchmarking is located in the
+[BENCHMARKING.md](./BENCHMARKING.md) file. This guide contains steps to reproduce
+results, presented in the related paper.
 
 ## Technical info
 
+### Code structure
+
+Main `simplifier` directory contains following directories:
+
+- `app/` directory contains compilable `simplifier.cpp` file, which contains an entry-point (`main`).
+- `benchmarks/` directory contains `tar` archives with boolean circuit benchmarks used for experiments.
+- `databases/` directory contains databases of the (nearly) optimal small circuits for BENCH and AIG bases.
+- `src/` directory implements main tool functionalities, and organized as a header-only library.
+- `tests/` directory implements unit tests for the main functionalities of the tool.
+- `third_party/` directory contains third-party libraries, used either for the tool itself (`argparse`),
+  code quality checks (`GTest`), or for the experiments conduction (`ABC`). Those libraries are vendored
+  within this repository for the completeness and reproducibility.
+- `tools/` directory contains CLI utilities useful for experiments, which are to be run within
+  right `python 3.10` environment.
+
 ### Platform
 
-Simplify is written using C++20. Simplify was developed and tested on Ubuntu 24.04 with gcc x86-64
-compiler, but should not cause any problems on other common Linux distributions.
+Simplifier is written using `C++20`, was developed and tested on the `Ubuntu OS`
+equipped with `gcc x86-64` compiler, but should not cause any problems on other
+common Linux distributions.
 
 ### Dependencies
 
-Simplify utilizes external library [argparse](https://github.com/p-ranav/argparse/tree/v2.9) to ease
-CLI arguments parsing and usage. Also test framework [GoogleTest](https://github.com/google/googletest).
+Simplifier tool utilizes external library [argparse](https://github.com/p-ranav/argparse/tree/v2.9)
+to ease CLI arguments parsing and usage. Also test framework [GoogleTest](https://github.com/google/googletest)
 is used to run unit tests which cover main functionalities of the tool.
 
-To make this code snapshot whole, `argparse` and `gtest` repository snapshots are vendored
-alongside it and are presented in the `third_party/` directory.
+To make this repository whole, `argparse` and `gtest` repository are vendored as submodules
+and are presented in the `third_party/` directory.
+
+Experiment environment of a tool includes additional dependencies such as
+`ABC tool` and `python 3.10` environment.
 
 ### Code quality
 
+#### Testing
+
+Core parts of a code are covered with tests, located at `tests/` directory.
+Test are written using `GTest` framework.
+
+In addition to unit tests, main capabilities of the tool were tested one the wide range of
+Boolean circuits, both industrial and hand-crafter. Results of simplification were tested
+for equivalence to the original circuits.
+
+#### Static code analysis
+
 `clang-format` and `clang-tidy` are used for maintaining code quality.
-
-Both of them need to be separately installed before can be used. For example,
-for Ubuntu they can be installed using following command:
-
-```sudo apt install clang-tidy clang-format```
-
-#### Linter
-
-`clang-tidy` is used for linting purposes.
-
-To manually run `clang-tidy`, first one needs to compile cmake project to be able
-to use a build artifact `build/compile_commands.json`. Then one will be able to
-run linter by a simple command:
-
-`clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy`
-
-To make `cland-tidy` fix warnings for you, simply run same command with flags
-`--fix` and `--fix-errors`:
-
-`clang-tidy ./src/**/*.* -p build/ --config-file=.clang-tidy --fix --fix-errors --fix-notes`
-
-Though it may break code in some cases, so be careful and check all made fixes.
-
-#### Formatter
-
-`clang-format-18` is used to maintain code uniformity.
-
-`find ./src/ ./app/ -name '*.cpp' -o -name '*.hpp' | xargs clang-format --style="file:.clang-format" -i`
-
-### Tools
-
-Python >=3.8 is used for scripts in the `tools/` directory.
-
-1. Install following packages using your package manager:
-    - dev version of `python3.9` and `python3.9-distutils` (e.g. `sudo apt install python3.9-dev`)
-1. Install `poetry` ([instruction](https://python-poetry.org/docs/)).
-1. Change directory `cd tools`
-1. Setup virtual environment by running `poetry install`
-1. Set your env to the oldest supported Python version `poetry env use 3.9`
-1. Enable virtual environment using `poetry shell`
-
-Now you should be able to run CLI of tools. Use `python ./cli --help` to get more info.
+Note that both of them are used as a part of `CI` flow, and their execution
+may be checked there.

@@ -20,7 +20,7 @@ namespace csat::simplification
 template<class CircuitT, class TransformerT, class... OtherTransformersT>
 struct Composition : public ITransformer<CircuitT>
 {
-    static_assert(std::is_base_of<ICircuit, CircuitT>::value, "CircuitT must be implementation of an ICircuit.");
+    static_assert(std::is_base_of<ICircuit, CircuitT>::value, "CircuitT must be an implementation of a ICircuit.");
     static_assert(
         (std::is_base_of_v<ITransformer<CircuitT>, OtherTransformersT> && ...),
         "All simplifier template args of Composition must implement "

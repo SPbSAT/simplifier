@@ -1,6 +1,6 @@
 # ===================================== GENERAL ===================================== #
 
-cmake_minimum_required(VERSION 3.22.3)
+cmake_minimum_required(VERSION 3.22.1)
 project(csat)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -78,7 +78,7 @@ endif()
 
 # ===================================== SIMPLIFY ==================================== #
 
-add_executable(simplify app/simplify.cpp)
-target_link_libraries(simplify argparse)
+add_executable(simplifier app/simplifier.cpp)
+target_link_libraries(simplifier argparse)
 
 # *********************************************************************************** #

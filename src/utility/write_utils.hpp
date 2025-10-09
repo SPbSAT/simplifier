@@ -1,9 +1,12 @@
 #include <cstddef>
 #include <fstream>
+#include <iostream>
+#include <ostream>
 #include <string>
 #include <type_traits>
 
 #include "src/common/csat_types.hpp"
+#include "src/structures/circuit/dag.hpp"
 #include "src/structures/circuit/icircuit.hpp"
 #include "src/utility/converters.hpp"
 #include "src/utility/encoder.hpp"
@@ -18,10 +21,13 @@ namespace csat
  * @tparam CircuitT
  */
 template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
-void WriteBenchFile(CircuitT const& circuit, csat::utils::GateEncoder const& encoder, std::ofstream& file_out)
+void writeBenchFile(
+    CircuitT const& circuit,
+    utils::GateEncoder const& encoder,
+    std::ofstream& file_out)
 {
-    csat::Logger const logger("WriteBenchFile");
-    logger.debug("WriteBenchFile start.");
+    Logger const logger("writeBenchFile");
+    logger.debug("writeBenchFile start.");
 
     logger.debug("recording INPUTs.");
     for (GateId input : circuit.getInputGates())
@@ -43,7 +49,7 @@ void WriteBenchFile(CircuitT const& circuit, csat::utils::GateEncoder const& enc
         if (circuit.getGateType(gateId) != GateType::INPUT)
         {
             file_out << encoder.decodeGate(gateId) << " = "
-                     << csat::utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
+                     << utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
 
             auto operands       = circuit.getGateOperands(gateId);
             size_t num_operands = operands.size();
@@ -61,7 +67,51 @@ void WriteBenchFile(CircuitT const& circuit, csat::utils::GateEncoder const& enc
             file_out << encoder.decodeGate(operands.at(num_operands - 1)) << ")\n";
         }
     }
-    logger.debug("WriteBenchFile end.");
+    logger.debug("writeBenchFile end.");
+}
+
+/**
+ * Prints circuit to stdout where each gate is written in the following notation
+ * "<encoded name> => <name from original file>"
+ */
+void printCircuit(DAG const& circuit, utils::GateEncoder const& encoder)
+{
+    for (auto input : circuit.getInputGates())
+    {
+        std::cout << "INPUT(" << input << " => " << encoder.decodeGate(input) << ")\n";
+    }
+
+    for (auto output : circuit.getOutputGates())
+    {
+        std::cout << "OUTPUT(" << output << " => " << encoder.decodeGate(output) << ")\n";
+    }
+
+    for (size_t gateId = 0; gateId < circuit.getNumberOfGates(); ++gateId)
+    {
+        if (circuit.getGateType(gateId) != GateType::INPUT)
+        {
+            std::cout << gateId << " => " << encoder.decodeGate(gateId) << " = "
+                      << utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
+
+            auto operands       = circuit.getGateOperands(gateId);
+            size_t num_operands = operands.size();
+
+            if (num_operands == 0)
+            {
+                std::cout << ")\n";
+                continue;
+            }
+
+            for (size_t operand = 0; operand < (num_operands - 1); ++operand)
+            {
+                std::cout << operands.at(operand) << " => " << encoder.decodeGate(operands.at(operand)) << ", ";
+            }
+            std::cout << operands.at(num_operands - 1) << " => " << encoder.decodeGate(operands.at(num_operands - 1))
+                      << ")\n";
+        }
+
+        std::cout << std::flush;
+    }
 }
 
 }  // namespace csat

@@ -16,8 +16,8 @@
 
 #include "src/algo.hpp"
 #include "src/common/csat_types.hpp"
-#include "src/simplification/circuits_db.hpp"
 #include "src/simplification/transformer_base.hpp"
+#include "src/simplification/utils/circuits_db.hpp"
 #include "src/simplification/utils/three_coloring.hpp"
 #include "src/simplification/utils/two_coloring.hpp"
 #include "src/structures/circuit/gate_info.hpp"
@@ -28,12 +28,10 @@ namespace csat::simplification
 {
 
 /**
- * @tparam CircuitT
  * Algorithm works with unary/binary operations, supports AIG/BENCH basis
  * Main idea is to iterate and try to simplify all subcircuits with 3 inputs using
  * database with small subcircuits.
  */
-
 template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT>>>
 class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
 {
@@ -53,11 +51,11 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         csat::Logger logger{"SubcircuitStats"};
 
       public:
-        int32_t not_in_db{0};
-        int32_t smaller_size{0};
-        int32_t same_size{0};
-        int32_t bigger_size{0};
-        int32_t many_outputs{0};
+        std::size_t not_in_db{0};
+        std::size_t smaller_size{0};
+        std::size_t same_size{0};
+        std::size_t bigger_size{0};
+        std::size_t many_outputs{0};
 
         SubcircuitStats() = default;
 
@@ -78,16 +76,9 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
     };
 
   public:
-    std::size_t colors_number = 0;
     std::vector<csat::utils::ThreeColor> colors;  // list of all 3-parent colors
     std::vector<std::vector<size_t>> gateColors;  // contains up to 2 colors for each gate, otherwise: 'SIZE_MAX'
     std::map<std::vector<GateId>, size_t> parentsToColor;  // parent ids must be in a sorted order
-
-    std::shared_ptr<CircuitDB> read_db()
-    {
-        assert(DBSingleton::getInstance().bench_db);
-        return DBSingleton::getInstance().bench_db;
-    }
 
     bool
     update_primitive_gate(GateId primitive_gate, int32_t pattern, GateInfoContainer& gate_info, GateIdContainer parents)
@@ -160,7 +151,6 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         int circuit_size = circuit->getNumberOfGates();
         gateColors.resize(circuit_size, {});
 
-        colors_number  = threeColoring.getColorsNumber();
         colors         = threeColoring.colors;
         gateColors     = threeColoring.gateColors;
         parentsToColor = threeColoring.parentsToColor;
@@ -173,7 +163,7 @@ class ThreeInputsSubcircuitMinimizationBench : public ITransformer<CircuitT>
         }
 
         // Store database
-        auto db                           = read_db();
+        auto db                           = DBSingleton::getBenchDB();
         auto& subcircuit_pattern_to_index = db->subcircuit_pattern_to_index;
         auto& subcircuit_outputs          = db->subcircuit_outputs;
         auto& subcircuit_gates_operands   = db->gates_operands;

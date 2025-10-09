@@ -39,7 +39,7 @@ std::ifstream openFileStream(std::string const& file_path, csat::Logger& logger)
 /**
  * Helper to run specific simplification strategies on the circuit in the provided basis.
  */
-std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder > > applySimplification(
+std::tuple<std::unique_ptr<csat::DAG>, std::unique_ptr<csat::utils::GateEncoder> > applySimplification(
     std::string const& basis,
     std::unique_ptr<csat::DAG>& csat_instance,
     csat::utils::GateEncoder& encoder)

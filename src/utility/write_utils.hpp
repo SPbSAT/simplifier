@@ -21,10 +21,7 @@ namespace csat
  * @tparam CircuitT
  */
 template<class CircuitT, typename = std::enable_if_t<std::is_base_of_v<ICircuit, CircuitT> > >
-void writeBenchFile(
-    CircuitT const& circuit,
-    utils::GateEncoder const& encoder,
-    std::ofstream& file_out)
+void writeBenchFile(CircuitT const& circuit, utils::GateEncoder const& encoder, std::ofstream& file_out)
 {
     Logger const logger("writeBenchFile");
     logger.debug("writeBenchFile start.");
@@ -48,8 +45,8 @@ void writeBenchFile(
     {
         if (circuit.getGateType(gateId) != GateType::INPUT)
         {
-            file_out << encoder.decodeGate(gateId) << " = "
-                     << utils::gateTypeToString(circuit.getGateType(gateId)) << "(";
+            file_out << encoder.decodeGate(gateId) << " = " << utils::gateTypeToString(circuit.getGateType(gateId))
+                     << "(";
 
             auto operands       = circuit.getGateOperands(gateId);
             size_t num_operands = operands.size();

@@ -48,7 +48,7 @@ struct Nest : public ITransformer<CircuitT>
         std::unique_ptr<CircuitT> circuit,
         std::unique_ptr<GateEncoder> encoder)
     {
-        std::unique_ptr<CircuitT> circuit_                 = std::move(circuit);
+        std::unique_ptr<CircuitT> circuit_    = std::move(circuit);
         std::unique_ptr<GateEncoder> encoder_ = std::move(encoder);
         for (std::size_t it = 0; it < n; ++it)
         {

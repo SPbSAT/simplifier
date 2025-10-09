@@ -40,12 +40,14 @@ class DuplicateGatesCleaner_ : public ITransformer<CircuitT>
 
         GateEncoder new_encoder{};
 
+        logger.debug("Performing top sort");
         // Topsort, from inputs to outputs.
         csat::GateIdContainer gateSorting(algo::TopSortAlgorithm<algo::DFSTopSort>::sorting(*circuit));
         std::reverse(gateSorting.begin(), gateSorting.end());
 
-        BoolVector safe_mask(circuit->getNumberOfGates(), true);  // 0 -- if gate is a duplicate, 1 -- otherwise
-
+        logger.debug("Building mask to delete gates and filling map -- old_to_new_gateId");
+        // 0 -- if gate is a duplicate, 1 -- otherwise
+        BoolVector safe_mask(circuit->getNumberOfGates(), true);
         // `auxiliary_encoder` helps to deduplicate gates by mapping same auxiliary name to one index.
         GateEncoder auxiliary_encoder{};
         // maps original gate ID to auxiliary ID, gotten from `auxiliary_encoder`.

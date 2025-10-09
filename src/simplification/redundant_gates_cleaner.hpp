@@ -54,7 +54,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
         // be taken to the new circuit (hence discarding all redundant gates).
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
-            std::string_view gate_name = encoder->decodeGate(gateId);
+            std::string_view const gate_name = encoder->decodeGate(gateId);
             if (mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
                 (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT))
             {
@@ -70,7 +70,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
         GateInfoContainer gate_info(new_encoder.size());
         for (GateId gateId = 0; gateId < circuit->getNumberOfGates(); ++gateId)
         {
-            std::string_view gate_name = encoder->decodeGate(gateId);
+            std::string_view const gate_name = encoder->decodeGate(gateId);
             // If new encoder doesn't contain name of a gate, this gate is redundant.
             if (new_encoder.keyExists(gate_name))
             {
@@ -82,7 +82,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
                         mask_use_output.at(gateId) != algo::DFSState::UNVISITED ||
                         (preserveInputs && circuit->getGateType(gateId) == GateType::INPUT));
 
-                    std::string_view operand_name = encoder->decodeGate(operand);
+                    std::string_view const operand_name = encoder->decodeGate(operand);
                     encoded_operands_.push_back(new_encoder.encodeGate(operand_name));
                 }
                 // Build new gate info object for current gate.
@@ -101,7 +101,7 @@ class RedundantGatesCleaner_ : public ITransformer<CircuitT>
                 mask_use_output.at(output_gate) != algo::DFSState::UNVISITED ||
                 (preserveInputs && circuit->getGateType(output_gate) == GateType::INPUT));
 
-            std::string_view output_name = encoder->decodeGate(output_gate);
+            std::string_view const output_name = encoder->decodeGate(output_gate);
             new_output_gates.push_back(new_encoder.encodeGate(output_name));
         }
 

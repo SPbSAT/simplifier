@@ -71,7 +71,7 @@ void writeBenchFile(CircuitT const& circuit, utils::GateEncoder const& encoder, 
  * Prints circuit to stdout where each gate is written in the following notation
  * "<encoded name> => <name from original file>"
  */
-void printCircuit(DAG const& circuit, utils::GateEncoder const& encoder)
+inline void printCircuit(DAG const& circuit, utils::GateEncoder const& encoder)
 {
     for (auto input : circuit.getInputGates())
     {
